@@ -193,7 +193,9 @@ valid-manpages: $(MANPAGES_XML_FILES)
 	  touch $@; \
 	fi
 
+ ifeq ($(BUILD_ALL_DOCS),yes)
 check-local: valid-manual valid-manpages
+ endif
 
 # The text version of the FAQ.
 FAQ.txt:
