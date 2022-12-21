@@ -3307,6 +3307,11 @@ static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
    return False;
 }
 
+/*--------------------------------------------------------------------*/
+/*--- Vendor extensions                                            ---*/
+/*--------------------------------------------------------------------*/
+#include "guest_riscv64xthead_toIR.c"
+
 /* Disassemble a single riscv64 instruction into IR. Returns True iff the
    instruction was decoded, in which case *dres will be set accordingly, or
    False, in which case *dres should be ignored by the caller. */
@@ -3410,6 +3415,11 @@ static Bool disInstr_RISCV64_WRK(/*MB_OUT*/ DisResult* dres,
 
    case 0b11:
       dres->len = inst_size = 4;
+      if (OPC_IS_CUSTOMS()) {
+         ok = dis_RISCV64_xthead(dres, irsb, insn, guest_pc_curr_instr, abiinfo,
+                                 sigill_diag);
+         break;
+      }
       ok = dis_RISCV64_standard(dres, irsb, insn, guest_pc_curr_instr, abiinfo,
                                 sigill_diag);
       break;

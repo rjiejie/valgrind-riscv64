@@ -275,11 +275,18 @@ typedef enum {
    RISCV64in_XIndir,          /* Indirect transfer to guest address. */
    RISCV64in_XAssisted,       /* Assisted transfer to guest address. */
    RISCV64in_EvCheck,         /* Event check. */
+   RISCV64in_XTHEAD,          /* Fake INSN for indicating vendor T-HEAD. */
 } RISCV64InstrTag;
+
+/*--------------------------------------------------------------------*/
+/*--- Vendor extensions                                            ---*/
+/*--------------------------------------------------------------------*/
+#include "host_riscv64xthead_defs.h"
 
 typedef struct {
    RISCV64InstrTag tag;
    union {
+      XTHEAD64Instr;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
