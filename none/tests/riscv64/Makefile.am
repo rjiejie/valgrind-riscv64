@@ -12,7 +12,8 @@ EXTRA_DIST = \
 	float32.stdout.exp float32.stderr.exp float32.vgtest \
 	float64.stdout.exp float64.stderr.exp float64.vgtest \
 	integer.stdout.exp integer.stderr.exp integer.vgtest \
-	muldiv.stdout.exp muldiv.stderr.exp muldiv.vgtest
+	muldiv.stdout.exp muldiv.stderr.exp muldiv.vgtest \
+	xthead.stdout.exp xthead.stderr.exp xthead.vgtest
 
 check_PROGRAMS = \
 	allexec \
@@ -22,7 +23,8 @@ check_PROGRAMS = \
 	float32 \
 	float64 \
 	integer \
-	muldiv
+	muldiv \
+	xthead
 
 AM_CFLAGS    += @FLAG_M64@
 AM_CXXFLAGS  += @FLAG_M64@

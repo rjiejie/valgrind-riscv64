@@ -3599,7 +3599,7 @@ Int emit_RISCV64Instr(/*MB_MOD*/ Bool*    is_profInc,
       emit_XTHEAD64Instr(is_profInc, buf, nbuf, i, mode64, endness_host,
                          disp_cp_chain_me_to_slowEP, disp_cp_chain_me_to_fastEP,
                          disp_cp_xindir, disp_cp_xassisted);
-   if (ret >= 0);
+   if (ret >= 0)
       return ret;
 
    UChar* p = &buf[0];
