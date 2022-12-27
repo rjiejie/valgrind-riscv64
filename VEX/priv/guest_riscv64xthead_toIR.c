@@ -55,7 +55,7 @@
 #define OPC_SYSTEM      0b1110011
 #define OPC_CUSTOM_3    0b1111011
 
-#define GET_OPCODE()    INSN(7, 0)
+#define GET_OPCODE()    INSN(6, 0)
 #define OPC_IS_CUSTOMS() (GET_OPCODE() == OPC_CUSTOM_0 \
                           || GET_OPCODE() == OPC_CUSTOM_1 \
                           || GET_OPCODE() == OPC_CUSTOM_2 \
