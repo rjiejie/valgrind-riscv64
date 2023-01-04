@@ -31,6 +31,7 @@
 
 #include "libvex.h"
 #include "libvex_basictypes.h"
+#include "libvex_riscv_common.h"
 
 #include "host_generic_regs.h"
 
@@ -276,6 +277,7 @@ typedef enum {
    RISCV64in_XAssisted,       /* Assisted transfer to guest address. */
    RISCV64in_EvCheck,         /* Event check. */
    RISCV64in_XTHEAD,          /* Fake INSN for indicating vendor T-HEAD. */
+   RISCV64in_FLdStH,
 } RISCV64InstrTag;
 
 /*--------------------------------------------------------------------*/
@@ -287,6 +289,12 @@ typedef struct {
    RISCV64InstrTag tag;
    union {
       XTHEAD64Instr xthead;
+      struct {
+         Bool isLoad;
+         HReg sd;
+         HReg base;
+         Int  imm12;
+      } FLdStH;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
@@ -1046,6 +1054,18 @@ RISCV64Instr* RISCV64Instr_EvCheck(HReg base_amCounter,
                                    Int  soff12_amCounter,
                                    HReg base_amFailAddr,
                                    Int  soff12_amFailAddr);
+
+RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12);
+UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
+                            UChar*              buf,
+                            Int                 nbuf,
+                            const RISCV64Instr* i,
+                            Bool                mode64,
+                            VexEndness          endness_host,
+                            const void*         disp_cp_chain_me_to_slowEP,
+                            const void*         disp_cp_chain_me_to_fastEP,
+                            const void*         disp_cp_xindir,
+                            const void*         disp_cp_xassisted);
 
 /*------------------------------------------------------------*/
 /*--- Misc helpers                                         ---*/

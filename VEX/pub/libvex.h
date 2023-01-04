@@ -300,6 +300,10 @@ typedef
                               (VEX_MIPS_PROC_ID(x) == VEX_PRID_IMP_P5600) && \
                               (VEX_MIPS_HOST_FP_MODE(x)))
 
+/* RISCV64: baseline capability is rv64gc. */
+#define VEX_HWCAPS_RISCV64_Zicsr (1 << 0)
+#define VEX_HWCAPS_RISCV64_Zfh   (1 << 1)
+
 /* These return statically allocated strings. */
 
 extern const HChar* LibVEX_ppVexArch    ( VexArch );

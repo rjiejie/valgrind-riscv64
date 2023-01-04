@@ -3593,16 +3593,25 @@ Int emit_RISCV64Instr(/*MB_MOD*/ Bool*    is_profInc,
    vassert(nbuf >= 32);
    vassert(mode64 == True);
    vassert(((HWord)buf & 1) == 0);
+   UChar* p = &buf[0];
+   UChar* ret = NULL;
 
    /* Vendor extensions */
-   Int ret =
+   ret =
       emit_XTHEAD64Instr(is_profInc, buf, nbuf, i, mode64, endness_host,
                          disp_cp_chain_me_to_slowEP, disp_cp_chain_me_to_fastEP,
                          disp_cp_xindir, disp_cp_xassisted);
-   if (ret >= 0)
-      return ret;
+   if (ret != NULL)
+      goto done;
 
-   UChar* p = &buf[0];
+#ifdef __riscv_zfh
+   ret = emit_RISCV64ZfhInstr(is_profInc, buf, nbuf, i, mode64, endness_host,
+                              disp_cp_chain_me_to_slowEP,
+                              disp_cp_chain_me_to_fastEP, disp_cp_xindir,
+                              disp_cp_xassisted);
+   if (ret != NULL)
+      goto done;
+#endif
 
    switch (i->tag) {
    case RISCV64in_LI:
@@ -4969,8 +4978,9 @@ VexInvalRange patchProfInc_RISCV64(VexEndness   endness_host,
 }
 
 /*--------------------------------------------------------------------*/
-/*--- Vendor extensions                                            ---*/
+/*--- Extensions                                                   ---*/
 /*--------------------------------------------------------------------*/
+#include "host_riscv64Zfh_defs.c"
 #include "host_riscv64xthead_defs.c"
 
 /*--------------------------------------------------------------------*/
