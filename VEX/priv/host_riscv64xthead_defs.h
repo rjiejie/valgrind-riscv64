@@ -34,11 +34,18 @@
 /*--------------------------------------------------------------------*/
 
 typedef enum {
-   XTHEAD64in_XX,
+   XTHEAD64in_Arith
 } XTHEAD64InstrTag;
 
 typedef struct {
-   XTHEAD64InstrTag;
+   XTHEAD64InstrTag tag;
+   union {
+      struct {
+         HReg      dst;
+         HReg      argL;
+         //ARM64RIA* argR;
+      } Arith;
+   } in;
 } XTHEAD64Instr;
 
 Int emit_XTHEAD64Instr(/*MB_MOD*/ Bool*    is_profInc,

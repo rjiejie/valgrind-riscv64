@@ -286,7 +286,7 @@ typedef enum {
 typedef struct {
    RISCV64InstrTag tag;
    union {
-      XTHEAD64Instr;
+      XTHEAD64Instr xthead;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
