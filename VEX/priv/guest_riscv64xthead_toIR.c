@@ -355,9 +355,11 @@ static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
                                const VexAbiInfo*     abiinfo,
                                Bool                  sigill_diag)
 {
-   vassert(GET_OPCODE() == OPC_CUSTOM_0);
-
    Bool ok = False;
+
+#ifdef __riscv_xthead
+   if (GET_OPCODE() != OPC_CUSTOM_0)
+      return ok;
 
    switch (GET_FUNCT3()) {
       case XTHEAD_OPC_MEM_LOAD:
@@ -372,6 +374,7 @@ static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
          vassert(0); /* Can't happen */
    }
 
+#endif
    return ok;
 }
 
