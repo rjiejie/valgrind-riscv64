@@ -6,8 +6,6 @@
 #include "tests/malloc.h"
 #include <assert.h>
 
-#ifdef __riscv_xthead
-
 typedef  unsigned char           UChar;
 typedef  unsigned short int      UShort;
 typedef  unsigned int            UInt;
@@ -439,13 +437,9 @@ MEM_TEST("fsurd  f28, x5, x6, 3", 0, 0xFFFFFFFF00000003);
 MEM_TEST("fsurd  f28, x5, x6, 3", 0, 0xFFFFFFFF00000004);
 }
 
-#endif
-
 int main(void)
 {
-#ifdef __riscv_xthead
    test_integer_load_store();
    test_float_load_store();
-#endif
    return 0;
 }
