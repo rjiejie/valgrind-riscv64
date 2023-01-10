@@ -29,7 +29,7 @@
 Int emit_XTHEAD64Instr(/*MB_MOD*/ Bool*    is_profInc,
                        UChar*              buf,
                        Int                 nbuf,
-                       const void*         i,
+                       const RISCV64Instr* i,
                        Bool                mode64,
                        VexEndness          endness_host,
                        const void*         disp_cp_chain_me_to_slowEP,
