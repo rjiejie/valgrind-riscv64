@@ -1066,6 +1066,9 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
                             const void*         disp_cp_chain_me_to_fastEP,
                             const void*         disp_cp_xindir,
                             const void*         disp_cp_xassisted);
+Bool getRegUsage_RISCV64ZfhInstr(HRegUsage* u, const RISCV64Instr* i);
+Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i);
+Bool ppRISCV64ZfhInstr(const RISCV64Instr* i);
 
 /*------------------------------------------------------------*/
 /*--- Misc helpers                                         ---*/

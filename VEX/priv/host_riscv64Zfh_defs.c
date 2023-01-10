@@ -68,6 +68,53 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
    return p;
 }
 
+Bool getRegUsage_RISCV64ZfhInstr(HRegUsage* u, const RISCV64Instr* i)
+{
+   switch (i->tag) {
+      case RISCV64in_FLdStH:
+         addHRegUse(u, HRmRead, i->RISCV64in.FLdStH.base);
+         if (i->RISCV64in.FLdStH.isLoad)
+            addHRegUse(u, HRmWrite, i->RISCV64in.FLdStH.sd);
+         else
+            addHRegUse(u, HRmRead, i->RISCV64in.FLdStH.sd);
+         return True;
+      default:
+         break;
+   }
+   return False;
+}
+
+Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i)
+{
+   switch (i->tag) {
+      case RISCV64in_FLdStH:
+         mapReg(m, &i->RISCV64in.FLdStH.base);
+         mapReg(m, &i->RISCV64in.FLdStH.sd);
+         return True;
+      default:
+         break;
+   }
+   return False;
+}
+
+Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
+{
+   switch (i->tag) {
+      case RISCV64in_FLdStH: {
+         HChar* opc = i->RISCV64in.FLdStH.isLoad ? "flh" : "fsh";
+         vex_printf("%s    ", opc);
+         ppHRegRISCV64(i->RISCV64in.FLdStH.sd);
+         vex_printf(", %d(", i->RISCV64in.FLdStH.imm12);
+         ppHRegRISCV64(i->RISCV64in.FLdStH.base);
+         vex_printf(")");
+         return True;
+      }
+      default:
+         break;
+   }
+   return False;
+}
+
 /*--------------------------------------------------------------------*/
 /*--- end                                host_riscv64Zfh_defs.c ------*/
 /*--------------------------------------------------------------------*/

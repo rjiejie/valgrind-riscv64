@@ -1169,6 +1169,11 @@ void ppRISCV64Instr(const RISCV64Instr* i, Bool mode64)
 {
    vassert(mode64 == True);
 
+#ifdef __riscv_zfh
+   if (ppRISCV64ZfhInstr(i))
+      return;
+#endif
+
    switch (i->tag) {
    case RISCV64in_LI:
       vex_printf("li      ");
@@ -2082,6 +2087,12 @@ void getRegUsage_RISCV64Instr(HRegUsage* u, const RISCV64Instr* i, Bool mode64)
    vassert(mode64 == True);
 
    initHRegUsage(u);
+
+#ifdef __riscv_zfh
+   if (getRegUsage_RISCV64ZfhInstr(u, i))
+      return;
+#endif
+
    switch (i->tag) {
    case RISCV64in_LI:
       addHRegUse(u, HRmWrite, i->RISCV64in.LI.dst);
@@ -2667,6 +2678,11 @@ static void mapReg(HRegRemap* m, HReg* r) { *r = lookupHRegRemap(m, *r); }
 void mapRegs_RISCV64Instr(HRegRemap* m, RISCV64Instr* i, Bool mode64)
 {
    vassert(mode64 == True);
+
+#ifdef __riscv_zfh
+   if (mapRegs_RISCV64ZfhInstr(m, i))
+      return;
+#endif
 
    switch (i->tag) {
    case RISCV64in_LI:
