@@ -280,6 +280,7 @@ typedef enum {
    RISCV64in_FLdStH,
    RISCV64in_FTriH,
    RISCV64in_FBinH,
+   RISCV64in_FUnaryH,
 } RISCV64InstrTag;
 
 /*--------------------------------------------------------------------*/
@@ -312,6 +313,12 @@ typedef struct {
          HReg rs1;
          HReg rs2;
       } FBinH;
+      /* 16-bit FP unary */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+      } FUnaryH;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
@@ -1075,6 +1082,7 @@ RISCV64Instr* RISCV64Instr_EvCheck(HReg base_amCounter,
 RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12);
 RISCV64Instr* RISCV64Instr_FTriH(IROp op, HReg rd, HReg rs1, HReg rs2, HReg rs3);
 RISCV64Instr* RISCV64Instr_FBinH(IROp op, HReg rd, HReg rs1, HReg rs2);
+RISCV64Instr* RISCV64Instr_FUnaryH(IROp op, HReg rd, HReg rs1);
 UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
                             UChar*              buf,
                             Int                 nbuf,

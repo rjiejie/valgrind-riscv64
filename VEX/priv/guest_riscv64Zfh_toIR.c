@@ -156,10 +156,8 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
-#define RV64_SOPC_FSQRT 0b0101110
-
-   if ((GET_FUNCT7() == RV64_SOPC_FSQRT && GET_RS2() == 0)
-       && GET_OPCODE() == OPC_OP_FP) {
+   if ((GET_FUNCT5() == RV64_SOPC_FSQRT && GET_RS2() == 0)
+       && GET_OPCODE() == OPC_OP_FP && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
       UInt  rm      = GET_FUNCT3();

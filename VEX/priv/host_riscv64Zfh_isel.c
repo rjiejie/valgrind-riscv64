@@ -81,6 +81,20 @@ static HReg iselFlt16Expr_wrk(ISelEnv* env, IRExpr* e, Bool* ok)
       }
    }
 
+   if (e->tag == Iex_Binop) {
+      switch (e->Iex.Binop.op) {
+         case Iop_SqrtF16: {
+            HReg rd  = newVRegF(env);
+            HReg rs1 = iselFltExpr(env, e->Iex.Binop.arg2);
+            set_fcsr_rounding_mode(env, e->Iex.Binop.arg1);
+            addInstr(env, RISCV64Instr_FUnaryH(e->Iex.Binop.op, rd, rs1));
+            return rd;
+         }
+         default:
+            break;
+      }
+   }
+
    *ok = False;
    return ret;
 }
