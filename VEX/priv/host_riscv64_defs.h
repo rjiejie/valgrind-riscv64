@@ -279,6 +279,7 @@ typedef enum {
    RISCV64in_XTHEAD,          /* Fake INSN for indicating vendor T-HEAD. */
    RISCV64in_FLdStH,
    RISCV64in_FTriH,
+   RISCV64in_FBinH,
 } RISCV64InstrTag;
 
 /*--------------------------------------------------------------------*/
@@ -299,11 +300,18 @@ typedef struct {
       /* 16-bit FP ternary arithmetic */
       struct {
          IROp op;
-         HReg dst;
-         HReg arg1;
-         HReg arg2;
-         HReg arg3;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+         HReg rs3;
       } FTriH;
+      /* 16-bit FP binary arithmetic */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+      } FBinH;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
@@ -1065,7 +1073,8 @@ RISCV64Instr* RISCV64Instr_EvCheck(HReg base_amCounter,
                                    Int  soff12_amFailAddr);
 
 RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12);
-RISCV64Instr* RISCV64Instr_FTriH(IROp op, HReg dst, HReg arg1, HReg arg2, HReg arg3);
+RISCV64Instr* RISCV64Instr_FTriH(IROp op, HReg rd, HReg rs1, HReg rs2, HReg rs3);
+RISCV64Instr* RISCV64Instr_FBinH(IROp op, HReg rd, HReg rs1, HReg rs2);
 UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
                             UChar*              buf,
                             Int                 nbuf,

@@ -60,7 +60,7 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
 
    if ((GET_OPCODE() == OPC_MADD  || GET_OPCODE() == OPC_MSUB ||
         GET_OPCODE() == OPC_NMADD || GET_OPCODE() == OPC_NMSUB)
-       && INSN(26, 25) == 0b10) {
+       && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
       UInt  rs2     = GET_RS2();
@@ -107,14 +107,9 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
-#define RV64_SOPC_FADD  0b0000000
-#define RV64_SOPC_FSUB  0b0000100
-#define RV64_SOPC_FMUL  0b0001000
-#define RV64_SOPC_FDIV  0b0001100
-
-   if ((GET_FUNCT7() == RV64_SOPC_FADD || GET_FUNCT7() == RV64_SOPC_FSUB ||
-        GET_FUNCT7() == RV64_SOPC_FMUL || GET_FUNCT7() == RV64_SOPC_FDIV)
-       && GET_OPCODE() == OPC_OP_FP) {
+   if ((GET_FUNCT5() == RV64_SOPC_FADD || GET_FUNCT5() == RV64_SOPC_FSUB ||
+        GET_FUNCT5() == RV64_SOPC_FMUL || GET_FUNCT5() == RV64_SOPC_FDIV)
+       && GET_OPCODE() == OPC_OP_FP && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
       UInt  rs2     = GET_RS2();

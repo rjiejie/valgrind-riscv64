@@ -69,6 +69,15 @@
                           || GET_OPCODE() == OPC_CUSTOM_2 \
                           || GET_OPCODE() == OPC_CUSTOM_3)
 
+#define RV64_FMT_FS 0b00
+#define RV64_FMT_FD 0b01
+#define RV64_FMT_FH 0b10
+
+#define RV64_SOPC_FADD 0b00000
+#define RV64_SOPC_FSUB 0b00001
+#define RV64_SOPC_FMUL 0b00010
+#define RV64_SOPC_FDIV 0b00011
+
 #endif /* __LIBVEX_PUB_RISCV_H */
 
 /*--------------------------------------------------------------------*/

@@ -53,13 +53,31 @@ static HReg iselFlt16Expr_wrk(ISelEnv* env, IRExpr* e, Bool* ok)
    if (e->tag == Iex_Qop) {
       IRQop* qop  = e->Iex.Qop.details;
       if (qop->op == Iop_MAddF16) {
-         HReg dst  = newVRegF(env);
-         HReg N = iselFltExpr(env, qop->arg2);
-         HReg M = iselFltExpr(env, qop->arg3);
-         HReg A = iselFltExpr(env, qop->arg4);
+         HReg rd  = newVRegF(env);
+         HReg rs1 = iselFltExpr(env, qop->arg2);
+         HReg rs2 = iselFltExpr(env, qop->arg3);
+         HReg rs3 = iselFltExpr(env, qop->arg4);
          set_fcsr_rounding_mode(env, qop->arg1);
-         addInstr(env, RISCV64Instr_FTriH(qop->op, dst, N, M, A));
-         return dst;
+         addInstr(env, RISCV64Instr_FTriH(qop->op, rd, rs1, rs2, rs3));
+         return rd;
+      }
+   }
+
+   if (e->tag == Iex_Triop) {
+      IRTriop* triop  = e->Iex.Triop.details;
+      switch (triop->op) {
+         case Iop_AddF16:
+         case Iop_MulF16:
+         case Iop_DivF16: {
+            HReg rd  = newVRegF(env);
+            HReg rs1 = iselFltExpr(env, triop->arg2);
+            HReg rs2 = iselFltExpr(env, triop->arg3);
+            set_fcsr_rounding_mode(env, triop->arg1);
+            addInstr(env, RISCV64Instr_FBinH(triop->op, rd, rs1, rs2));
+            return rd;
+         }
+         default:
+            break;
       }
    }
 
