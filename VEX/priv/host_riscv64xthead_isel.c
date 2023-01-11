@@ -1,6 +1,6 @@
 
 /*--------------------------------------------------------------------*/
-/*--- begin                              host_riscv64xthead_defs.c ---*/
+/*--- begin                              host_riscv64xthead_isel.c ---*/
 /*--------------------------------------------------------------------*/
 
 /*
@@ -26,35 +26,17 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-UChar* emit_XTHEAD64Instr(/*MB_MOD*/ Bool*    is_profInc,
-                          UChar*              buf,
-                          Int                 nbuf,
-                          const RISCV64Instr* i,
-                          Bool                mode64,
-                          VexEndness          endness_host,
-                          const void*         disp_cp_chain_me_to_slowEP,
-                          const void*         disp_cp_chain_me_to_fastEP,
-                          const void*         disp_cp_xindir,
-                          const void*         disp_cp_xassisted)
+static HReg iselXTHEADExpr_wrk(ISelEnv* env, IRExpr* e, Bool* ok)
 {
-   return NULL;
-}
+   vassert(ok != NULL);
+   *ok = True;
+   HReg ret = {0};
+   IRType ty = typeOfIRExpr(env->type_env, e);
 
-Bool getRegUsage_XTHEAD64Instr(HRegUsage* u, const RISCV64Instr* i)
-{
-   return False;
-}
-
-Bool mapRegs_XTHEAD64Instr(HRegRemap* m, RISCV64Instr* i)
-{
-   return False;
-}
-
-Bool ppXTHEAD64Instr(const RISCV64Instr* i)
-{
-   return False;
+   *ok = False;
+   return ret;
 }
 
 /*--------------------------------------------------------------------*/
-/*--- end                                host_riscv64xthead_defs.c ---*/
+/*--- end                                host_riscv64xthead_isel.c ---*/
 /*--------------------------------------------------------------------*/

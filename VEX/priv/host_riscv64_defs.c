@@ -1169,6 +1169,10 @@ void ppRISCV64Instr(const RISCV64Instr* i, Bool mode64)
 {
    vassert(mode64 == True);
 
+   /* Vendor extensions */
+   if (ppXTHEAD64Instr(i))
+      return;
+
 #ifdef __riscv_zfh
    if (ppRISCV64ZfhInstr(i))
       return;
@@ -2088,6 +2092,10 @@ void getRegUsage_RISCV64Instr(HRegUsage* u, const RISCV64Instr* i, Bool mode64)
 
    initHRegUsage(u);
 
+   /* Vendor extensions */
+   if (getRegUsage_XTHEAD64Instr(u, i))
+      return;
+
 #ifdef __riscv_zfh
    if (getRegUsage_RISCV64ZfhInstr(u, i))
       return;
@@ -2678,6 +2686,10 @@ static void mapReg(HRegRemap* m, HReg* r) { *r = lookupHRegRemap(m, *r); }
 void mapRegs_RISCV64Instr(HRegRemap* m, RISCV64Instr* i, Bool mode64)
 {
    vassert(mode64 == True);
+
+   /* Vendor extensions */
+   if (mapRegs_XTHEAD64Instr(m, i))
+      return;
 
 #ifdef __riscv_zfh
    if (mapRegs_RISCV64ZfhInstr(m, i))
