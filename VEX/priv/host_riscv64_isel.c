@@ -414,7 +414,11 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
             addInstr(env, RISCV64Instr_MV(argregs[nextArgReg],
                                           iselIntExpr_R(env, args[i])));
             nextArgReg++;
-         } else if (aTy == Ity_F32 || aTy == Ity_F64) {
+         } else if (aTy == Ity_F32 || aTy == Ity_F64
+#ifdef __riscv_zfh
+                    || aTy == Ity_F16
+#endif
+                   ) {
             if (nextFArgReg >= RISCV64_N_FARGREGS)
                return False; /* Out of fargregs. */
             addInstr(env, RISCV64Instr_FMV_D(fargregs[nextFArgReg],
@@ -451,7 +455,11 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
                return False; /* Out of argregs. */
             tmpregs[nextArgReg] = iselIntExpr_R(env, args[i]);
             nextArgReg++;
-         } else if (aTy == Ity_F32 || aTy == Ity_F64) {
+         } else if (aTy == Ity_F32 || aTy == Ity_F64
+#ifdef __riscv_zfh
+                    || aTy == Ity_F16
+#endif
+                   ) {
             if (nextFArgReg >= RISCV64_N_FARGREGS)
                return False; /* Out of fargregs. */
             ftmpregs[nextFArgReg] = iselFltExpr(env, args[i]);
@@ -1763,7 +1771,11 @@ static void iselStmt(ISelEnv* env, IRStmt* stmt)
          addInstr(env, RISCV64Instr_MV(dst, src));
          return;
       }
-      if (ty == Ity_F32 || ty == Ity_F64) {
+      if (ty == Ity_F32 || ty == Ity_F64
+#ifdef __riscv_zfh
+          || ty == Ity_F16
+#endif
+         ) {
          HReg dst = lookupIRTemp(env, stmt->Ist.WrTmp.tmp);
          HReg src = iselFltExpr(env, stmt->Ist.WrTmp.data);
          addInstr(env, RISCV64Instr_FMV_D(dst, src));
