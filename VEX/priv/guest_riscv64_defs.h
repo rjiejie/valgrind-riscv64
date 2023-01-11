@@ -37,6 +37,7 @@
 #define __VEX_GUEST_RISCV64_DEFS_H
 
 #include "libvex_basictypes.h"
+#include "libvex_riscv_common.h"
 
 #include "guest_generic_bb_to_IR.h"
 
@@ -78,6 +79,19 @@ extern VexGuestLayout riscv64guest_layout;
 /* Calculate resulting flags of a specified floating-point operation. Returns
    a 32-bit value where bits 4:0 contain the fflags in the RISC-V native
    format (NV DZ OF UF NX) and remaining upper bits are zero. */
+#ifdef __riscv_zfh
+UInt riscv64g_calculate_fflags_fsqrt_h(Float16 a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_h_s(Float  a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_h_d(Double a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_w_h(Float16 a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_wu_h(Float16 a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_l_h(Float16 a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_lu_h(Float16 a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_h_w(UInt a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_h_wu(UInt a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_h_l(ULong a1, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fcvt_h_lu(ULong a1, UInt rm_RISCV);
+#endif
 UInt riscv64g_calculate_fflags_fsqrt_s(Float a1, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fcvt_w_s(Float a1, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fcvt_wu_s(Float a1, UInt rm_RISCV);
@@ -96,6 +110,11 @@ UInt riscv64g_calculate_fflags_fcvt_lu_d(Double a1, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fcvt_d_l(ULong a1, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fcvt_d_lu(ULong a1, UInt rm_RISCV);
 
+#ifdef __riscv_zfh
+UInt riscv64g_calculate_fflags_fadd_h(Float16 a1, Float16 a2, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fmul_h(Float16 a1, Float16 a2, UInt rm_RISCV);
+UInt riscv64g_calculate_fflags_fdiv_h(Float16 a1, Float16 a2, UInt rm_RISCV);
+#endif
 UInt riscv64g_calculate_fflags_fadd_s(Float a1, Float a2, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fmul_s(Float a1, Float a2, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fdiv_s(Float a1, Float a2, UInt rm_RISCV);
@@ -103,6 +122,13 @@ UInt riscv64g_calculate_fflags_fadd_d(Double a1, Double a2, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fmul_d(Double a1, Double a2, UInt rm_RISCV);
 UInt riscv64g_calculate_fflags_fdiv_d(Double a1, Double a2, UInt rm_RISCV);
 
+#ifdef __riscv_zfh
+UInt riscv64g_calculate_fflags_fmin_h(Float16 a1, Float16 a2);
+UInt riscv64g_calculate_fflags_fmax_h(Float16 a1, Float16 a2);
+UInt riscv64g_calculate_fflags_feq_h(Float16 a1, Float16 a2);
+UInt riscv64g_calculate_fflags_flt_h(Float16 a1, Float16 a2);
+UInt riscv64g_calculate_fflags_fle_h(Float16 a1, Float16 a2);
+#endif
 UInt riscv64g_calculate_fflags_fmin_s(Float a1, Float a2);
 UInt riscv64g_calculate_fflags_fmax_s(Float a1, Float a2);
 UInt riscv64g_calculate_fflags_feq_s(Float a1, Float a2);
@@ -114,6 +140,12 @@ UInt riscv64g_calculate_fflags_feq_d(Double a1, Double a2);
 UInt riscv64g_calculate_fflags_flt_d(Double a1, Double a2);
 UInt riscv64g_calculate_fflags_fle_d(Double a1, Double a2);
 
+#ifdef __riscv_zfh
+UInt riscv64g_calculate_fflags_fmadd_h(Float16 a1,
+                                       Float16 a2,
+                                       Float16 a3,
+                                       UInt    rm_RISCV);
+#endif
 UInt riscv64g_calculate_fflags_fmadd_s(Float a1,
                                        Float a2,
                                        Float a3,
@@ -126,6 +158,9 @@ UInt riscv64g_calculate_fflags_fmadd_d(Double a1,
 /* Calculate floating-point class. Returns a 64-bit value where bits 9:0
    contains the properties in the RISC-V FCLASS-instruction format and remaining
    upper bits are zero. */
+#ifdef __riscv_zfh
+ULong riscv64g_calculate_fclass_h(Float16 a1);
+#endif
 ULong riscv64g_calculate_fclass_s(Float a1);
 ULong riscv64g_calculate_fclass_d(Double a1);
 

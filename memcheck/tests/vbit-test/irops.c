@@ -205,6 +205,8 @@ static irop_t irops[] = {
   { DEFOP(Iop_SubF16,    UNDEF_ALL), .s390x = 0, .amd64 = 0, .x86 = 0, .arm = 0, .arm64 = 1,.ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 0 },
   { DEFOP(Iop_MulF32,    UNDEF_ALL), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 1, .ppc64 = 0, .ppc32 = 0, .mips32 = 1, .mips64 = 1 },
   { DEFOP(Iop_DivF32,    UNDEF_ALL), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 1, .ppc64 = 0, .ppc32 = 0, .mips32 = 1, .mips64 = 1 },
+  { DEFOP(Iop_MulF16,    UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_DivF16,    UNDEF_ALL), .riscv64 = 1 },
   { DEFOP(Iop_AddF64r32, UNDEF_ALL), .s390x = 0, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 1, .ppc32 = 1, .mips32 = 0, .mips64 = 0 },
   { DEFOP(Iop_SubF64r32, UNDEF_ALL), .s390x = 0, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 1, .ppc32 = 1, .mips32 = 0, .mips64 = 0 },
   { DEFOP(Iop_MulF64r32, UNDEF_ALL), .s390x = 0, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 1, .ppc32 = 1, .mips32 = 0, .mips64 = 0 },
@@ -241,12 +243,22 @@ static irop_t irops[] = {
   { DEFOP(Iop_I64StoF32, UNDEF_ALL), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 1 },
   { DEFOP(Iop_F32toF64,  UNDEF_ALL), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 1, .ppc64 = 1, .ppc32 = 1, .mips32 = 1, .mips64 = 1 },
   { DEFOP(Iop_F64toF32,  UNDEF_ALL), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 1, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 1 }, // mips asserts
+  { DEFOP(Iop_F16toI32S, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_F16toI64S, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_F16toI32U, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_F16toI64U, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_I32StoF16, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_I64StoF16, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_I32UtoF16, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_I64UtoF16, UNDEF_ALL), .riscv64 = 1 },
   { DEFOP(Iop_ReinterpF64asI64, UNDEF_SAME), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 1, .ppc64 = 1, .ppc32 = 1, .mips32 = 0, .mips64 = 1 }, // mips asserts
   { DEFOP(Iop_ReinterpI64asF64, UNDEF_SAME), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 1, .ppc64 = 1, .ppc32 = 1, .mips32 = 0, .mips64 = 1 }, // mips asserts
   { DEFOP(Iop_ReinterpF32asI32, UNDEF_SAME), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 1, .ppc64 = 1, .ppc32 = 1, .mips32 = 1, .mips64 = 1 },
   // ppc requires this op to show up in a specific context. So it cannot be
   // tested standalone on that platform.
   { DEFOP(Iop_ReinterpI32asF32, UNDEF_SAME), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 1, .ppc64 = 0, .ppc32 = 0, .mips32 = 1, .mips64 = 1 },
+  { DEFOP(Iop_ReinterpF16asI16, UNDEF_SAME), .riscv64 = 1 },
+  { DEFOP(Iop_ReinterpI16asF16, UNDEF_SAME), .riscv64 = 1 },
   { DEFOP(Iop_F64HLtoF128, UNDEF_CONCAT),    .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 0 },
   { DEFOP(Iop_F128HItoF64, UNDEF_UPPER),     .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 0 },
   { DEFOP(Iop_F128LOtoF64, UNDEF_TRUNC), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 0 },
@@ -294,6 +306,8 @@ static irop_t irops[] = {
   { DEFOP(Iop_RoundF128toInt, UNDEF_ALL), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 0 },
   { DEFOP(Iop_RoundF64toInt, UNDEF_ALL), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 1 },
   { DEFOP(Iop_RoundF32toInt, UNDEF_ALL), .s390x = 1, .amd64 = 1, .x86 = 1, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 1, .mips64 = 1 },
+  { DEFOP(Iop_MAddF16,       UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_MSubF16,       UNDEF_ALL), .riscv64 = 1 },
   { DEFOP(Iop_MAddF32,       UNDEF_ALL), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 1 },
   { DEFOP(Iop_MSubF32,       UNDEF_ALL), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 0, .ppc32 = 0, .mips32 = 0, .mips64 = 1 },
   { DEFOP(Iop_MAddF64,       UNDEF_ALL), .s390x = 1, .amd64 = 0, .x86 = 0, .arm = 0, .ppc64 = 1, .ppc32 = 1, .mips32 = 0, .mips64 = 1 },
@@ -315,6 +329,8 @@ static irop_t irops[] = {
   { DEFOP(Iop_MinNumF64, UNDEF_ALL), .arm = 1 },
   { DEFOP(Iop_MaxNumF32, UNDEF_ALL), .arm = 1 },
   { DEFOP(Iop_MinNumF32, UNDEF_ALL), .arm = 1 },
+  { DEFOP(Iop_MaxNumF16, UNDEF_ALL), .riscv64 = 1 },
+  { DEFOP(Iop_MinNumF16, UNDEF_ALL), .riscv64 = 1 },
 
   /* ------------------ 16-bit scalar FP ------------------ */
   { DEFOP(Iop_F16toF64,  UNDEF_ALL), .arm64 = 1 },

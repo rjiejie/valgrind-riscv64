@@ -28,45 +28,6 @@
 
 /* Translates T-HEAD code to IR. */
 
-#define OPC_LOAD        0b0000011
-#define OPC_LOAD_FP     0b0000111
-#define OPC_CUSTOM_0    0b0001011
-#define OPC_MISC_MEM    0b0001111
-#define OPC_OP_IMM      0b0010011
-#define OPC_AUIPC       0b0010111
-#define OPC_OP_IMM_32   0b0011011
-#define OPC_STORE       0b0100011
-#define OPC_STORE_FP    0b0100111
-#define OPC_CUSTOM_1    0b0101011
-#define OPC_AMO         0b0101111
-#define OPC_OP          0b0110011
-#define OPC_LUI         0b0110111
-#define OPC_OP_32       0b0111011
-#define OPC_MADD        0b1000011
-#define OPC_MSUB        0b1000111
-#define OPC_NMSUB       0b1001011
-#define OPC_NMADD       0b1001111
-#define OPC_OP_FP       0b1010011
-#define OPC_OP_V        0b1010111
-#define OPC_CUSTOM_2    0b1011011
-#define OPC_BRANCH      0b1100011
-#define OPC_JALR        0b1100111
-#define OPC_JAL         0b1101111
-#define OPC_SYSTEM      0b1110011
-#define OPC_CUSTOM_3    0b1111011
-
-#define GET_OPCODE()    INSN(6, 0)
-#define GET_FUNCT3()    INSN(14, 12)
-#define GET_FUNCT7()    INSN(31, 25)
-#define GET_RD()        INSN(11, 7)
-#define GET_RS1()       INSN(19, 15)
-#define GET_RS2()       INSN(24, 20)
-
-#define OPC_IS_CUSTOMS() (GET_OPCODE() == OPC_CUSTOM_0 \
-                          || GET_OPCODE() == OPC_CUSTOM_1 \
-                          || GET_OPCODE() == OPC_CUSTOM_2 \
-                          || GET_OPCODE() == OPC_CUSTOM_3)
-
 #define XTHEAD_GET_FUNCT7() INSN(31, 27)
 #define XTHEAD_OPC_MEM_LOAD   0b100
 #define XTHEAD_OPC_MEM_STORE  0b101

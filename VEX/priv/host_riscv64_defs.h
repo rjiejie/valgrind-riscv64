@@ -31,6 +31,7 @@
 
 #include "libvex.h"
 #include "libvex_basictypes.h"
+#include "libvex_riscv_common.h"
 
 #include "host_generic_regs.h"
 
@@ -277,6 +278,10 @@ typedef enum {
    RISCV64in_EvCheck,         /* Event check. */
    /* Indicating vendor T-HEAD. */
    RISCV64in_XTHEAD_Arith,
+   RISCV64in_FLdStH,
+   RISCV64in_FTriH,
+   RISCV64in_FBinH,
+   RISCV64in_FUnaryH,
 } RISCV64InstrTag;
 
 typedef struct {
@@ -287,6 +292,33 @@ typedef struct {
          HReg argL;
          // ARM64RIA* argR;
       } xthArith;
+      struct {
+         Bool isLoad;
+         HReg sd;
+         HReg base;
+         Int  imm12;
+      } FLdStH;
+      /* 16-bit FP ternary arithmetic */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+         HReg rs3;
+      } FTriH;
+      /* 16-bit FP binary arithmetic */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+      } FBinH;
+      /* 16-bit FP unary */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+      } FUnaryH;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
@@ -1046,6 +1078,24 @@ RISCV64Instr* RISCV64Instr_EvCheck(HReg base_amCounter,
                                    Int  soff12_amCounter,
                                    HReg base_amFailAddr,
                                    Int  soff12_amFailAddr);
+
+RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12);
+RISCV64Instr* RISCV64Instr_FTriH(IROp op, HReg rd, HReg rs1, HReg rs2, HReg rs3);
+RISCV64Instr* RISCV64Instr_FBinH(IROp op, HReg rd, HReg rs1, HReg rs2);
+RISCV64Instr* RISCV64Instr_FUnaryH(IROp op, HReg rd, HReg rs1);
+UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
+                            UChar*              buf,
+                            Int                 nbuf,
+                            const RISCV64Instr* i,
+                            Bool                mode64,
+                            VexEndness          endness_host,
+                            const void*         disp_cp_chain_me_to_slowEP,
+                            const void*         disp_cp_chain_me_to_fastEP,
+                            const void*         disp_cp_xindir,
+                            const void*         disp_cp_xassisted);
+Bool getRegUsage_RISCV64ZfhInstr(HRegUsage* u, const RISCV64Instr* i);
+Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i);
+Bool ppRISCV64ZfhInstr(const RISCV64Instr* i);
 
 /*------------------------------------------------------------*/
 /*--- Misc helpers                                         ---*/
