@@ -1334,18 +1334,18 @@ static HReg iselFltExpr_wrk(ISelEnv* env, IRExpr* e)
 #endif
            );
 
-   switch (e->tag) {
-   /* ------------------------ TEMP ------------------------- */
-   case Iex_RdTmp: {
-      return lookupIRTemp(env, e->Iex.RdTmp.tmp);
-   }
-
 #ifdef __riscv_zfh
    Bool ok;
    HReg ret = iselFlt16Expr_wrk(env, e, &ok);
    if (ok)
       return ret;
 #endif
+
+   switch (e->tag) {
+   /* ------------------------ TEMP ------------------------- */
+   case Iex_RdTmp: {
+      return lookupIRTemp(env, e->Iex.RdTmp.tmp);
+   }
 
    /* ------------------------ LOAD ------------------------- */
    case Iex_Load: {
