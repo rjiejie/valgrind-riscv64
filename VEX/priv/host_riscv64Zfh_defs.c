@@ -113,6 +113,12 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
             case Iop_AddF16: opc = RV64_SOPC_FADD; break;
             case Iop_MulF16: opc = RV64_SOPC_FMUL; break;
             case Iop_DivF16: opc = RV64_SOPC_FDIV; break;
+            case Iop_MinNumF16:
+            case Iop_MaxNumF16: {
+               UInt op = i->RISCV64in.FBinH.op == Iop_MinNumF16 ? 0 : 1;
+               opc = RV64_SOPC_FMIN_MAX;
+               return emit_R(p, OPC_OP_FP, rd, op, rs1, rs2, opc << 2 | RV64_FMT_FH);
+            }
             default: return NULL;
          }
          p = emit_R(p, OPC_OP_FP, rd, 0b111, rs1, rs2, opc << 2 | RV64_FMT_FH);
@@ -229,9 +235,11 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
       case RISCV64in_FBinH: {
          HChar* opc = "???";
          switch (i->RISCV64in.FBinH.op) {
-            case Iop_AddF16: opc = "fadd"; break;
-            case Iop_MulF16: opc = "fmul"; break;
-            case Iop_DivF16: opc = "fdiv"; break;
+            case Iop_AddF16:    opc = "fadd"; break;
+            case Iop_MulF16:    opc = "fmul"; break;
+            case Iop_DivF16:    opc = "fdiv"; break;
+            case Iop_MinNumF16: opc = "fmin"; break;
+            case Iop_MaxNumF16: opc = "fmax"; break;
             default: break;
          }
          vex_printf("%s.h    ", opc);

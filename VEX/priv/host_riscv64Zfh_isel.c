@@ -90,6 +90,14 @@ static HReg iselFlt16Expr_wrk(ISelEnv* env, IRExpr* e, Bool* ok)
             addInstr(env, RISCV64Instr_FUnaryH(e->Iex.Binop.op, rd, rs1));
             return rd;
          }
+         case Iop_MinNumF16:
+         case Iop_MaxNumF16: {
+            HReg rd  = newVRegF(env);
+            HReg rs1 = iselFltExpr(env, e->Iex.Binop.arg1);
+            HReg rs2 = iselFltExpr(env, e->Iex.Binop.arg2);
+            addInstr(env, RISCV64Instr_FBinH(e->Iex.Binop.op, rd, rs1, rs2));
+            return rd;
+         }
          default:
             break;
       }
