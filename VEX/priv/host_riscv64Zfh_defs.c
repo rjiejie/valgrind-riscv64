@@ -37,6 +37,19 @@ RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12)
    return i;
 }
 
+RISCV64Instr*
+RISCV64Instr_FTriH(IROp op, HReg dst, HReg arg1, HReg arg2, HReg arg3)
+{
+   RISCV64Instr* i = LibVEX_Alloc_inline(sizeof(RISCV64Instr));
+   i->tag                = RISCV64in_FTriH;
+   i->RISCV64in.FTriH.op   = op;
+   i->RISCV64in.FTriH.dst  = dst;
+   i->RISCV64in.FTriH.arg1 = arg1;
+   i->RISCV64in.FTriH.arg2 = arg2;
+   i->RISCV64in.FTriH.arg3 = arg3;
+   return i;
+}
+
 UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
                             UChar*              buf,
                             Int                 nbuf,
@@ -62,6 +75,14 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
             p = emit_S(p, OPC_STORE_FP, uimm12, 0b001, base, sd);
          break;
       }
+      case RISCV64in_FTriH: {
+         UInt dst = fregEnc(i->RISCV64in.FTriH.dst);
+         UInt rs1 = fregEnc(i->RISCV64in.FTriH.arg1);
+         UInt rs2 = fregEnc(i->RISCV64in.FTriH.arg2);
+         UInt rs3 = fregEnc(i->RISCV64in.FTriH.arg3);
+         p = emit_R(p, OPC_MADD, dst, 0b111, rs1, rs2, rs3 << 2 | 0b10);
+         break;
+      }
       default:
          return NULL;
    }
@@ -78,6 +99,12 @@ Bool getRegUsage_RISCV64ZfhInstr(HRegUsage* u, const RISCV64Instr* i)
          else
             addHRegUse(u, HRmRead, i->RISCV64in.FLdStH.sd);
          return True;
+      case RISCV64in_FTriH:
+         addHRegUse(u, HRmWrite, i->RISCV64in.FTriH.dst);
+         addHRegUse(u, HRmRead,  i->RISCV64in.FTriH.arg1);
+         addHRegUse(u, HRmRead,  i->RISCV64in.FTriH.arg2);
+         addHRegUse(u, HRmRead,  i->RISCV64in.FTriH.arg3);
+         return True;
       default:
          break;
    }
@@ -90,6 +117,12 @@ Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i)
       case RISCV64in_FLdStH:
          mapReg(m, &i->RISCV64in.FLdStH.base);
          mapReg(m, &i->RISCV64in.FLdStH.sd);
+         return True;
+      case RISCV64in_FTriH:
+         mapReg(m, &i->RISCV64in.FTriH.dst);
+         mapReg(m, &i->RISCV64in.FTriH.arg1);
+         mapReg(m, &i->RISCV64in.FTriH.arg2);
+         mapReg(m, &i->RISCV64in.FTriH.arg3);
          return True;
       default:
          break;
@@ -109,6 +142,16 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
          vex_printf(")");
          return True;
       }
+      case RISCV64in_FTriH:
+         vex_printf("fmadd.h    ");
+         ppHRegRISCV64(i->RISCV64in.FTriH.dst);
+         vex_printf(", ");
+         ppHRegRISCV64(i->RISCV64in.FTriH.arg1);
+         vex_printf(", ");
+         ppHRegRISCV64(i->RISCV64in.FTriH.arg2);
+         vex_printf(", ");
+         ppHRegRISCV64(i->RISCV64in.FTriH.arg3);
+         return True;
       default:
          break;
    }

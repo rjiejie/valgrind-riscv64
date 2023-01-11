@@ -50,6 +50,19 @@ static HReg iselFlt16Expr_wrk(ISelEnv* env, IRExpr* e, Bool* ok)
       return res;
    }
 
+   if (e->tag == Iex_Qop) {
+      IRQop* qop  = e->Iex.Qop.details;
+      if (qop->op == Iop_MAddF16) {
+         HReg dst  = newVRegF(env);
+         HReg N = iselFltExpr(env, qop->arg2);
+         HReg M = iselFltExpr(env, qop->arg3);
+         HReg A = iselFltExpr(env, qop->arg4);
+         set_fcsr_rounding_mode(env, qop->arg1);
+         addInstr(env, RISCV64Instr_FTriH(qop->op, dst, N, M, A));
+         return dst;
+      }
+   }
+
    *ok = False;
    return ret;
 }
