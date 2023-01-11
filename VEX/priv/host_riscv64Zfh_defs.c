@@ -123,10 +123,20 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
          UInt rs1 = fregEnc(i->RISCV64in.FUnaryH.rs1);
          UInt opc = 0;
          switch (i->RISCV64in.FUnaryH.op) {
-            case Iop_SqrtF16: opc = RV64_SOPC_FSQRT; break;
-            default: return NULL;
+            case Iop_SqrtF16:
+               opc = RV64_SOPC_FSQRT;
+               p = emit_R(p, OPC_OP_FP, rd, 0b111, rs1, 0, opc << 2 | RV64_FMT_FH);
+               break;
+            case Iop_AbsF16:
+            case Iop_NegF16: {
+               UInt op = i->RISCV64in.FUnaryH.op == Iop_NegF16 ? 0b001 : 0b010;
+               opc = RV64_SOPC_FSGNJ;
+               p = emit_R(p, OPC_OP_FP, rd, op, rs1, rs1, opc << 2 | RV64_FMT_FH);
+               break;
+            }
+            default:
+               return NULL;
          }
-         p = emit_R(p, OPC_OP_FP, rd, 0b111, rs1, 0, opc << 2 | RV64_FMT_FH);
          break;
       }
       default:
@@ -236,6 +246,8 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
          HChar* opc = "???";
          switch (i->RISCV64in.FUnaryH.op) {
             case Iop_SqrtF16: opc = "fsqrt"; break;
+            case Iop_AbsF16:  opc = "fabs"; break;
+            case Iop_NegF16:  opc = "fneg"; break;
             default: break;
          }
          vex_printf("%s.h    ", opc);
