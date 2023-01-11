@@ -80,6 +80,7 @@
 #define RV64_SOPC_FSQRT    0b01011
 #define RV64_SOPC_FSGNJ    0b00100
 #define RV64_SOPC_FMIN_MAX 0b00101
+#define RV64_SOPC_FCLASS   0b11100
 
 #endif /* __LIBVEX_PUB_RISCV_H */
 
