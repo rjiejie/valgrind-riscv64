@@ -125,21 +125,38 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
          break;
       }
       case RISCV64in_FUnaryH: {
-         UInt rd  = fregEnc(i->RISCV64in.FUnaryH.rd);
-         UInt rs1 = fregEnc(i->RISCV64in.FUnaryH.rs1);
+         UInt rd = 0;
+         UInt rs1 = 0;
          UInt opc = 0;
          switch (i->RISCV64in.FUnaryH.op) {
             case Iop_SqrtF16:
+               rd  = fregEnc(i->RISCV64in.FUnaryH.rd);
+               rs1 = fregEnc(i->RISCV64in.FUnaryH.rs1);
                opc = RV64_SOPC_FSQRT;
                p = emit_R(p, OPC_OP_FP, rd, 0b111, rs1, 0, opc << 2 | RV64_FMT_FH);
                break;
             case Iop_AbsF16:
             case Iop_NegF16: {
-               UInt op = i->RISCV64in.FUnaryH.op == Iop_NegF16 ? 0b001 : 0b010;
+               rd  = fregEnc(i->RISCV64in.FUnaryH.rd);
+               rs1 = fregEnc(i->RISCV64in.FUnaryH.rs1);
                opc = RV64_SOPC_FSGNJ;
+               UInt op = i->RISCV64in.FUnaryH.op == Iop_NegF16 ? 0b001 : 0b010;
                p = emit_R(p, OPC_OP_FP, rd, op, rs1, rs1, opc << 2 | RV64_FMT_FH);
                break;
             }
+            case Iop_ReinterpF16asI16:
+            case Iop_ReinterpI16asF16:
+               if (i->RISCV64in.FUnaryH.op == Iop_ReinterpF16asI16) {
+                  rd  = iregEnc(i->RISCV64in.FUnaryH.rd);
+                  rs1 = fregEnc(i->RISCV64in.FUnaryH.rs1);
+                  opc = RV64_SOPC_FMV_X_H;
+               } else {
+                  rd  = fregEnc(i->RISCV64in.FUnaryH.rd);
+                  rs1 = iregEnc(i->RISCV64in.FUnaryH.rs1);
+                  opc = RV64_SOPC_FMV_H_X;
+               }
+               p = emit_R(p, OPC_OP_FP, rd, 0, rs1, 0, opc << 2 | RV64_FMT_FH);
+               break;
             default:
                return NULL;
          }
@@ -253,12 +270,14 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
       case RISCV64in_FUnaryH: {
          HChar* opc = "???";
          switch (i->RISCV64in.FUnaryH.op) {
-            case Iop_SqrtF16: opc = "fsqrt"; break;
-            case Iop_AbsF16:  opc = "fabs"; break;
-            case Iop_NegF16:  opc = "fneg"; break;
+            case Iop_SqrtF16: opc = "fsqrt.h"; break;
+            case Iop_AbsF16:  opc = "fabs.h"; break;
+            case Iop_NegF16:  opc = "fneg.h"; break;
+            case Iop_ReinterpF16asI16: opc = "fmv.x.h"; break;
+            case Iop_ReinterpI16asF16: opc = "fmv.h.x"; break;
             default: break;
          }
-         vex_printf("%s.h    ", opc);
+         vex_printf("%s    ", opc);
          ppHRegRISCV64(i->RISCV64in.FUnaryH.rd);
          vex_printf(", ");
          ppHRegRISCV64(i->RISCV64in.FUnaryH.rs1);

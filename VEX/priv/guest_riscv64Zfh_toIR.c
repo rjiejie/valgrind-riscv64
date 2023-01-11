@@ -427,15 +427,13 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
-#define RV64_SOPC_FMV_X_H 0b1110010
-#define RV64_SOPC_FMV_H_X 0b1111010
-
    if (GET_OPCODE() == OPC_OP_FP && GET_FUNCT3() == 0 && GET_RS2() == 0 &&
-       (GET_FUNCT7() == RV64_SOPC_FMV_X_H || GET_FUNCT7() == RV64_SOPC_FMV_H_X)) {
+       (GET_FUNCT5() == RV64_SOPC_FMV_X_H || GET_FUNCT5() == RV64_SOPC_FMV_H_X)
+       && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
 
-      if (GET_FUNCT7() == RV64_SOPC_FMV_X_H) {
+      if (GET_FUNCT5() == RV64_SOPC_FMV_X_H) {
          putIReg16(irsb, rd, unop(Iop_ReinterpF16asI16, getFReg16(rs1)));
          DIP("fmv.x.h %s,%s\n", nameIReg(rd), nameFReg(rs1));
       } else {
