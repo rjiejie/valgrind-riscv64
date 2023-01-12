@@ -33,6 +33,21 @@
 #define XTHEAD_OPC_MEM_STORE  0b101
 #define XTHEAD_OPC_MEM_FLOAD  0b110
 #define XTHEAD_OPC_MEM_FSTORE 0b111
+#define XTHEAD_OPC_ARITH      0b001
+#define XTHEAD_OPC_ARITH_EXT  0b010
+#define XTHEAD_OPC_ARITH_EXTU 0b011
+
+#define XTHEAD_SOPC_ADDSL     0b00000
+#define XTHEAD_SOPC_SRRI      0b000100
+#define XTHEAD_SOPC_SRRIW     0b0001010
+#define XTHEAD_SOPC_FF0       0b1000010
+#define XTHEAD_SOPC_FF1       0b1000011
+#define XTHEAD_SOPC_REV       0b1000001
+#define XTHEAD_SOPC_REVW      0b1001000
+#define XTHEAD_SOPC_TSTNBZ    0b1000000
+#define XTHEAD_SOPC_TST       0b100010
+#define XTHEAD_SOPC_MVEQZ     0b0100000
+#define XTHEAD_SOPC_MVNEZ     0b0100001
 
 static void gen_xthead_store(IRSB* irsb, UInt szB, IRTemp addr, IRExpr* dataE)
 {
@@ -309,6 +324,82 @@ static Bool dis_XTHEAD_fload_fstore(/*MB_OUT*/ DisResult* dres,
    return True;
 }
 
+static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
+                                  /*OUT*/ IRSB*         irsb,
+                                  UInt                  insn,
+                                  Bool                  sigill_diag)
+{
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_FUNCT5() == XTHEAD_SOPC_ADDSL) {
+      UInt rd   = GET_RD();
+      UInt rs1  = GET_RS1();
+      UInt rs2  = GET_RS2();
+      UInt imm2 = INSN(26, 25);
+      IRExpr* offs = binop(Iop_Shl64, getIReg64(rs2), mkU8(imm2));
+      putIReg64(irsb, rd, binop(Iop_Add64, getIReg64(rs1), offs));
+      DIP("addsl %s,%s,%s,%u\n", nameIReg(rd), nameIReg(rs1), nameIReg(rs2), imm2);
+      return True;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH && (GET_FUNCT7() == XTHEAD_SOPC_SRRIW ||
+                                            INSN(31, 26) == XTHEAD_SOPC_SRRI)) {
+      UInt rd   = GET_RD();
+      UInt rs1  = GET_RS1();
+      UInt imm  = 0;
+      UInt immL = 0;
+      IRExpr* eR1 = NULL;
+
+      if (GET_FUNCT7() == XTHEAD_SOPC_SRRIW) {
+         imm  = GET_RS2();
+         immL = 32 - GET_RS2();
+         eR1 = unop(Iop_32Uto64, getIReg32(rs1));
+      } else {
+         imm  = INSN(25, 20);
+         immL = 64 - INSN(25, 20);
+         eR1 = getIReg64(rs1);
+      }
+      putIReg64(irsb, rd,
+                binop(Iop_Or64, binop(Iop_Shr64, eR1, mkU8(imm)),
+                                binop(Iop_Shl64, eR1, mkU8(immL))));
+      DIP("%s %s,%s,%u\n", GET_FUNCT7() == XTHEAD_SOPC_SRRIW ? "srriw" : "srri",
+          nameIReg(rd), nameIReg(rs1), imm);
+      return True;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
+       (GET_FUNCT7() == XTHEAD_SOPC_FF0 || GET_FUNCT7() == XTHEAD_SOPC_FF1)) {
+      ;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
+       (GET_FUNCT7() == XTHEAD_SOPC_REV || GET_FUNCT7() == XTHEAD_SOPC_REVW)) {
+      ;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
+       GET_FUNCT7() == XTHEAD_SOPC_TSTNBZ) {
+      ;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH && INSN(31, 26) == XTHEAD_SOPC_TST) {
+      ;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH && (GET_FUNCT7() == XTHEAD_SOPC_MVEQZ ||
+                                            GET_FUNCT7() == XTHEAD_SOPC_MVNEZ)) {
+      ;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH_EXT ||
+       GET_FUNCT3() == XTHEAD_OPC_ARITH_EXTU) {
+      ;
+   }
+
+   if (sigill_diag)
+      vex_printf("XTHEAD front end: arithmetic\n");
+
+   return False;
+}
+
 static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
                                /*OUT*/ IRSB*         irsb,
                                UInt                  insn,
@@ -328,6 +419,11 @@ static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
       case XTHEAD_OPC_MEM_FLOAD:
       case XTHEAD_OPC_MEM_FSTORE:
          ok = dis_XTHEAD_fload_fstore(dres, irsb, insn, sigill_diag);
+         break;
+      case XTHEAD_OPC_ARITH:
+      case XTHEAD_OPC_ARITH_EXT:
+      case XTHEAD_OPC_ARITH_EXTU:
+         ok = dis_XTHEAD_arithmetic(dres, irsb, insn, sigill_diag);
          break;
       default:
          vassert(0); /* Can't happen */
