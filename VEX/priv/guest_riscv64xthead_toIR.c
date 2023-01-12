@@ -408,7 +408,29 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
        GET_FUNCT7() == XTHEAD_SOPC_TSTNBZ) {
-      ;
+      UInt rd  = GET_RD();
+      UInt rs1 = GET_RS1();
+      IRExpr* eRD = getIReg64(rd);
+      IRExpr* eR1 = getIReg64(rs1);
+      IRExpr* eCMP0 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 0)),  mkU64(0));
+      IRExpr* eCMP1 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 8)),  mkU64(0));
+      IRExpr* eCMP2 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 16)), mkU64(0));
+      IRExpr* eCMP3 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 24)), mkU64(0));
+      IRExpr* eCMP4 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 32)), mkU64(0));
+      IRExpr* eCMP5 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 40)), mkU64(0));
+      IRExpr* eCMP6 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 48)), mkU64(0));
+      IRExpr* eCMP7 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 56)), mkU64(0));
+      putIReg64(irsb, rd, mkU64(0));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP0, mkU64(0xFF << 0),  mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP1, mkU64(0xFF << 8),  mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP2, mkU64(0xFF << 16), mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP3, mkU64(0xFF << 24), mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP4, mkU64(0xFF << 32), mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP5, mkU64(0xFF << 40), mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP6, mkU64(0xFF << 48), mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP7, mkU64(0xFF << 56), mkU64(0x0))));
+      DIP("tstnbz %s,%s\n", nameIReg(rd), nameIReg(rs1));
+      return True;
    }
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && INSN(31, 26) == XTHEAD_SOPC_TST) {
