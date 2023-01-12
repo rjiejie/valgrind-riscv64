@@ -372,7 +372,38 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
        (GET_FUNCT7() == XTHEAD_SOPC_REV || GET_FUNCT7() == XTHEAD_SOPC_REVW)) {
-      ;
+      UInt rd   = GET_RD();
+      UInt rs1  = GET_RS1();
+      IRExpr* eSUM = NULL;
+      if (GET_FUNCT7() == XTHEAD_SOPC_REV) {
+         IRExpr* eR1 = getIReg64(rs1);
+         IRExpr* eB0 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 56)), mkU8(56));
+         IRExpr* eB1 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 48)), mkU8(40));
+         IRExpr* eB2 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 40)), mkU8(24));
+         IRExpr* eB3 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 32)), mkU8(8));
+         IRExpr* eB4 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 24)), mkU8(8));
+         IRExpr* eB5 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 16)), mkU8(24));
+         IRExpr* eB6 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 8)),  mkU8(40));
+         IRExpr* eB7 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 0)),  mkU8(56));
+         eSUM = binop(Iop_Or64, binop(Iop_Or64, binop(Iop_Or64, eB0, eB1),
+                                                binop(Iop_Or64, eB2, eB3)),
+                                binop(Iop_Or64, binop(Iop_Or64, eB4, eB5),
+                                                binop(Iop_Or64, eB6, eB7)));
+         putIReg64(irsb, rd, eSUM);
+      } else {
+         IRExpr* eR1 = getIReg32(rs1);
+         IRExpr* eB0 = binop(Iop_Shr32, binop(Iop_And32, eR1, mkU32(0xFF << 24)), mkU8(24));
+         IRExpr* eB1 = binop(Iop_Shr32, binop(Iop_And32, eR1, mkU32(0xFF << 16)), mkU8(8));
+         IRExpr* eB2 = binop(Iop_Shl32, binop(Iop_And32, eR1, mkU32(0xFF << 8)),  mkU8(8));
+         IRExpr* eB3 = binop(Iop_Shl32, binop(Iop_And32, eR1, mkU32(0xFF << 0)),  mkU8(24));
+         eSUM = binop(Iop_Or32, binop(Iop_Or32, eB0, eB1),
+                                binop(Iop_Or32, eB2, eB3));
+         putIReg32(irsb, rd, eSUM);
+      }
+
+      DIP("%s %s,%s\n", GET_FUNCT7() == XTHEAD_SOPC_REV ? "rev" : "revw",
+          nameIReg(rd), nameIReg(rs1));
+      return True;
    }
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
