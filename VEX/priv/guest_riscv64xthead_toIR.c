@@ -446,7 +446,16 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && (GET_FUNCT7() == XTHEAD_SOPC_MVEQZ ||
                                             GET_FUNCT7() == XTHEAD_SOPC_MVNEZ)) {
-      ;
+      UInt rd  = GET_RD();
+      UInt rs1 = GET_RS1();
+      UInt rs2 = GET_RS2();
+      IRExpr* eCMP = binop(GET_FUNCT7() == XTHEAD_SOPC_MVEQZ ? Iop_CmpEQ64 : Iop_CmpNE64,
+                           getIReg64(rs2), mkU64(0));
+      putIReg64(irsb, rd, IRExpr_ITE(eCMP, getIReg64(rs1), getIReg64(rd)));
+      DIP("%s %s,%s,%s\n",
+          GET_FUNCT7() == XTHEAD_SOPC_MVEQZ ? "mveqz" : "mvnez", nameIReg(rd),
+          nameIReg(rs1), nameIReg(rs2));
+      return True;
    }
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH_EXT ||
