@@ -460,7 +460,20 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH_EXT ||
        GET_FUNCT3() == XTHEAD_OPC_ARITH_EXTU) {
-      ;
+      UInt rd    = GET_RD();
+      UInt rs1   = GET_RS1();
+      UInt imm6H = INSN(31, 26);
+      UInt imm6L = INSN(25, 20);
+      UInt len = imm6H - imm6L + 1;
+      putIReg64(irsb, rd,
+                binop(Iop_Shl64, getIReg64(rs1), mkU8(64 - len - imm6L)));
+      putIReg64(irsb, rd,
+                binop(GET_FUNCT3() == XTHEAD_OPC_ARITH_EXT ? Iop_Sar64 : Iop_Shr64,
+                      getIReg64(rd), mkU8(64 - len)));
+      DIP("%s %s,%s,%u,%u\n",
+          GET_FUNCT7() == XTHEAD_OPC_ARITH_EXT ? "ext" : "extu",
+          nameIReg(rd), nameIReg(rs1), imm6H, imm6L);
+      return True;
    }
 
    if (sigill_diag)
