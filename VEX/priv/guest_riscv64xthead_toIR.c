@@ -403,9 +403,9 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
          IRExpr* eB1 = binop(Iop_Shr32, binop(Iop_And32, eR1, mkU32(0xFF << 16)), mkU8(8));
          IRExpr* eB2 = binop(Iop_Shl32, binop(Iop_And32, eR1, mkU32(0xFF << 8)),  mkU8(8));
          IRExpr* eB3 = binop(Iop_Shl32, binop(Iop_And32, eR1, mkU32(0xFF << 0)),  mkU8(24));
-         eSUM = binop(Iop_Or32, binop(Iop_Or32, eB0, eB1),
-                                binop(Iop_Or32, eB2, eB3));
-         putIReg32(irsb, rd, eSUM);
+         eSUM = unop(Iop_32Sto64, binop(Iop_Or32, binop(Iop_Or32, eB0, eB1),
+                                                  binop(Iop_Or32, eB2, eB3)));
+         putIReg64(irsb, rd, eSUM);
       }
 
       DIP("%s %s,%s\n", GET_FUNCT7() == XTHEAD_SOPC_REV ? "rev" : "revw",
