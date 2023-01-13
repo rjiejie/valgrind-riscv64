@@ -1047,6 +1047,7 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
          addInstr(env, RISCV64Instr_SRAI(dst, tmp, 63));
          return dst;
       }
+      case Iop_16Sto32:
       case Iop_1Uto64:
       case Iop_8Sto64:
       case Iop_16Sto64:

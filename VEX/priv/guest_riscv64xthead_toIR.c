@@ -49,6 +49,13 @@
 #define XTHEAD_SOPC_MVEQZ     0b0100000
 #define XTHEAD_SOPC_MVNEZ     0b0100001
 
+#define XTHEAD_SOPC_MULA      0b0010000
+#define XTHEAD_SOPC_MULAH     0b0010100
+#define XTHEAD_SOPC_MULAW     0b0010010
+#define XTHEAD_SOPC_MULS      0b0010001
+#define XTHEAD_SOPC_MULSH     0b0010101
+#define XTHEAD_SOPC_MULSW     0b0010011
+
 static void gen_xthead_store(IRSB* irsb, UInt szB, IRTemp addr, IRExpr* dataE)
 {
    IRExpr* addrE = mkexpr(addr);
@@ -473,6 +480,41 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
       DIP("%s %s,%s,%u,%u\n",
           GET_FUNCT7() == XTHEAD_OPC_ARITH_EXT ? "ext" : "extu",
           nameIReg(rd), nameIReg(rs1), imm6H, imm6L);
+      return True;
+   }
+
+   if (GET_FUNCT3() == XTHEAD_OPC_ARITH &&
+       (GET_FUNCT7() == XTHEAD_SOPC_MULA || GET_FUNCT7() == XTHEAD_SOPC_MULAH ||
+        GET_FUNCT7() == XTHEAD_SOPC_MULAW || GET_FUNCT7() == XTHEAD_SOPC_MULS ||
+        GET_FUNCT7() == XTHEAD_SOPC_MULSH || XTHEAD_SOPC_MULSW)) {
+      UInt rd    = GET_RD();
+      UInt rs1   = GET_RS1();
+      UInt rs2   = GET_RS2();
+      Bool isADD = INSN(25, 25) == 0;
+      IRExpr* eMUL = NULL;
+      switch (GET_FUNCT7()) {
+         case XTHEAD_SOPC_MULA:
+         case XTHEAD_SOPC_MULS:
+            eMUL = binop(Iop_Mul64, getIReg64(rs1), getIReg64(rs2));
+            putIReg64(irsb, rd, binop(isADD ? Iop_Add64 : Iop_Sub64, getIReg64(rd), eMUL));
+            DIP("%s %s,%s,%s\n", isADD ? "mula" : "muls", nameIReg(rd), nameIReg(rs1), nameIReg(rs2));
+            break;
+         case XTHEAD_SOPC_MULAH:
+         case XTHEAD_SOPC_MULSH:
+            eMUL = binop(Iop_Mul32, unop(Iop_16Sto32, getIReg16(rs1)),
+                                    unop(Iop_16Sto32, getIReg16(rs2)));
+            putIReg64(irsb, rd, unop(Iop_32Sto64, binop(isADD ? Iop_Add32 : Iop_Sub32, getIReg32(rd), eMUL)));
+            DIP("%s %s,%s,%s\n", isADD ? "mulah" : "mulsh", nameIReg(rd), nameIReg(rs1), nameIReg(rs2));
+            break;
+         case XTHEAD_SOPC_MULAW:
+         case XTHEAD_SOPC_MULSW:
+            eMUL = binop(Iop_Mul32, getIReg32(rs1), getIReg32(rs2));
+            putIReg64(irsb, rd, unop(Iop_32Sto64, binop(isADD ? Iop_Add32 : Iop_Sub32, getIReg32(rd), eMUL)));
+            DIP("%s %s,%s,%s\n", isADD ? "mulaw" : "mulsw", nameIReg(rd), nameIReg(rs1), nameIReg(rs2));
+            break;
+         default:
+            vassert(0);
+      }
       return True;
    }
 
