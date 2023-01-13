@@ -377,14 +377,14 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
       IRExpr* eSUM = NULL;
       if (GET_FUNCT7() == XTHEAD_SOPC_REV) {
          IRExpr* eR1 = getIReg64(rs1);
-         IRExpr* eB0 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 56)), mkU8(56));
-         IRExpr* eB1 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 48)), mkU8(40));
-         IRExpr* eB2 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 40)), mkU8(24));
-         IRExpr* eB3 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFF << 32)), mkU8(8));
-         IRExpr* eB4 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 24)), mkU8(8));
-         IRExpr* eB5 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 16)), mkU8(24));
-         IRExpr* eB6 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 8)),  mkU8(40));
-         IRExpr* eB7 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFF << 0)),  mkU8(56));
+         IRExpr* eB0 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFFUL << 56)), mkU8(56));
+         IRExpr* eB1 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFFUL << 48)), mkU8(40));
+         IRExpr* eB2 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFFUL << 40)), mkU8(24));
+         IRExpr* eB3 = binop(Iop_Shr64, binop(Iop_And64, eR1, mkU64(0xFFUL << 32)), mkU8(8));
+         IRExpr* eB4 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFFUL << 24)), mkU8(8));
+         IRExpr* eB5 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFFUL << 16)), mkU8(24));
+         IRExpr* eB6 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFFUL << 8)),  mkU8(40));
+         IRExpr* eB7 = binop(Iop_Shl64, binop(Iop_And64, eR1, mkU64(0xFFUL << 0)),  mkU8(56));
          eSUM = binop(Iop_Or64, binop(Iop_Or64, binop(Iop_Or64, eB0, eB1),
                                                 binop(Iop_Or64, eB2, eB3)),
                                 binop(Iop_Or64, binop(Iop_Or64, eB4, eB5),
@@ -412,29 +412,36 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
       UInt rs1 = GET_RS1();
       IRExpr* eRD = getIReg64(rd);
       IRExpr* eR1 = getIReg64(rs1);
-      IRExpr* eCMP0 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 0)),  mkU64(0));
-      IRExpr* eCMP1 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 8)),  mkU64(0));
-      IRExpr* eCMP2 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 16)), mkU64(0));
-      IRExpr* eCMP3 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 24)), mkU64(0));
-      IRExpr* eCMP4 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 32)), mkU64(0));
-      IRExpr* eCMP5 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 40)), mkU64(0));
-      IRExpr* eCMP6 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 48)), mkU64(0));
-      IRExpr* eCMP7 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFF << 56)), mkU64(0));
+      IRExpr* eCMP0 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 0)),  mkU64(0));
+      IRExpr* eCMP1 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 8)),  mkU64(0));
+      IRExpr* eCMP2 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 16)), mkU64(0));
+      IRExpr* eCMP3 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 24)), mkU64(0));
+      IRExpr* eCMP4 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 32)), mkU64(0));
+      IRExpr* eCMP5 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 40)), mkU64(0));
+      IRExpr* eCMP6 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 48)), mkU64(0));
+      IRExpr* eCMP7 = binop(Iop_CmpEQ64, binop(Iop_And64, eR1, mkU64(0xFFUL << 56)), mkU64(0));
       putIReg64(irsb, rd, mkU64(0));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP0, mkU64(0xFF << 0),  mkU64(0x0))));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP1, mkU64(0xFF << 8),  mkU64(0x0))));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP2, mkU64(0xFF << 16), mkU64(0x0))));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP3, mkU64(0xFF << 24), mkU64(0x0))));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP4, mkU64(0xFF << 32), mkU64(0x0))));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP5, mkU64(0xFF << 40), mkU64(0x0))));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP6, mkU64(0xFF << 48), mkU64(0x0))));
-      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP7, mkU64(0xFF << 56), mkU64(0x0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP0, mkU64(0xFFUL << 0),  mkU64(0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP1, mkU64(0xFFUL << 8),  mkU64(0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP2, mkU64(0xFFUL << 16), mkU64(0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP3, mkU64(0xFFUL << 24), mkU64(0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP4, mkU64(0xFFUL << 32), mkU64(0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP5, mkU64(0xFFUL << 40), mkU64(0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP6, mkU64(0xFFUL << 48), mkU64(0))));
+      putIReg64(irsb, rd, binop(Iop_Or64, eRD, IRExpr_ITE(eCMP7, mkU64(0xFFUL << 56), mkU64(0))));
       DIP("tstnbz %s,%s\n", nameIReg(rd), nameIReg(rs1));
       return True;
    }
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && INSN(31, 26) == XTHEAD_SOPC_TST) {
-      ;
+      UInt rd  = GET_RD();
+      UInt rs1 = GET_RS1();
+      UInt imm6 = INSN(25, 20);
+      IRExpr* eMask = mkU64(1UL << imm6);
+      IRExpr* eCMP = binop(Iop_CmpEQ64, binop(Iop_And64, getIReg64(rs1), eMask),  eMask);
+      putIReg64(irsb, rd, IRExpr_ITE(eCMP, mkU64(1), mkU64(0)));
+      DIP("tst %s,%s,%u\n", nameIReg(rd), nameIReg(rs1), imm6);
+      return True;
    }
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && (GET_FUNCT7() == XTHEAD_SOPC_MVEQZ ||
