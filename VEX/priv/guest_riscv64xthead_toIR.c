@@ -36,6 +36,7 @@
 #define XTHEAD_OPC_ARITH      0b001
 #define XTHEAD_OPC_ARITH_EXT  0b010
 #define XTHEAD_OPC_ARITH_EXTU 0b011
+#define XTHEAD_OPC_CMO        0b000
 
 #define XTHEAD_SOPC_ADDSL     0b00000
 #define XTHEAD_SOPC_SRRI      0b000100
@@ -55,6 +56,11 @@
 #define XTHEAD_SOPC_MULS      0b0010001
 #define XTHEAD_SOPC_MULSH     0b0010101
 #define XTHEAD_SOPC_MULSW     0b0010011
+
+#define XTHEAD_SOPC_SYNC      0b11000
+#define XTHEAD_SOPC_SYNC_S    0b11001
+#define XTHEAD_SOPC_SYNC_I    0b11010
+#define XTHEAD_SOPC_SYNC_IS   0b11011
 
 static void gen_xthead_store(IRSB* irsb, UInt szB, IRTemp addr, IRExpr* dataE)
 {
@@ -524,6 +530,26 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
    return False;
 }
 
+static Bool dis_XTHEAD_cmo(/*MB_OUT*/ DisResult* dres,
+                           /*OUT*/ IRSB*         irsb,
+                           UInt                  insn,
+                           Bool                  sigill_diag)
+{
+   if (GET_FUNCT7() == 0 && GET_RD() == 0 && GET_RS1() == 0 &&
+       (GET_RS2() == XTHEAD_SOPC_SYNC || GET_RS2() == XTHEAD_SOPC_SYNC_S ||
+        GET_RS2() == XTHEAD_SOPC_SYNC_I || GET_RS2() == XTHEAD_SOPC_SYNC_IS)) {
+      UInt opc = INSN(26, 25);
+      const HChar* opcs[4] = { "sync", "sync.s", "sync.i", "sync.is" };
+      DIP("%s (nop)\n", opcs[opc]);
+      return True;
+   }
+
+   if (sigill_diag)
+      vex_printf("XTHEAD front end: cmo\n");
+
+   return False;
+}
+
 static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
                                /*OUT*/ IRSB*         irsb,
                                UInt                  insn,
@@ -548,6 +574,9 @@ static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
       case XTHEAD_OPC_ARITH_EXT:
       case XTHEAD_OPC_ARITH_EXTU:
          ok = dis_XTHEAD_arithmetic(dres, irsb, insn, sigill_diag);
+         break;
+      case XTHEAD_OPC_CMO:
+         ok = dis_XTHEAD_cmo(dres, irsb, insn, sigill_diag);
          break;
       default:
          vassert(0); /* Can't happen */
