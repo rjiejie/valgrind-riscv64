@@ -1,0 +1,200 @@
+Address calculation instructions (XTheadBa)
+addsl a0, a1, a2, 0 ::
+  inputs: a1=0x0000000100000000, a2=0x0000000000001000
+  output: a0=0x0000000100001000
+addsl a0, a1, a2, 1 ::
+  inputs: a1=0x0000000100000000, a2=0x0000000000001000
+  output: a0=0x0000000100002000
+addsl a0, a1, a2, 2 ::
+  inputs: a1=0x0000000100000000, a2=0x0000000000001000
+  output: a0=0x0000000100004000
+addsl a0, a1, a2, 3 ::
+  inputs: a1=0x0000000100000000, a2=0x0000000000001000
+  output: a0=0x0000000100008000
+Basic bit-manipulation (XTheadBb)
+srri a0, a1, 3 ::
+  inputs: a1=0x9999999966666666
+  output: a0=0xd33333332ccccccc
+srri a0, a1, 8 ::
+  inputs: a1=0x9999999966666666
+  output: a0=0x6699999999666666
+srri a0, a1, 15 ::
+  inputs: a1=0x9999999966666666
+  output: a0=0xcccd33333332cccc
+srri a0, a1, 32 ::
+  inputs: a1=0x9999999966666666
+  output: a0=0x6666666699999999
+srriw a0, a1, 0 ::
+  inputs: a1=0x6969696969696969
+  output: a0=0x00000000d2d2d2d2
+srriw a0, a1, 8 ::
+  inputs: a1=0x6969696969696969
+  output: a0=0x0000000069696969
+srriw a0, a1, 15 ::
+  inputs: a1=0x6969696969696969
+  output: a0=0x00000000d2d2d2d2
+srriw a0, a1, 30 ::
+  inputs: a1=0x6969696969696969
+  output: a0=0x00000000a5a5a5a5
+ext a0, a1, 4, 0 ::
+  inputs: a1=0x66666666ffffffff
+  output: a0=0xffffffffffffffff
+ext a0, a1, 7, 0 ::
+  inputs: a1=0x66666666ffffff0f
+  output: a0=0x000000000000000f
+ext a0, a1, 12, 0 ::
+  inputs: a1=0x66666666ffffffff
+  output: a0=0xffffffffffffffff
+ext a0, a1, 15, 0 ::
+  inputs: a1=0x66666666ffff0fff
+  output: a0=0x0000000000000fff
+ext a0, a1, 15, 0 ::
+  inputs: a1=0x0000000000008000
+  output: a0=0xffffffffffff8000
+extu a0, a1, 4, 0 ::
+  inputs: a1=0x6666666699999999
+  output: a0=0x0000000000000019
+extu a0, a1, 7, 0 ::
+  inputs: a1=0x6666666699999999
+  output: a0=0x0000000000000099
+extu a0, a1, 12, 0 ::
+  inputs: a1=0x6666666699999999
+  output: a0=0x0000000000001999
+extu a0, a1, 15, 0 ::
+  inputs: a1=0x6666666699999999
+  output: a0=0x0000000000009999
+ff0 a0, a1 ::
+  inputs: a1=0x0000000000000000
+  output: a0=0x0000000000000000
+ff0 a0, a1 ::
+  inputs: a1=0xffff000000000000
+  output: a0=0x0000000000000010
+ff0 a0, a1 ::
+  inputs: a1=0xffffff0000000000
+  output: a0=0x0000000000000018
+ff0 a0, a1 ::
+  inputs: a1=0xffffffffff000000
+  output: a0=0x0000000000000028
+ff0 a0, a1 ::
+  inputs: a1=0xffffffffffffffff
+  output: a0=0x0000000000000040
+ff1 a0, a1 ::
+  inputs: a1=0x0000000000000000
+  output: a0=0x0000000000000040
+ff1 a0, a1 ::
+  inputs: a1=0x0000000000000001
+  output: a0=0x000000000000003f
+ff1 a0, a1 ::
+  inputs: a1=0x0000000000000010
+  output: a0=0x000000000000003b
+ff1 a0, a1 ::
+  inputs: a1=0x0000000100000000
+  output: a0=0x000000000000001f
+ff1 a0, a1 ::
+  inputs: a1=0x0000001000000000
+  output: a0=0x000000000000001b
+ff1 a0, a1 ::
+  inputs: a1=0x6000001000000000
+  output: a0=0x0000000000000001
+ff1 a0, a1 ::
+  inputs: a1=0xf000001000000000
+  output: a0=0x0000000000000000
+rev a0, a1 ::
+  inputs: a1=0x0011223344556677
+  output: a0=0x7766554433221100
+rev a0, a1 ::
+  inputs: a1=0x1122334455667788
+  output: a0=0x8877665544332211
+rev a0, a1 ::
+  inputs: a1=0x2233445566778899
+  output: a0=0x9988776655443322
+rev a0, a1 ::
+  inputs: a1=0x11223344aabbccdd
+  output: a0=0xddccbbaa44332211
+revw a0, a1 ::
+  inputs: a1=0x0011223344556677
+  output: a0=0x0000000077665544
+revw a0, a1 ::
+  inputs: a1=0x1122334455667788
+  output: a0=0xffffffff88776655
+revw a0, a1 ::
+  inputs: a1=0x2233445566778899
+  output: a0=0xffffffff99887766
+revw a0, a1 ::
+  inputs: a1=0x11223344aabbccdd
+  output: a0=0xffffffffddccbbaa
+tstnbz a0, a1 ::
+  inputs: a1=0x0011223344556677
+  output: a0=0xff00000000000000
+tstnbz a0, a1 ::
+  inputs: a1=0x0011003344556677
+  output: a0=0xff00ff0000000000
+tstnbz a0, a1 ::
+  inputs: a1=0x0011003300556677
+  output: a0=0xff00ff00ff000000
+tstnbz a0, a1 ::
+  inputs: a1=0x0011003300550077
+  output: a0=0xff00ff00ff00ff00
+Single-bit instructions (XTheadBs)
+tst a0, a1, 0 ::
+  inputs: a1=0x0011223344556677
+  output: a0=0x0000000000000001
+tst a0, a1, 8 ::
+  inputs: a1=0x0011223344556677
+  output: a0=0x0000000000000000
+tst a0, a1, 33 ::
+  inputs: a1=0x0011223344556677
+  output: a0=0x0000000000000001
+tst a0, a1, 42 ::
+  inputs: a1=0x0011223344556677
+  output: a0=0x0000000000000000
+Conditional move (XTheadCondMov)
+mveqz a0, a1, a2 ::
+  inputs: a0=0x000000000000abcd, a1=0x0011223344556677, a2=0x0000000000000000
+  output: a0=0x0011223344556677
+mveqz a0, a1, a2 ::
+  inputs: a0=0x000000000000abcd, a1=0x0011223344556677, a2=0x0000000000000001
+  output: a0=0x000000000000abcd
+mvnez a0, a1, a2 ::
+  inputs: a0=0x0000000000001234, a1=0xaa11223344556677, a2=0x0000000000000000
+  output: a0=0x0000000000001234
+mvnez a0, a1, a2 ::
+  inputs: a0=0x0000000000001234, a1=0xaa11223344556677, a2=0x0000000000000001
+  output: a0=0xaa11223344556677
+Multiply-accumulate instructions (XTheadMac)
+mula a0, a1, a2 ::
+  inputs: a0=0x0000000000000001, a1=0x0000000011111111, a2=0x0000000000000001
+  output: a0=0x0000000011111112
+mula a0, a1, a2 ::
+  inputs: a0=0x0000000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
+  output: a0=0x00000001ffffffff
+mulah a0, a1, a2 ::
+  inputs: a0=0x0000000000000001, a1=0x0000000011111111, a2=0x0000000000000002
+  output: a0=0x0000000000002223
+mulah a0, a1, a2 ::
+  inputs: a0=0x0000000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
+  output: a0=0x000000000001ffff
+mulaw a0, a1, a2 ::
+  inputs: a0=0x0000000000000001, a1=0x0000000011111111, a2=0x0000000000000002
+  output: a0=0x0000000022222223
+mulaw a0, a1, a2 ::
+  inputs: a0=0x0000000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
+  output: a0=0x00000000ffffffff
+muls a0, a1, a2 ::
+  inputs: a0=0xffff000000000001, a1=0x0000000011111111, a2=0x0000000000000001
+  output: a0=0xfffeffffeeeeeef0
+muls a0, a1, a2 ::
+  inputs: a0=0xffff000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
+  output: a0=0xfffefffe00000003
+mulsh a0, a1, a2 ::
+  inputs: a0=0xffff000000000001, a1=0x0000000011111111, a2=0x0000000000000001
+  output: a0=0x00000000ffffeef0
+mulsh a0, a1, a2 ::
+  inputs: a0=0xffff000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
+  output: a0=0x00000000fffe0003
+mulsw a0, a1, a2 ::
+  inputs: a0=0xffff000000000001, a1=0x0000000011111111, a2=0x0000000000000001
+  output: a0=0x00000000eeeeeef0
+mulsw a0, a1, a2 ::
+  inputs: a0=0xffff000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
+  output: a0=0x0000000000000003
