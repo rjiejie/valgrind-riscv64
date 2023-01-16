@@ -276,8 +276,6 @@ typedef enum {
    RISCV64in_XIndir,          /* Indirect transfer to guest address. */
    RISCV64in_XAssisted,       /* Assisted transfer to guest address. */
    RISCV64in_EvCheck,         /* Event check. */
-   /* Indicating vendor T-HEAD. */
-   RISCV64in_XTHEAD_Arith,
    RISCV64in_FLdStH,
    RISCV64in_FTriH,
    RISCV64in_FBinH,
@@ -287,11 +285,6 @@ typedef enum {
 typedef struct {
    RISCV64InstrTag tag;
    union {
-      struct {
-         HReg dst;
-         HReg argL;
-         // ARM64RIA* argR;
-      } xthArith;
       struct {
          Bool isLoad;
          HReg sd;
@@ -1164,23 +1157,6 @@ HInstrArray* iselSB_RISCV64(const IRSB*        bb,
                             Bool               chainingAllowed,
                             Bool               addProfInc,
                             Addr               max_ga);
-
-/*------------------------------------------------------------*/
-/* --- Vendor extensions                                  --- */
-/*------------------------------------------------------------*/
-UChar* emit_XTHEAD64Instr(/*MB_MOD*/ Bool*    is_profInc,
-                          UChar*              buf,
-                          Int                 nbuf,
-                          const RISCV64Instr* i,
-                          Bool                mode64,
-                          VexEndness          endness_host,
-                          const void*         disp_cp_chain_me_to_slowEP,
-                          const void*         disp_cp_chain_me_to_fastEP,
-                          const void*         disp_cp_xindir,
-                          const void*         disp_cp_xassisted);
-Bool getRegUsage_XTHEAD64Instr(HRegUsage* u, const RISCV64Instr* i);
-Bool mapRegs_XTHEAD64Instr(HRegRemap* m, RISCV64Instr* i);
-Bool ppXTHEAD64Instr(const RISCV64Instr* i);
 
 #endif /* ndef __VEX_HOST_RISCV64_DEFS_H */
 

@@ -557,7 +557,6 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
 /*--- Extensions                                           ---*/
 /*------------------------------------------------------------*/
 #include "host_riscv64Zfh_isel.c"
-#include "host_riscv64xthead_isel.c"
 
 /*------------------------------------------------------------*/
 /*--- ISEL: Integer expressions (64/32/16/8/1 bit)         ---*/
@@ -599,12 +598,6 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
    IRType ty = typeOfIRExpr(env->type_env, e);
    vassert(ty == Ity_I64 || ty == Ity_I32 || ty == Ity_I16 || ty == Ity_I8 ||
            ty == Ity_I1);
-
-   /* Vendor extensions */
-   Bool ok;
-   HReg ret = iselXTHEADExpr_wrk(env, e, &ok);
-   if (ok)
-      return ret;
 
    switch (e->tag) {
    /* ------------------------ TEMP ------------------------- */
