@@ -26,16 +26,16 @@ srri a0, a1, 32 ::
   output: a0=0x6666666699999999
 srriw a0, a1, 0 ::
   inputs: a1=0x6969696969696969
-  output: a0=0x00000000d2d2d2d2
+  output: a0=0x0000000069696969
 srriw a0, a1, 8 ::
   inputs: a1=0x6969696969696969
   output: a0=0x0000000069696969
 srriw a0, a1, 15 ::
   inputs: a1=0x6969696969696969
-  output: a0=0x00000000d2d2d2d2
+  output: a0=0xffffffffd2d2d2d2
 srriw a0, a1, 30 ::
   inputs: a1=0x6969696969696969
-  output: a0=0x00000000a5a5a5a5
+  output: a0=0xffffffffa5a5a5a5
 ext a0, a1, 4, 0 ::
   inputs: a1=0x66666666ffffffff
   output: a0=0xffffffffffffffff
@@ -173,13 +173,13 @@ mulah a0, a1, a2 ::
   output: a0=0x0000000000002223
 mulah a0, a1, a2 ::
   inputs: a0=0x0000000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
-  output: a0=0x000000000001ffff
+  output: a0=0xffffffffffffffff
 mulaw a0, a1, a2 ::
   inputs: a0=0x0000000000000001, a1=0x0000000011111111, a2=0x0000000000000002
   output: a0=0x0000000022222223
 mulaw a0, a1, a2 ::
   inputs: a0=0x0000000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
-  output: a0=0x00000000ffffffff
+  output: a0=0xffffffffffffffff
 muls a0, a1, a2 ::
   inputs: a0=0xffff000000000001, a1=0x0000000011111111, a2=0x0000000000000001
   output: a0=0xfffeffffeeeeeef0
@@ -188,13 +188,13 @@ muls a0, a1, a2 ::
   output: a0=0xfffefffe00000003
 mulsh a0, a1, a2 ::
   inputs: a0=0xffff000000000001, a1=0x0000000011111111, a2=0x0000000000000001
-  output: a0=0x00000000ffffeef0
+  output: a0=0xffffffffffffeef0
 mulsh a0, a1, a2 ::
   inputs: a0=0xffff000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
-  output: a0=0x00000000fffe0003
+  output: a0=0x0000000000000003
 mulsw a0, a1, a2 ::
   inputs: a0=0xffff000000000001, a1=0x0000000011111111, a2=0x0000000000000001
-  output: a0=0x00000000eeeeeef0
+  output: a0=0xffffffffeeeeeef0
 mulsw a0, a1, a2 ::
   inputs: a0=0xffff000000000001, a1=0x00000000ffffffff, a2=0x0000000000000002
   output: a0=0x0000000000000003

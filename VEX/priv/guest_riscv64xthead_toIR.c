@@ -380,19 +380,21 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
       UInt imm  = 0;
       UInt immL = 0;
       IRExpr* eR1 = NULL;
-
+      IRExpr* exp = NULL;
       if (GET_FUNCT7() == XTHEAD_SOPC_SRRIW) {
          imm  = GET_RS2();
          immL = 32 - GET_RS2();
-         eR1 = unop(Iop_32Uto64, getIReg32(rs1));
+         eR1 = getIReg32(rs1);
+         exp = unop(Iop_32Sto64, binop(Iop_Or32, binop(Iop_Shr32, eR1, mkU8(imm)),
+                                                 binop(Iop_Shl32, eR1, mkU8(immL))));
       } else {
          imm  = INSN(25, 20);
          immL = 64 - INSN(25, 20);
          eR1 = getIReg64(rs1);
+         exp = binop(Iop_Or64, binop(Iop_Shr64, eR1, mkU8(imm)),
+                               binop(Iop_Shl64, eR1, mkU8(immL)));
       }
-      putIReg64(irsb, rd,
-                binop(Iop_Or64, binop(Iop_Shr64, eR1, mkU8(imm)),
-                                binop(Iop_Shl64, eR1, mkU8(immL))));
+      putIReg64(irsb, rd, exp);
       DIP("%s %s,%s,%u\n", GET_FUNCT7() == XTHEAD_SOPC_SRRIW ? "srriw" : "srri",
           nameIReg(rd), nameIReg(rs1), imm);
       return True;
