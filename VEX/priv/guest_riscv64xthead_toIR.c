@@ -62,6 +62,26 @@
 #define XTHEAD_SOPC_SYNC_I    0b11010
 #define XTHEAD_SOPC_SYNC_IS   0b11011
 
+static ULong xthead_helper_insn_ff0(ULong rs1)
+{
+   Long i = 0;
+   for (i = 63; i >= 0; i--) {
+      if ((rs1 & (1UL << i)) == 0)
+         return (ULong)(63 - i);
+   }
+   return (ULong)64;
+}
+
+static ULong xthead_helper_insn_ff1(ULong rs1)
+{
+   Long i = 0;
+   for (i = 63; i >= 0; i--) {
+      if ((rs1 & (1UL << i)) == (1UL << i))
+         return (ULong)(63 - i);
+   }
+   return (ULong)64;
+}
+
 static void gen_xthead_store(IRSB* irsb, UInt szB, IRTemp addr, IRExpr* dataE)
 {
    IRExpr* addrE = mkexpr(addr);
@@ -380,7 +400,21 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
        (GET_FUNCT7() == XTHEAD_SOPC_FF0 || GET_FUNCT7() == XTHEAD_SOPC_FF1)) {
-      ;
+      UInt rd  = GET_RD();
+      UInt rs1 = GET_RS1();
+
+      void* helpers[2]
+         = { &xthead_helper_insn_ff0, &xthead_helper_insn_ff1 };
+      const HChar* hNames[2]
+         = { "xthead_helper_insn_ff0", "xthead_helper_insn_ff1" };
+      const HChar* opcs[2] = { "ff0", "ff1" };
+      const UInt   opci    = INSN(25, 25);
+
+      putIReg64(irsb, rd,
+                mkIRExprCCall(Ity_I64, 0 /*regparms*/, hNames[opci],
+                              helpers[opci], mkIRExprVec_1(getIReg64(rs1))));
+      DIP("%s %s,%s\n", opcs[opci], nameIReg(rd), nameIReg(rs1));
+      return True;
    }
 
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH && GET_RS2() == 0 &&
