@@ -528,7 +528,7 @@ static Bool dis_XTHEAD_arithmetic(/*MB_OUT*/ DisResult* dres,
    if (GET_FUNCT3() == XTHEAD_OPC_ARITH &&
        (GET_FUNCT7() == XTHEAD_SOPC_MULA || GET_FUNCT7() == XTHEAD_SOPC_MULAH ||
         GET_FUNCT7() == XTHEAD_SOPC_MULAW || GET_FUNCT7() == XTHEAD_SOPC_MULS ||
-        GET_FUNCT7() == XTHEAD_SOPC_MULSH || XTHEAD_SOPC_MULSW)) {
+        GET_FUNCT7() == XTHEAD_SOPC_MULSH || GET_FUNCT7() == XTHEAD_SOPC_MULSW)) {
       UInt rd    = GET_RD();
       UInt rs1   = GET_RS1();
       UInt rs2   = GET_RS2();
