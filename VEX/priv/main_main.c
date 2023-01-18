@@ -2302,6 +2302,10 @@ static void check_hwcaps ( VexArch arch, UInt hwcaps )
       case VexArchRISCV64:
          if (hwcaps == 0)
             return;
+#ifdef __riscv_zfh
+         if (!(hwcaps & ~VEX_HWCAPS_RISCV64_Zfh))
+            return;
+#endif
          invalid_hwcaps(arch, hwcaps, "Cannot handle capabilities\n");
 
       default:
