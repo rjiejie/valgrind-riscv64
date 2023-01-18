@@ -2273,6 +2273,9 @@ Bool VG_(machine_get_hwcaps)( void )
 
      /* Hardware baseline is RV64GC. */
      vai.hwcaps = 0;
+#ifdef __riscv_zfh
+     vai.hwcaps |= VEX_HWCAPS_RISCV64_Zfh;
+#endif
 
      VG_(debugLog)(1, "machine", "hwcaps = 0x%x\n", vai.hwcaps);
 
