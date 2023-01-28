@@ -235,7 +235,6 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
-#define RV64_SOPC_FCVT_F    0b01000
 #define RV64_SOPC_FCVT_S_H  0b0000010
 #define RV64_SOPC_FCVT_H_S  0b1000000
 #define RV64_SOPC_FCVT_D_H  0b0100010
@@ -243,7 +242,7 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
 
    if ((INSN(26, 20) == RV64_SOPC_FCVT_S_H || INSN(26, 20) == RV64_SOPC_FCVT_H_S ||
         INSN(26, 20) == RV64_SOPC_FCVT_D_H || INSN(26, 20) == RV64_SOPC_FCVT_H_D)
-       && GET_FUNCT5() == RV64_SOPC_FCVT_F && GET_OPCODE() == OPC_OP_FP) {
+       && GET_FUNCT5() == RV64_SOPC_FCVT_FF && GET_OPCODE() == OPC_OP_FP) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
       UInt  rm      = GET_FUNCT3();
@@ -289,11 +288,10 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       DIP("%s %s,%s%s\n", opcodestr, nameFReg(rd), nameFReg(rs1), nameRMOperand(rm));
       return True;
    }
-
-#define RV64_SOPC_FCMP 0b1010010
-
+ 
    if ((GET_FUNCT3() == 0 || GET_FUNCT3() == 1 || GET_FUNCT3() == 2)
-       && GET_FUNCT7() == RV64_SOPC_FCMP && GET_OPCODE() == OPC_OP_FP) {
+       && GET_FUNCT5() == RV64_SOPC_FCMP && GET_OPCODE() == OPC_OP_FP
+       && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
       UInt  rs2     = GET_RS2();
@@ -350,10 +348,9 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
-#define RV64_SOPC_FCVT_IF 0b1100010
-
    if ((GET_RS2() == 0 || GET_RS2() == 1 || GET_RS2() == 2 || GET_RS2() == 3)
-       && GET_FUNCT7() == RV64_SOPC_FCVT_IF && GET_OPCODE() == OPC_OP_FP) {
+       && GET_FUNCT5() == RV64_SOPC_FCVT_IF && GET_OPCODE() == OPC_OP_FP
+       && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
       UInt  opc     = GET_RS2();
@@ -393,10 +390,9 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
-#define RV64_SOPC_FCVT_FI 0b1101010
-
    if ((GET_RS2() == 0 || GET_RS2() == 1 || GET_RS2() == 2 || GET_RS2() == 3)
-       && GET_FUNCT7() == RV64_SOPC_FCVT_FI && GET_OPCODE() == OPC_OP_FP) {
+       && GET_FUNCT5() == RV64_SOPC_FCVT_FI && GET_OPCODE() == OPC_OP_FP
+       && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
       UInt  opc     = GET_RS2();

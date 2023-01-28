@@ -73,6 +73,11 @@
 #define RV64_FMT_FD 0b01
 #define RV64_FMT_FH 0b10
 
+#define RV64_FMT_W  0b00
+#define RV64_FMT_WU 0b01
+#define RV64_FMT_L  0b10
+#define RV64_FMT_LU 0b11
+
 #define RV64_SOPC_FADD     0b00000
 #define RV64_SOPC_FSUB     0b00001
 #define RV64_SOPC_FMUL     0b00010
@@ -83,6 +88,10 @@
 #define RV64_SOPC_FCLASS   0b11100
 #define RV64_SOPC_FMV_X_H  0b11100
 #define RV64_SOPC_FMV_H_X  0b11110
+#define RV64_SOPC_FCMP     0b10100
+#define RV64_SOPC_FCVT_FI  0b11010   // integer-floating-point conversion
+#define RV64_SOPC_FCVT_IF  0b11000   // floating-point-integer conversion
+#define RV64_SOPC_FCVT_FF  0b01000   // floating-point conversion
 
 #endif /* __LIBVEX_PUB_RISCV_H */
 

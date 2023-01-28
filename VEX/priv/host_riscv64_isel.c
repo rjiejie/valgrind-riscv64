@@ -599,6 +599,13 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
    vassert(ty == Ity_I64 || ty == Ity_I32 || ty == Ity_I16 || ty == Ity_I8 ||
            ty == Ity_I1);
 
+#ifdef __riscv_zfh
+   Bool ok;
+   HReg ret = iselIntZfhExpr_R_wrk(env, e, &ok);
+   if (ok)
+      return ret;
+#endif
+
    switch (e->tag) {
    /* ------------------------ TEMP ------------------------- */
    case Iex_RdTmp: {

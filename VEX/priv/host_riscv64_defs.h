@@ -280,7 +280,20 @@ typedef enum {
    RISCV64in_FTriH,
    RISCV64in_FBinH,
    RISCV64in_FUnaryH,
+   RISCV64in_FCvtH,           /* 16-bit floating-point number conversion */
+   RISCV64in_FCmpH,           /* 16-bit floating-point number comparison */
 } RISCV64InstrTag;
+
+/*--------------------------------------------------------------------*/
+/*--- Zfh comparison operation types                               ---*/
+/*--------------------------------------------------------------------*/
+typedef
+   enum {
+      RV64_CMP_LE = 0b000,
+      RV64_CMP_LT,
+      RV64_CMP_EQ
+   }
+   RISCV64CmpOp;
 
 typedef struct {
    RISCV64InstrTag tag;
@@ -312,6 +325,19 @@ typedef struct {
          HReg rd;
          HReg rs1;
       } FUnaryH;
+      /* 16-bit floating-point conversion */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+      } FCvtH;
+      /* 16-bit floating-point comparison */
+      struct {
+         RISCV64CmpOp op;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+      } FCmpH;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
@@ -1076,6 +1102,8 @@ RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12);
 RISCV64Instr* RISCV64Instr_FTriH(IROp op, HReg rd, HReg rs1, HReg rs2, HReg rs3);
 RISCV64Instr* RISCV64Instr_FBinH(IROp op, HReg rd, HReg rs1, HReg rs2);
 RISCV64Instr* RISCV64Instr_FUnaryH(IROp op, HReg rd, HReg rs1);
+RISCV64Instr* RISCV64Instr_FCvtH(IROp op, HReg rd, HReg rs1);
+RISCV64Instr* RISCV64Instr_FCmpH(RISCV64CmpOp op, HReg rd, HReg rs1, HReg rs2);
 UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
                             UChar*              buf,
                             Int                 nbuf,
