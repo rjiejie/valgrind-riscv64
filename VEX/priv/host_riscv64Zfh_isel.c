@@ -130,12 +130,6 @@ static HReg iselFlt16Expr_wrk(ISelEnv* env, IRExpr* e, Bool* ok)
             addInstr(env, RISCV64Instr_FUnaryH(e->Iex.Unop.op, rd, rs1));
             return rd;
          }
-         case Iop_ReinterpF16asI16: {
-            HReg rd  = newVRegI(env);
-            HReg rs1 = iselFltExpr(env, e->Iex.Unop.arg);
-            addInstr(env, RISCV64Instr_FUnaryH(e->Iex.Unop.op, rd, rs1));
-            return rd;
-         }
          case Iop_ReinterpI16asF16: {
             HReg rd  = newVRegF(env);
             HReg rs1 = iselIntExpr_R(env, e->Iex.Unop.arg);
@@ -162,6 +156,19 @@ static HReg iselIntZfhExpr_R_wrk(ISelEnv* env, IRExpr* e, Bool* ok) {
    vassert(ok != NULL);
    *ok = True;
    HReg ret = {0};
+
+   if (e->tag == Iex_Unop) {
+      switch (e->Iex.Unop.op) {
+         case Iop_ReinterpF16asI16: {
+            HReg rd  = newVRegI(env);
+            HReg rs1 = iselFltExpr(env, e->Iex.Unop.arg);
+            addInstr(env, RISCV64Instr_FUnaryH(e->Iex.Unop.op, rd, rs1));
+            return rd;
+         }
+         default:
+            break;
+      }
+   }
 
    if (e->tag == Iex_Binop) {
       switch (e->Iex.Binop.op) {

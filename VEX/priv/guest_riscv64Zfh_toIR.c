@@ -288,7 +288,7 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       DIP("%s %s,%s%s\n", opcodestr, nameFReg(rd), nameFReg(rs1), nameRMOperand(rm));
       return True;
    }
- 
+
    if ((GET_FUNCT3() == 0 || GET_FUNCT3() == 1 || GET_FUNCT3() == 2)
        && GET_FUNCT5() == RV64_SOPC_FCMP && GET_OPCODE() == OPC_OP_FP
        && INSN(26, 25) == RV64_FMT_FH) {
