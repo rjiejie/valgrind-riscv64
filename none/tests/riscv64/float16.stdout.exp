@@ -1,0 +1,567 @@
+RV64 Zfh half-precision FP instruction set.
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0001, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0x000000007fffffff, fcsr=0x00000010
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0x000000007fffffff, fcsr=0x00000010
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff77ff, fcsr=0x00000000
+  output: a0=0x0000000000007ff0, fcsr=0x00000000
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xfffffffffffff800, fcsr=0x00000000
+  output: a0=0xffffffffffff8000, fcsr=0x00000000
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7800, fcsr=0x00000000
+  output: a0=0x0000000000008000, fcsr=0x00000000
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: a0=0xffffffffffff8010, fcsr=0x00000000
+fcvt.w.h zero, fa0 ::
+  inputs: fa0=0xffffffffffff3c00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000000
+fcvt.w.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.w.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.w.h a0, fa0, rtz ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.w.h a0, fa0, rtz ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.w.h a0, fa0, rdn ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.w.h a0, fa0, rdn ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000001
+fcvt.w.h a0, fa0, rup ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.w.h a0, fa0, rup ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.w.h a0, fa0, rmm ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.w.h a0, fa0, rmm ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000001
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000020
+  output: a0=0x0000000000000000, fcsr=0x00000021
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000020
+  output: a0=0x0000000000000000, fcsr=0x00000021
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000040
+  output: a0=0x0000000000000000, fcsr=0x00000041
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000040
+  output: a0=0xffffffffffffffff, fcsr=0x00000041
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000060
+  output: a0=0x0000000000000001, fcsr=0x00000061
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000060
+  output: a0=0x0000000000000000, fcsr=0x00000061
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000080
+  output: a0=0x0000000000000001, fcsr=0x00000081
+fcvt.w.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000080
+  output: a0=0xffffffffffffffff, fcsr=0x00000081
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0001, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000010
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000010
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff77ff, fcsr=0x00000000
+  output: a0=0x0000000000007ff0, fcsr=0x00000000
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffbc00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+fcvt.wu.h zero, fa0 ::
+  inputs: fa0=0xffffffffffff3c00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000000
+fcvt.wu.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.wu.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.wu.h a0, fa0, rtz ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.wu.h a0, fa0, rdn ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.wu.h a0, fa0, rup ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.wu.h a0, fa0, rmm ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000020
+  output: a0=0x0000000000000000, fcsr=0x00000021
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000040
+  output: a0=0x0000000000000000, fcsr=0x00000041
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000060
+  output: a0=0x0000000000000001, fcsr=0x00000061
+fcvt.wu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000080
+  output: a0=0x0000000000000001, fcsr=0x00000081
+feq.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff3c00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+feq.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+feq.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff8000, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+feq.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff8000, fa1=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+feq.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff7c00, fa1=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+feq.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+feq.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7d00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+feq.h zero, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff7d00, fa1=0xffffffffffff7d00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000010
+flt.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+flt.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff3c00, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+flt.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff8000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+flt.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff8000, fa1=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+flt.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff7c00, fa1=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+flt.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+flt.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7d00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+flt.h zero, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff7d00, fa1=0xffffffffffff7d00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000010
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff3c00, fa1=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff3c00, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff8000, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff8000, fa1=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff7c00, fa1=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+fle.h a0, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7d00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+fle.h zero, fa0, fa1 ::
+  inputs: fa0=0xffffffffffff7d00, fa1=0xffffffffffff7d00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000010
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000000000, fcsr=0x00000000
+  output: fa0=0xffffffffffff0000, fcsr=0x00000000
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000007ff0, fcsr=0x00000000
+  output: fa0=0xffffffffffff77ff, fcsr=0x00000000
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000007fff, fcsr=0x00000000
+  output: fa0=0xffffffffffff7800, fcsr=0x00000001
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x00000000ffff8000, fcsr=0x00000000
+  output: fa0=0xfffffffffffff800, fcsr=0x00000000
+fcvt.h.w fa0, a0, rne ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.w fa0, a0, rne ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.w fa0, a0, rtz ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.w fa0, a0, rtz ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe800, fcsr=0x00000001
+fcvt.h.w fa0, a0, rdn ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.w fa0, a0, rdn ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe801, fcsr=0x00000001
+fcvt.h.w fa0, a0, rup ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.w fa0, a0, rup ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe800, fcsr=0x00000001
+fcvt.h.w fa0, a0, rmm ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.w fa0, a0, rmm ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe801, fcsr=0x00000001
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000020
+  output: fa0=0xffffffffffff6800, fcsr=0x00000021
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000020
+  output: fa0=0xffffffffffffe800, fcsr=0x00000021
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000040
+  output: fa0=0xffffffffffff6800, fcsr=0x00000041
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000040
+  output: fa0=0xffffffffffffe801, fcsr=0x00000041
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000060
+  output: fa0=0xffffffffffff6801, fcsr=0x00000061
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000060
+  output: fa0=0xffffffffffffe800, fcsr=0x00000061
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000080
+  output: fa0=0xffffffffffff6801, fcsr=0x00000081
+fcvt.h.w fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000080
+  output: fa0=0xffffffffffffe801, fcsr=0x00000081
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x0000000000000000, fcsr=0x00000000
+  output: fa0=0xffffffffffff0000, fcsr=0x00000000
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x000000000000ffe0, fcsr=0x00000000
+  output: fa0=0xffffffffffff7bff, fcsr=0x00000000
+fcvt.h.wu fa0, a0, rne ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.wu fa0, a0, rne ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.wu fa0, a0, rtz ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.wu fa0, a0, rdn ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.wu fa0, a0, rup ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.wu fa0, a0, rmm ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000020
+  output: fa0=0xffffffffffff6800, fcsr=0x00000021
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000040
+  output: fa0=0xffffffffffff6800, fcsr=0x00000041
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000060
+  output: fa0=0xffffffffffff6801, fcsr=0x00000061
+fcvt.h.wu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000080
+  output: fa0=0xffffffffffff6801, fcsr=0x00000081
+
+RV64 Zfh half-precision FP instruction set, additions
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0001, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0x7fffffffffffffff, fcsr=0x00000010
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0x7fffffffffffffff, fcsr=0x00000010
+fcvt.l.h zero, fa0 ::
+  inputs: fa0=0xffffffffffff3c00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000000
+fcvt.l.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.l.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.l.h a0, fa0, rtz ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.l.h a0, fa0, rtz ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.l.h a0, fa0, rdn ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.l.h a0, fa0, rdn ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000001
+fcvt.l.h a0, fa0, rup ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.l.h a0, fa0, rup ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.l.h a0, fa0, rmm ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.l.h a0, fa0, rmm ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000001
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000020
+  output: a0=0x0000000000000000, fcsr=0x00000021
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000020
+  output: a0=0x0000000000000000, fcsr=0x00000021
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000040
+  output: a0=0x0000000000000000, fcsr=0x00000041
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000040
+  output: a0=0xffffffffffffffff, fcsr=0x00000041
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000060
+  output: a0=0x0000000000000001, fcsr=0x00000061
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000060
+  output: a0=0x0000000000000000, fcsr=0x00000061
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000080
+  output: a0=0x0000000000000001, fcsr=0x00000081
+fcvt.l.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffb800, fcsr=0x00000080
+  output: a0=0xffffffffffffffff, fcsr=0x00000081
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000000
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0001, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000010
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0xffffffffffffffff, fcsr=0x00000010
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffbc00, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000010
+fcvt.lu.h zero, fa0 ::
+  inputs: fa0=0xffffffffffff3c00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000000
+fcvt.lu.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.lu.h a0, fa0, rne ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.lu.h a0, fa0, rtz ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.lu.h a0, fa0, rdn ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.lu.h a0, fa0, rup ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.lu.h a0, fa0, rmm ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000001
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000000
+  output: a0=0x0000000000000000, fcsr=0x00000001
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3e00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000001
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000020
+  output: a0=0x0000000000000000, fcsr=0x00000021
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000040
+  output: a0=0x0000000000000000, fcsr=0x00000041
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000060
+  output: a0=0x0000000000000001, fcsr=0x00000061
+fcvt.lu.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3800, fcsr=0x00000080
+  output: a0=0x0000000000000001, fcsr=0x00000081
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0x0000000000000000, fcsr=0x00000000
+  output: fa0=0xffffffffffff0000, fcsr=0x00000000
+fcvt.h.l fa0, a0, rne ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.l fa0, a0, rne ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.l fa0, a0, rtz ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.l fa0, a0, rtz ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe800, fcsr=0x00000001
+fcvt.h.l fa0, a0, rdn ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.l fa0, a0, rdn ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe801, fcsr=0x00000001
+fcvt.h.l fa0, a0, rup ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.l fa0, a0, rup ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe800, fcsr=0x00000001
+fcvt.h.l fa0, a0, rmm ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.l fa0, a0, rmm ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000000
+  output: fa0=0xffffffffffffe801, fcsr=0x00000001
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000020
+  output: fa0=0xffffffffffff6800, fcsr=0x00000021
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000020
+  output: fa0=0xffffffffffffe800, fcsr=0x00000021
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000040
+  output: fa0=0xffffffffffff6800, fcsr=0x00000041
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000040
+  output: fa0=0xffffffffffffe801, fcsr=0x00000041
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000060
+  output: fa0=0xffffffffffff6801, fcsr=0x00000061
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000060
+  output: fa0=0xffffffffffffe800, fcsr=0x00000061
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000080
+  output: fa0=0xffffffffffff6801, fcsr=0x00000081
+fcvt.h.l fa0, a0 ::
+  inputs: a0=0xfffffffffffff7ff, fcsr=0x00000080
+  output: fa0=0xffffffffffffe801, fcsr=0x00000081
+fcvt.h.lu fa0, a0 ::
+  inputs: a0=0x0000000000000000, fcsr=0x00000000
+  output: fa0=0xffffffffffff0000, fcsr=0x00000000
+fcvt.h.lu fa0, a0, rne ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.lu fa0, a0, rne ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.lu fa0, a0, rtz ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.lu fa0, a0, rdn ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.lu fa0, a0, rup ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.lu fa0, a0, rmm ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6801, fcsr=0x00000001
+fcvt.h.lu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000000
+  output: fa0=0xffffffffffff6800, fcsr=0x00000001
+fcvt.h.lu fa0, a0 ::
+  inputs: a0=0x0000000000000803, fcsr=0x00000000
+  output: fa0=0xffffffffffff6802, fcsr=0x00000001
+fcvt.h.lu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000020
+  output: fa0=0xffffffffffff6800, fcsr=0x00000021
+fcvt.h.lu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000040
+  output: fa0=0xffffffffffff6800, fcsr=0x00000041
+fcvt.h.lu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000060
+  output: fa0=0xffffffffffff6801, fcsr=0x00000061
+fcvt.h.lu fa0, a0 ::
+  inputs: a0=0x0000000000000801, fcsr=0x00000080
+  output: fa0=0xffffffffffff6801, fcsr=0x00000081
