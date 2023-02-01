@@ -578,7 +578,7 @@ static Bool dis_XTHEAD_cmo(/*MB_OUT*/ DisResult* dres,
    if (GET_FUNCT7() == 0 && GET_RD() == 0 && GET_RS1() == 0 &&
        (GET_RS2() == XTHEAD_SOPC_SYNC || GET_RS2() == XTHEAD_SOPC_SYNC_S ||
         GET_RS2() == XTHEAD_SOPC_SYNC_I || GET_RS2() == XTHEAD_SOPC_SYNC_IS)) {
-      UInt opc = INSN(26, 25);
+      UInt opc = INSN(21, 20);
       const HChar* opcs[4] = { "sync", "sync.s", "sync.i", "sync.is" };
       DIP("%s (nop)\n", opcs[opc]);
       return True;
