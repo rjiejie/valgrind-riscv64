@@ -6,6 +6,958 @@
 static void test_float16_shared(void)
 {
    printf("RV64 Zfh half-precision FP instruction set.\n");
+
+   /* ------------ fmadd.h rd, rs1, rs2, rs3, rm ------------ */
+   /* 3.0 * 2.0 + 1.0 -> 7.0 */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4200,
+                  0xffffffffffff4000, 0xffffffffffff3c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + -1.0 -> 0.0 */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffffbc00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * HFLT_TRUE_MIN + -HFLT_TRUE_MIN -> HFLT_TRUE_MIN (no UF because exact)
+    */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff0001, 0xffffffffffff8001, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * FLT_MAX + -FLT_MAX -> FLT_MAX */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xfffffffffffffbff, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * FLT_MAX + 0.0 -> INFINITY (OF, NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xffffffffffff0000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * INFINITY + -INFINITY -> qNAN (NV) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7c00, 0xfffffffffffffc00, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rne", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) + HFLT_EPSILON/2 (RNE) -> 2nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rne", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rup", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rup", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (DYN-RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) + HFLT_EPSILON/2 (DYN-RNE) -> 2nextafterf(1.0) (NX)
+    */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (DYN-RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (DYN-RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (DYN-RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (DYN-RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 + HFLT_EPSILON/2 (DYN-RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x80, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 + -HFLT_EPSILON/2 (DYN-RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff9000, 0x80, fa0, fa1, fa2,
+                  fa3);
+
+   /* ------------ fmsub.h rd, rs1, rs2, rs3, rm ------------ */
+   /* 3.0 * 2.0 - 1.0 -> 5.0 */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4200,
+                  0xffffffffffff4000, 0xffffffffffff3c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 1.0 - 1.0 -> 0.0 */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff3c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * HFLT_TRUE_MIN - HFLT_TRUE_MIN -> HFLT_TRUE_MIN (no UF because exact)
+    */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff0001, 0xffffffffffff0001, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * FLT_MAX - FLT_MAX -> FLT_MAX */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xffffffffffff7bff, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * FLT_MAX - 0.0 -> INFINITY (OF, NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xffffffffffff0000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 2.0 * INFINITY - INFINITY -> qNAN (NV) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7c00, 0xffffffffffff7c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rne", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 2nextafterf(1.0) - HFLT_EPSILON/2 (RNE) -> 2nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rne", 0xffffffffffff3c00,
+                  0xffffffffffff3fff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rup", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rup", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * 2nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RNE) -> 2nextafterf(1.0) (NX)
+    */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3fff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (DYN-RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (DYN-RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (DYN-RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x80, fa0, fa1, fa2,
+                  fa3);
+   /* 1.0 * -1.0 - HFLT_EPSILON/2 (DYN-RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0xffffffffffff1000, 0x80, fa0, fa1, fa2,
+                  fa3);
+
+   /* ----------- fnmsub.h rd, rs1, rs2, rs3, rm ------------ */
+   /* -(3.0 * 2.0) + 1.0 -> -5.0 */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4200,
+                  0xffffffffffff4000, 0xffffffffffff3c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + 1.0 -> 0.0 */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff3c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * HFLT_TRUE_MIN) + HFLT_TRUE_MIN -> -HFLT_TRUE_MIN (no UF because
+      exact) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff0001, 0xffffffffffff0001, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * FLT_MAX) + FLT_MAX -> -FLT_MAX */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xffffffffffff7bff, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * FLT_MAX) + 0.0 -> -INFINITY (OF, NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xffffffffffff0000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * INFINITY) + INFINITY -> qNAN (NV) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7c00, 0xffffffffffff7c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rne", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) + HFLT_EPSILON/2 (RNE) -> 2nextafterf(1.0) (NX)
+    */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rne", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rup", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rup", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (DYN-RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) + HFLT_EPSILON/2 (DYN-RNE) ->
+      2nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (DYN-RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (DYN-RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (DYN-RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (DYN-RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 1.0) + HFLT_EPSILON/2 (DYN-RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x80, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) + -HFLT_EPSILON/2 (DYN-RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmsub.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff9000, 0x80, fa0, fa1, fa2,
+                  fa3);
+
+   /* ----------- fnmadd.h rd, rs1, rs2, rs3, rm ------------ */
+   /* -(3.0 * 2.0) - 1.0 -> -7.0 */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4200,
+                  0xffffffffffff4000, 0xffffffffffff3c00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - -1.0 -> 0.0 */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffffbc00, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * HFLT_TRUE_MIN) - -HFLT_TRUE_MIN -> -HFLT_TRUE_MIN (no UF because
+      exact) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff0001, 0xffffffffffff8001, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * FLT_MAX) - -FLT_MAX -> -FLT_MAX */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xfffffffffffffbff, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * FLT_MAX) - 0.0 -> -INFINITY (OF, NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7bff, 0xffffffffffff0000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(2.0 * INFINITY) - -INFINITY -> qNAN (NV) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4000,
+                  0xffffffffffff7c00, 0xfffffffffffffc00, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rne", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 2nextafterf(1.0)) - HFLT_EPSILON/2 (RNE) -> 2nextafterf(1.0) (NX)
+    */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rne", 0xffffffffffffbc00,
+                  0xffffffffffff3fff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rtz", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rdn", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rup", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rup", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3, rmm", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (DYN-RNE) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * 2nextafterf(1.0)) - HFLT_EPSILON/2 (DYN-RNE) -> 2nextafterf(1.0)
+      (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3fff, 0xffffffffffff1000, 0x00, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (DYN-RTZ) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x20, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (DYN-RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x40, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (DYN-RUP) ->
+      nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (DYN-RUP) -> -1.0 (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x60, fa0, fa1, fa2,
+                  fa3);
+   /* -(-1.0 * nextafterf(1.0)) - HFLT_EPSILON/2 (DYN-RMM) ->
+      nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffffbc00,
+                  0xffffffffffff3bff, 0xffffffffffff1000, 0x80, fa0, fa1, fa2,
+                  fa3);
+   /* -(1.0 * 1.0) - HFLT_EPSILON/2 (DYN-RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_3_F(4, "fnmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0xffffffffffff1000, 0x80, fa0, fa1, fa2,
+                  fa3);
+
+   /* --------------- fadd.h rd, rs1, rs2, rm --------------- */
+   /* 2.0 + 1.0 -> 3.0 */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff4000,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* 1.0 + -1.0 -> 0.0 */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffffbc00, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN + HFLT_TRUE_MIN -> 2*HFLT_TRUE_MIN (no UF because exact) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff0001, 0x00, fa0, fa1, fa2);
+   /* FLT_MAX + FLT_MAX -> INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff7bff,
+                  0xffffffffffff7bff, 0x00, fa0, fa1, fa2);
+   /* -FLT_MAX + -FLT_MAX -> -INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xfffffffffffffbff,
+                  0xfffffffffffffbff, 0x00, fa0, fa1, fa2);
+   /* nextafterf(FLT_MIN) + -FLT_MIN -> HFLT_TRUE_MIN (no UF because exact) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff0401,
+                  0xffffffffffff8400, 0x00, fa0, fa1, fa2);
+   /* INFINITY + -INFINITY -> qNAN (NV) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff7c00,
+                  0xfffffffffffffc00, 0x00, fa0, fa1, fa2);
+
+   /* 1.0 + HFLT_EPSILON/2 (RNE) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rne", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* nextafterf(1.0) + HFLT_EPSILON/2 (RNE) -> 2nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rne", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (RTZ) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rtz", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (RTZ) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rtz", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x00, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (RDN) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rdn", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rdn", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x00, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rup", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (RUP) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rup", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x00, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rmm", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2, rmm", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x00, fa0, fa1, fa2);
+
+   /* 1.0 + HFLT_EPSILON/2 (DYN-RNE) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* nextafterf(1.0) + HFLT_EPSILON/2 (DYN-RNE) -> 2nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x20, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (DYN-RTZ) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x20, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x40, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (DYN-RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x40, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (DYN-RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x60, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (DYN-RUP) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x60, fa0, fa1, fa2);
+   /* 1.0 + HFLT_EPSILON/2 (DYN-RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff1000, 0x80, fa0, fa1, fa2);
+   /* -1.0 + -HFLT_EPSILON/2 (DYN-RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fadd.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff9000, 0x80, fa0, fa1, fa2);
+
+   /* --------------- fsub.h rd, rs1, rs2, rm --------------- */
+   /* 2.0 - 1.0 -> 1.0 */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff4000,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* 1.0 - 1.0 -> 0.0 */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN - -HFLT_TRUE_MIN -> 2*HFLT_TRUE_MIN (no UF because exact) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff8001, 0x00, fa0, fa1, fa2);
+   /* FLT_MAX - -FLT_MAX -> INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff7bff,
+                  0xfffffffffffffbff, 0x00, fa0, fa1, fa2);
+   /* -FLT_MAX - FLT_MAX -> -INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xfffffffffffffbff,
+                  0xffffffffffff7bff, 0x00, fa0, fa1, fa2);
+   /* nextafterf(FLT_MIN) - FLT_MIN -> HFLT_TRUE_MIN (no UF because exact) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff0401,
+                  0xffffffffffff0400, 0x00, fa0, fa1, fa2);
+   /* INFINITY - INFINITY -> qNAN (NV) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff7c00,
+                  0xffffffffffff7c00, 0x00, fa0, fa1, fa2);
+
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (RNE) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rne", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* 2nextafterf(1.0) - HFLT_EPSILON/2 (RNE) -> 2nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rne", 0xffffffffffff3fff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (RTZ) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rtz", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (RTZ) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rtz", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (RDN) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rdn", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rdn", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rup", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (RUP) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rup", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rmm", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2, rmm", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RNE) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* 2nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RNE) -> 2nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff3fff,
+                  0xffffffffffff1000, 0x00, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x20, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (DYN-RTZ) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x20, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x40, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (DYN-RDN) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x40, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x60, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (DYN-RUP) -> -1.0 (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x60, fa0, fa1, fa2);
+   /* nextafterf(1.0) - HFLT_EPSILON/2 (DYN-RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffff3bff,
+                  0xffffffffffff1000, 0x80, fa0, fa1, fa2);
+   /* -1.0 - HFLT_EPSILON/2 (DYN-RMM) -> -nextafterf(1.0) (NX) */
+   TESTINST_1_2_F(4, "fsub.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff1000, 0x80, fa0, fa1, fa2);
+
+   /* --------------- fmul.h rd, rs1, rs2, rm --------------- */
+   /* 2.0 * 1.0 -> 2.0 */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff4000,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* 1.0 * 0.0 -> 0.0 */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff0000, 0x00, fa0, fa1, fa2);
+   /* 2**-12 * 2**-12 -> 2**-149 aka HFLT_TRUE_MIN (no UF because exact) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0c00,
+                  0xffffffffffff0c00, 0x00, fa0, fa1, fa2);
+   /* FLT_MAX * FLT_MAX -> INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff7bff,
+                  0xffffffffffff7bff, 0x00, fa0, fa1, fa2);
+   /* FLT_MAX * -FLT_MAX -> -INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff7bff,
+                  0xfffffffffffffbff, 0x00, fa0, fa1, fa2);
+   /* 1.0 * INFINITY -> INFINITY */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff7c00, 0x00, fa0, fa1, fa2);
+   /* 0.0 * INFINITY -> qNAN (NV) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff7c00, 0x00, fa0, fa1, fa2);
+
+   /* HFLT_TRUE_MIN * 0.5 (RNE) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rne", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* 3*HFLT_TRUE_MIN * 0.5 (RNE) -> 2*HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rne", 0xffffffffffff0003,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (RTZ) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rtz", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (RTZ) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rtz", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (RDN) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rdn", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (RDN) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rdn", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (RUP) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rup", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (RUP) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rup", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (RMM) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rmm", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (RMM) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2, rmm", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+
+   /* HFLT_TRUE_MIN * 0.5 (DYN-RNE) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* 3*HFLT_TRUE_MIN * 0.5 (DYN-RNE) -> 2*HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0003,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (DYN-RTZ) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x20, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (DYN-RTZ) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x20, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (DYN-RDN) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x40, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (DYN-RDN) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x40, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (DYN-RUP) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x60, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (DYN-RUP) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x60, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN * 0.5 (DYN-RMM) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff3800, 0x80, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN * 0.5 (DYN-RMM) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fmul.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff3800, 0x80, fa0, fa1, fa2);
+
+   /* --------------- fdiv.h rd, rs1, rs2, rm --------------- */
+   /* 2.0 / 1.0 -> 2.0 */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff4000,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* 0.0 / 1.0 -> 0.0 */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* 1.0 / 2**15 -> 2**-15 (no UF because exact) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff7800, 0x00, fa0, fa1, fa2);
+   /* FLT_MAX / 0.5 -> INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff7bff,
+                  0xffffffffffff3800, 0x00, fa0, fa1, fa2);
+   /* FLT_MAX / -0.5 -> -INFINITY (OF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff7bff,
+                  0xffffffffffffb800, 0x00, fa0, fa1, fa2);
+   /* 1.0 / INFINITY -> 0.0 */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff7c00, 0x00, fa0, fa1, fa2);
+   /* 1.0 / 0.0 -> INFINITY (DZ) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff0000, 0x00, fa0, fa1, fa2);
+   /* 0.0 / 0.0 -> qNAN (NV) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff0000, 0x00, fa0, fa1, fa2);
+
+   /* HFLT_TRUE_MIN / 2.0 (RNE) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rne", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* 3*HFLT_TRUE_MIN / 2.0 (RNE) -> 2*HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rne", 0xffffffffffff0003,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (RTZ) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rtz", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (RTZ) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rtz", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (RDN) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rdn", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (RDN) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rdn", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (RUP) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rup", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (RUP) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rup", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (RMM) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rmm", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (RMM) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2, rmm", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+
+   /* HFLT_TRUE_MIN / 2.0 (DYN-RNE) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* 3*HFLT_TRUE_MIN / 2.0 (DYN-RNE) -> 2*HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0003,
+                  0xffffffffffff4000, 0x00, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (DYN-RTZ) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x20, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (DYN-RTZ) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x20, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (DYN-RDN) -> 0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x40, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (DYN-RDN) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x40, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (DYN-RUP) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x60, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (DYN-RUP) -> -0.0 (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x60, fa0, fa1, fa2);
+   /* HFLT_TRUE_MIN / 2.0 (DYN-RMM) -> HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff0001,
+                  0xffffffffffff4000, 0x80, fa0, fa1, fa2);
+   /* -HFLT_TRUE_MIN / 2.0 (DYN-RMM) -> -HFLT_TRUE_MIN (UF, NX) */
+   TESTINST_1_2_F(4, "fdiv.h fa0, fa1, fa2", 0xffffffffffff8001,
+                  0xffffffffffff4000, 0x80, fa0, fa1, fa2);
+
+   /* ----------------- fsqrt.h rd, rs1, rm ----------------- */
+   /* sqrt(0.0) -> 0.0 */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff0000, 0x00, fa0, fa1);
+   /* sqrt(INFINITY) -> INFINITY */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff7c00, 0x00, fa0, fa1);
+   /* sqrt(2*HFLT_TRUE_MIN) -> 2**-74 */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff0002, 0x00, fa0, fa1);
+   /* sqrt(qNAN) -> qNAN */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff7e00, 0x00, fa0, fa1);
+   /* sqrt(-1.0) -> qNAN (NV) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffffbc00, 0x00, fa0, fa1);
+
+   /* sqrt(nextafterf(1.0)) (RNE) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rne", 0xffffffffffff3bff, 0x00, fa0,
+                  fa1);
+   /* sqrt(2nextafterf(1.0)) (RNE) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rne", 0xffffffffffff3fff, 0x00, fa0,
+                  fa1);
+   /* sqrt(nextafterf(1.0)) (RTZ) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rtz", 0xffffffffffff3bff, 0x00, fa0,
+                  fa1);
+   /* sqrt(2nextafterf(1.0)) (RTZ) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rtz", 0xffffffffffff3fff, 0x00, fa0,
+                  fa1);
+   /* sqrt(nextafterf(1.0)) (RDN) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rdn", 0xffffffffffff3bff, 0x00, fa0,
+                  fa1);
+   /* sqrt(2nextafterf(1.0)) (RDN) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rdn", 0xffffffffffff3fff, 0x00, fa0,
+                  fa1);
+   /* sqrt(nextafterf(1.0)) (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rup", 0xffffffffffff3bff, 0x00, fa0,
+                  fa1);
+   /* sqrt(2nextafterf(1.0)) (RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rup", 0xffffffffffff3fff, 0x00, fa0,
+                  fa1);
+   /* sqrt(nextafterf(1.0)) (RMM) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rmm", 0xffffffffffff3bff, 0x00, fa0,
+                  fa1);
+   /* sqrt(2nextafterf(1.0)) (RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1, rmm", 0xffffffffffff3fff, 0x00, fa0,
+                  fa1);
+
+   /* sqrt(nextafterf(1.0)) (DYN-RNE) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3bff, 0x00, fa0, fa1);
+   /* sqrt(2nextafterf(1.0)) (DYN-RNE) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3fff, 0x00, fa0, fa1);
+   /* sqrt(nextafterf(1.0)) (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3bff, 0x20, fa0, fa1);
+   /* sqrt(2nextafterf(1.0)) (DYN-RTZ) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3fff, 0x20, fa0, fa1);
+   /* sqrt(nextafterf(1.0)) (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3bff, 0x40, fa0, fa1);
+   /* sqrt(2nextafterf(1.0)) (DYN-RDN) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3fff, 0x40, fa0, fa1);
+   /* sqrt(nextafterf(1.0)) (DYN-RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3bff, 0x60, fa0, fa1);
+   /* sqrt(2nextafterf(1.0)) (DYN-RUP) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3fff, 0x60, fa0, fa1);
+   /* sqrt(nextafterf(1.0)) (DYN-RMM) -> 1.0 (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3bff, 0x80, fa0, fa1);
+   /* sqrt(2nextafterf(1.0)) (DYN-RMM) -> nextafterf(1.0) (NX) */
+   TESTINST_1_1_F(4, "fsqrt.h fa0, fa1", 0xffffffffffff3fff, 0x80, fa0, fa1);
+
+   /* ---------------- fsgnj.h rd, rs1, rs2 ----------------- */
+   /* fmv.s rd, rs1 */
+   TESTINST_1_2_F(4, "fsgnj.h fa0, fa1, fa1", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa1);
+   TESTINST_1_2_F(4, "fsgnj.h fa0, fa1, fa1", 0xffffffffffffbc00,
+                  0xffffffffffffbc00, 0x00, fa0, fa1, fa1);
+
+   /* fsgnj(1.0, +) -> 1.0 */
+   TESTINST_1_2_F(4, "fsgnj.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff7fff, 0x00, fa0, fa1, fa2);
+   /* fsgnj(1.0, -) -> -1.0 */
+   TESTINST_1_2_F(4, "fsgnj.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+   /* fsgnj(-1.0, +) -> 1.0 */
+   TESTINST_1_2_F(4, "fsgnj.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff7fff, 0x00, fa0, fa1, fa2);
+   /* fsgnj(-1.0, -) -> -1.0 */
+   TESTINST_1_2_F(4, "fsgnj.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+
+   /* ---------------- fsgnjn.h rd, rs1, rs2 ---------------- */
+   /* fneg.s rd, rs1 */
+   TESTINST_1_2_F(4, "fsgnjn.h fa0, fa1, fa1", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa1);
+   TESTINST_1_2_F(4, "fsgnjn.h fa0, fa1, fa1", 0xffffffffffffbc00,
+                  0xffffffffffffbc00, 0x00, fa0, fa1, fa1);
+
+   /* fsgnjn(1.0, +) -> -1.0 */
+   TESTINST_1_2_F(4, "fsgnjn.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff7fff, 0x00, fa0, fa1, fa2);
+   /* fsgnjn(1.0, -) -> 1.0 */
+   TESTINST_1_2_F(4, "fsgnjn.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+   /* fsgnjn(-1.0, +) -> -1.0 */
+   TESTINST_1_2_F(4, "fsgnjn.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff7fff, 0x00, fa0, fa1, fa2);
+   /* fsgnjn(-1.0, -) -> 1.0 */
+   TESTINST_1_2_F(4, "fsgnjn.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+
+   /* ---------------- fsgnjx.h rd, rs1, rs2 ---------------- */
+   /* fabs.s rd, rs1 */
+   TESTINST_1_2_F(4, "fsgnjx.h fa0, fa1, fa1", 0xffffffffffff3c00,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa1);
+   TESTINST_1_2_F(4, "fsgnjx.h fa0, fa1, fa1", 0xffffffffffffbc00,
+                  0xffffffffffffbc00, 0x00, fa0, fa1, fa1);
+
+   /* fsgnjx(1.0, +) -> 1.0 */
+   TESTINST_1_2_F(4, "fsgnjx.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff7fff, 0x00, fa0, fa1, fa2);
+   /* fsgnjx(1.0, -) -> -1.0 */
+   TESTINST_1_2_F(4, "fsgnjx.h fa0, fa1, fa2", 0xffffffffffff3c00,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+   /* fsgnjx(-1.0, +) -> -1.0 */
+   TESTINST_1_2_F(4, "fsgnjx.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff7fff, 0x00, fa0, fa1, fa2);
+   /* fsgnjx(-1.0, -) -> 1.0 */
+   TESTINST_1_2_F(4, "fsgnjx.h fa0, fa1, fa2", 0xffffffffffffbc00,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+
+   /* ----------------- fmin.h rd, rs1, rs2 ----------------- */
+   /* min(0.0, 1.0) -> 0.0 */
+   TESTINST_1_2_F(4, "fmin.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* min(0.0, -0.0) -> -0.0 */
+   TESTINST_1_2_F(4, "fmin.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+   /* min(-0.0, 0.0) -> -0.0 */
+   TESTINST_1_2_F(4, "fmin.h fa0, fa1, fa2", 0xffffffffffff8000,
+                  0xffffffffffff0000, 0x00, fa0, fa1, fa2);
+   /* min(INFINITY, INFINITY) -> INFINITY */
+   TESTINST_1_2_F(4, "fmin.h fa0, fa1, fa2", 0xffffffffffff7c00,
+                  0xffffffffffff7c00, 0x00, fa0, fa1, fa2);
+   /* min(0.0, qNAN) -> 0.0 */
+   TESTINST_1_2_F(4, "fmin.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff7e00, 0x00, fa0, fa1, fa2);
+   /* min(0.0, sNAN) -> 0.0 (NV) */
+   TESTINST_1_2_F(4, "fmin.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff7d00, 0x00, fa0, fa1, fa2);
+
+   /* ----------------- fmax.h rd, rs1, rs2 ----------------- */
+   /* max(0.0, 1.0) -> 1.0 */
+   TESTINST_1_2_F(4, "fmax.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff3c00, 0x00, fa0, fa1, fa2);
+   /* max(0.0, -0.0) -> 0.0 */
+   TESTINST_1_2_F(4, "fmax.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff8000, 0x00, fa0, fa1, fa2);
+   /* max(-0.0, 0.0) -> 0.0 */
+   TESTINST_1_2_F(4, "fmax.h fa0, fa1, fa2", 0xffffffffffff8000,
+                  0xffffffffffff0000, 0x00, fa0, fa1, fa2);
+   /* max(INFINITY, INFINITY) -> INFINITY */
+   TESTINST_1_2_F(4, "fmax.h fa0, fa1, fa2", 0xffffffffffff7c00,
+                  0xffffffffffff7c00, 0x00, fa0, fa1, fa2);
+   /* max(0.0, qNAN) -> 0.0 */
+   TESTINST_1_2_F(4, "fmax.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff7e00, 0x00, fa0, fa1, fa2);
+   /* max(0.0, sNAN) -> 0.0 (NV) */
+   TESTINST_1_2_F(4, "fmax.h fa0, fa1, fa2", 0xffffffffffff0000,
+                  0xffffffffffff7d00, 0x00, fa0, fa1, fa2);
+
    /* ---------------- fcvt.w.h rd, rs1, rm ----------------- */
    /* 0.0 -> 0 */
    TESTINST_1_1_IF(4, "fcvt.w.h a0, fa0", 0xffffffffffff0000, 0x00, a0, fa0);
