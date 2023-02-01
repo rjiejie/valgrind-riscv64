@@ -62,6 +62,10 @@
 #define XTHEAD_SOPC_SYNC_I    0b11010
 #define XTHEAD_SOPC_SYNC_IS   0b11011
 
+#define XTHEAD_SOPC_DCACHE_CIVA  0b00111
+#define XTHEAD_SOPC_DCACHE_CVAL1 0b00100
+#define XTHEAD_SOPC_ICACHE_IVA   0b10000
+
 static ULong xthead_helper_insn_ff0(ULong rs1)
 {
    Long i = 0;
@@ -577,6 +581,21 @@ static Bool dis_XTHEAD_cmo(/*MB_OUT*/ DisResult* dres,
       UInt opc = INSN(26, 25);
       const HChar* opcs[4] = { "sync", "sync.s", "sync.i", "sync.is" };
       DIP("%s (nop)\n", opcs[opc]);
+      return True;
+   }
+
+   /* TODO: implement like ARM64's IC_IVAU/DC_CVAU */
+   if (GET_FUNCT7() == 1 && GET_RD() == 0 &&
+       (GET_RS2() == XTHEAD_SOPC_DCACHE_CIVA || GET_RS2() == XTHEAD_SOPC_DCACHE_CVAL1 ||
+        GET_RS2() == XTHEAD_SOPC_ICACHE_IVA)) {
+      const HChar* opcs = "???";
+      switch (GET_RS2()) {
+         case XTHEAD_SOPC_DCACHE_CIVA:  opcs = "dcache.civa";  break;
+         case XTHEAD_SOPC_DCACHE_CVAL1: opcs = "dcache.cval1"; break;
+         case XTHEAD_SOPC_ICACHE_IVA:   opcs = "icache.iva";   break;
+         default: vassert(0);
+      }
+      DIP("%s (nop)\n", opcs);
       return True;
    }
 
