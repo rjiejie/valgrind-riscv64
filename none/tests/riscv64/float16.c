@@ -7,6 +7,40 @@ static void test_float16_shared(void)
 {
    printf("RV64 Zfh half-precision FP instruction set.\n");
 
+   /* --------------- flh rd, imm[11:0](rs1) ---------------- */
+   TESTINST_1_1_FLOAD(4, "flh fa0, 0(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 4(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 8(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 16(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 32(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 64(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 128(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 256(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 512(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 1024(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, 2040(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, -4(a1)", fa0, a1);
+   TESTINST_1_1_FLOAD(4, "flh fa0, -2048(a1)", fa0, a1);
+
+   TESTINST_1_1_FLOAD(4, "flh fa4, 0(a5)", fa4, a5);
+
+   /* --------------- fsh rs2, imm[11:0](rs1) --------------- */
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 0(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 4(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 8(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 16(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 32(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 64(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 128(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 256(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 512(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 1024(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, 2040(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, -4(a1)", 0xabcdef0123456789, fa0, a1);
+   TESTINST_0_2_FSTORE(4, "fsh fa0, -2048(a1)", 0xabcdef0123456789, fa0, a1);
+
+   TESTINST_0_2_FSTORE(4, "fsh fa4, 0(a5)", 0xabcdef0123456789, fa4, a5);
+
    /* ------------ fmadd.h rd, rs1, rs2, rs3, rm ------------ */
    /* 3.0 * 2.0 + 1.0 -> 7.0 */
    TESTINST_1_3_F(4, "fmadd.h fa0, fa1, fa2, fa3", 0xffffffffffff4200,
