@@ -1267,6 +1267,46 @@ static void test_float16_shared(void)
    /* 2**11+1 (DYN-RMM) -> 2**11+2 (NX) */
    TESTINST_1_1_FI(4, "fcvt.h.wu fa0, a0", 0x0000000000000801, 0x80, fa0, a0);
 
+   /* ------------------- fmv.x.h rd, rs1 ------------------- */
+   TESTINST_1_1_IF(4, "fmv.x.h a0, fa0", 0xabcdef0123456789, 0x00, a0, fa0);
+
+   /* "0xffffffffffff7fff" -> "0x0000000000007fff" */
+   TESTINST_1_1_IF(4, "fmv.x.h a0, fa0", 0xffffffffffff7fff, 0x00, a0, fa0);
+   /* "0x0000000000008000" -> "0xffffffffffff8000" */
+   TESTINST_1_1_IF(4, "fmv.x.h a0, fa0", 0x0000000000008000, 0x00, a0, fa0);
+
+   /* 1.0 (rd=zero) -> 0 */
+   TESTINST_1_1_IF(4, "fmv.x.h zero, fa0", 0xffffffffffff3c00, 0x00, zero, fa0);
+
+   /* ------------------ fclass.h rd, rs1 ------------------- */
+   /* fclass(-INFINITY) -> 0x001 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xfffffffffffffc00, 0x00, a0, fa0);
+   /* fclass(-1.0) -> 0x002 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffffbc00, 0x00, a0, fa0);
+   /* fclass(-FLT_TRUE_MIN) -> 0x004 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff8001, 0x00, a0, fa0);
+   /* fclass(-0.0) -> 0x008 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff8000, 0x00, a0, fa0);
+   /* fclass(0.0) -> 0x010 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff0000, 0x00, a0, fa0);
+   /* fclass(FLT_TRUE_MIN) -> 0x020 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff0001, 0x00, a0, fa0);
+   /* fclass(1.0) -> 0x040 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff3c00, 0x00, a0, fa0);
+   /* fclass(INFINITY) -> 0x080 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff7c00, 0x00, a0, fa0);
+   /* fclass(sNAN) -> 0x100 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff7d00, 0x00, a0, fa0);
+   /* fclass(qNAN) -> 0x200 */
+   TESTINST_1_1_IF(4, "fclass.h a0, fa0", 0xffffffffffff7e00, 0x00, a0, fa0);
+
+   /* fclass(-INFINITY) (rd=zero) -> 0x000 */
+   TESTINST_1_1_IF(4, "fclass.h zero, fa0", 0xfffffffffffffc00, 0x00, zero,
+                   fa0);
+
+   /* ------------------- fmv.h.x rd, rs1 ------------------- */
+   TESTINST_1_1_FI(4, "fmv.h.x fa0, a0", 0xabcdef0123456789, 0x00, fa0, a0);
+
    printf("\n");
 }
 

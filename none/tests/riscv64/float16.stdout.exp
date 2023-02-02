@@ -1136,6 +1136,54 @@ fcvt.h.wu fa0, a0 ::
 fcvt.h.wu fa0, a0 ::
   inputs: a0=0x0000000000000801, fcsr=0x00000080
   output: fa0=0xffffffffffff6801, fcsr=0x00000081
+fmv.x.h a0, fa0 ::
+  inputs: fa0=0xabcdef0123456789, fcsr=0x00000000
+  output: a0=0x0000000000006789, fcsr=0x00000000
+fmv.x.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7fff, fcsr=0x00000000
+  output: a0=0x0000000000007fff, fcsr=0x00000000
+fmv.x.h a0, fa0 ::
+  inputs: fa0=0x0000000000008000, fcsr=0x00000000
+  output: a0=0xffffffffffff8000, fcsr=0x00000000
+fmv.x.h zero, fa0 ::
+  inputs: fa0=0xffffffffffff3c00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xfffffffffffffc00, fcsr=0x00000000
+  output: a0=0x0000000000000001, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffffbc00, fcsr=0x00000000
+  output: a0=0x0000000000000002, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff8001, fcsr=0x00000000
+  output: a0=0x0000000000000004, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff8000, fcsr=0x00000000
+  output: a0=0x0000000000000008, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0000, fcsr=0x00000000
+  output: a0=0x0000000000000010, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff0001, fcsr=0x00000000
+  output: a0=0x0000000000000020, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff3c00, fcsr=0x00000000
+  output: a0=0x0000000000000040, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7c00, fcsr=0x00000000
+  output: a0=0x0000000000000080, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7d00, fcsr=0x00000000
+  output: a0=0x0000000000000100, fcsr=0x00000000
+fclass.h a0, fa0 ::
+  inputs: fa0=0xffffffffffff7e00, fcsr=0x00000000
+  output: a0=0x0000000000000200, fcsr=0x00000000
+fclass.h zero, fa0 ::
+  inputs: fa0=0xfffffffffffffc00, fcsr=0x00000000
+  output: zero=0x0000000000000000, fcsr=0x00000000
+fmv.h.x fa0, a0 ::
+  inputs: a0=0xabcdef0123456789, fcsr=0x00000000
+  output: fa0=0xffffffffffff6789, fcsr=0x00000000
 
 RV64 Zfh half-precision FP instruction set, additions
 fcvt.l.h a0, fa0 ::
