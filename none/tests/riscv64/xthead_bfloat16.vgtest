@@ -1,0 +1,2 @@
+prog: xthead_bfloat16
+vgopts: -q
