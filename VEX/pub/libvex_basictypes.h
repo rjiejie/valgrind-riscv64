@@ -90,7 +90,11 @@ typedef
    V256;
 
 /* Floating point. */
+#if defined(__cplusplus) && defined(__GNUC__) && defined(__riscv_xthead)
+typedef  __fp16   Float16;  /* IEEE754 half-precision   (16-bit) value */
+#else
 typedef  _Float16 Float16;  /* IEEE754 half-precision   (16-bit) value */
+#endif
 typedef  float    Float;    /* IEEE754 single-precision (32-bit) value */
 typedef  double   Double;   /* IEEE754 double-precision (64-bit) value */
 
