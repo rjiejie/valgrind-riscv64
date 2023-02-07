@@ -323,7 +323,7 @@ if VGCONF_OS_IS_DARWIN
  nestedfns_CFLAGS	= $(AM_CFLAGS) -fnested-functions
 else
  nestedfns_CFLAGS	= $(AM_CFLAGS)
- mq_LDADD		= -lrt
+ mq_LDADD		= -lrt -lpthread
 endif
 libvex_test_CFLAGS      = $(AM_CFLAGS) @FLAG_FSANITIZE@
 libvex_test_LDADD       = ../../VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a \
