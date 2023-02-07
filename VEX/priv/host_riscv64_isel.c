@@ -2150,6 +2150,9 @@ HInstrArray* iselSB_RISCV64(const IRSB*        bb,
          hreg   = mkHReg(True, HRcInt64, 0, j++);
          hregHI = mkHReg(True, HRcInt64, 0, j++);
          break;
+#ifdef __riscv_zfh
+      case Ity_F16:
+#endif
       case Ity_F32:
       case Ity_F64:
          hreg = mkHReg(True, HRcFlt64, 0, j++);
