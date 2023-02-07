@@ -62,7 +62,7 @@ static void show_block_diff ( UChar* block1, UChar* block2, Int n )
   for (i = 0; i < 5; i++) block[i] = randULong(); \
   block[3] = (ULong)(&area[128]) + (Long)(Int)AREG1OFF; \
   block[4] = (Long)AREG2VAL; \
-  ULong __attribute__((unused)) block2[5]; \
+  ULong block2[5]; \
   for (i = 0; i < 5; i++) block2[i] = block[i]; \
   __asm__ __volatile__( \
   "ld  x28, 0(%0)  ; " \
@@ -85,7 +85,7 @@ static void show_block_diff ( UChar* block1, UChar* block2, Int n )
   printf("  %016llx  x28      (xfer intreg #1)\n", block[0]); \
   printf("  %016llx  x29      (xfer intreg #2)\n", block[1]); \
   printf("  %016llx  f28      (xfer freg #2)\n", block[2]); \
-  printf("  %16lld   x5       (base reg)\n",     block[3]); \
+  printf("  %16lld   x5       (sub, base reg)\n",block[3] - block2[3]); \
   printf("  %16lld   x6       (index reg)\n",    block[4]); \
   printf("\n"); \
   free(area); \

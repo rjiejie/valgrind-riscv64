@@ -19,7 +19,7 @@ lrb   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffff83  x28      (xfer intreg #1)
   11188dbe47a5f281  x29      (xfer intreg #2)
   a9c6e8f73d48698d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lrb   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=1
@@ -42,7 +42,7 @@ lrb   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=1
   ffffffffffffffa8  x28      (xfer intreg #1)
   bc679d7dba2599b3  x29      (xfer intreg #2)
   c22db0626572df5c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 lrb   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
@@ -65,7 +65,7 @@ lrb   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
   ffffffffffffff8c  x28      (xfer intreg #1)
   638612bd6ecb050c  x29      (xfer intreg #2)
   5fff99d7a9b4e28d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 lrb   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -88,7 +88,7 @@ lrb   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   0000000000000037  x28      (xfer intreg #1)
   ef9ca8da0c134bf5  x29      (xfer intreg #2)
   d83c7d7a00c182ac  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 lrb   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -111,7 +111,7 @@ lrb   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   000000000000006f  x28      (xfer intreg #1)
   b23ff24e04c4b3d2  x29      (xfer intreg #2)
   ac0fcc49e957c804  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 lrbu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
@@ -134,7 +134,7 @@ lrbu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   0000000000000084  x28      (xfer intreg #1)
   233518704db77ec5  x29      (xfer intreg #2)
   41924de22705705d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lrbu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=1
@@ -157,7 +157,7 @@ lrbu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=1
   000000000000002a  x28      (xfer intreg #1)
   a02f983522909f6f  x29      (xfer intreg #2)
   a08ddc4185e4afbe  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 lrbu  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
@@ -180,7 +180,7 @@ lrbu  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
   0000000000000059  x28      (xfer intreg #1)
   2a8d07f3c58484af  x29      (xfer intreg #2)
   3c382b7f925fed2c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 lrbu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -203,7 +203,7 @@ lrbu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   00000000000000fd  x28      (xfer intreg #1)
   2b1ecf193e12cd61  x29      (xfer intreg #2)
   aaf5839564ec8b69  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 lrbu  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -226,7 +226,7 @@ lrbu  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   00000000000000fc  x28      (xfer intreg #1)
   31ddf1f91cca1221  x29      (xfer intreg #2)
   6918831858d09cb7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 SRB (register, imm2)
@@ -250,7 +250,7 @@ srb   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   2f5d407c928c9fef  x28      (xfer intreg #1)
   b3b5c47f310aa106  x29      (xfer intreg #2)
   9aa0defbcfe0ae93  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 srb   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=1
@@ -273,7 +273,7 @@ srb   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=1
   ea96b329b08269bf  x28      (xfer intreg #1)
   ca3fb2f858bc3c68  x29      (xfer intreg #2)
   c8fb2051f13b817b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 srb   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
@@ -296,7 +296,7 @@ srb   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
   bdac643acf12acda  x28      (xfer intreg #1)
   f77f00cd321add9c  x29      (xfer intreg #2)
   a0c669086c12cda9  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 srb   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -319,7 +319,7 @@ srb   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   223d4d71078e9a6c  x28      (xfer intreg #1)
   e2ab8545e36b73b3  x29      (xfer intreg #2)
   b78b2eaf356000d6  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 srb   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -342,7 +342,7 @@ srb   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   b715fe6df5545a60  x28      (xfer intreg #1)
   18e57147d8c4a53f  x29      (xfer intreg #2)
   4982fe3244b3fcf9  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 LURB/LURBU (register, imm2)
@@ -366,7 +366,7 @@ lurb  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   ffffffffffffffa6  x28      (xfer intreg #1)
   cafc061682c88d0e  x29      (xfer intreg #2)
   f751399a5ae2db05  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 lurb  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -389,7 +389,7 @@ lurb  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967295
   000000000000003f  x28      (xfer intreg #1)
   943061141b697dee  x29      (xfer intreg #2)
   88cdd9cebdd5acaf  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 lurb  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -412,7 +412,7 @@ lurb  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
   0000000000000027  x28      (xfer intreg #1)
   32eb30805ea5bc68  x29      (xfer intreg #2)
   a7b72c55f8413626  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 lurb  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -435,7 +435,7 @@ lurb  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   ffffffffffffff96  x28      (xfer intreg #1)
   4a897b39524a4885  x29      (xfer intreg #2)
   a98096129f69b3da  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 lurb  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -458,7 +458,7 @@ lurb  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   0000000000000057  x28      (xfer intreg #1)
   28125f79ffb3948d  x29      (xfer intreg #2)
   4706520608df9537  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 lurbu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
@@ -481,7 +481,7 @@ lurbu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   0000000000000077  x28      (xfer intreg #1)
   7cfbcd9b358a4ac3  x29      (xfer intreg #2)
   5e55301311424467  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 lurbu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -504,7 +504,7 @@ lurbu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967295
   00000000000000d7  x28      (xfer intreg #1)
   1ce94dd64a85092a  x29      (xfer intreg #2)
   b56856b4e0fedc14  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 lurbu x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -527,7 +527,7 @@ lurbu x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
   0000000000000037  x28      (xfer intreg #1)
   c76ec000db292744  x29      (xfer intreg #2)
   b6e602c69c0ff124  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 lurbu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -550,7 +550,7 @@ lurbu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   00000000000000ff  x28      (xfer intreg #1)
   decb184c898a6ecf  x29      (xfer intreg #2)
   32e6464337bf4d7c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 lurbu x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -573,7 +573,7 @@ lurbu x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   00000000000000f6  x28      (xfer intreg #1)
   2cad200dbc09e187  x29      (xfer intreg #2)
   20acc9022764afbe  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 SURB (register, imm2)
@@ -597,7 +597,7 @@ surb  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   f5f25be4ea6d0b66  x28      (xfer intreg #1)
   9ef13972631676e7  x29      (xfer intreg #2)
   5d6a8b7926248c0b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 surb  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -620,7 +620,7 @@ surb  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967295
   027f7932ce5b3358  x28      (xfer intreg #1)
   09611949b0ecdce9  x29      (xfer intreg #2)
   6c009f7bf8b1d1c2  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 surb  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -643,7 +643,7 @@ surb  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
   134b478b50a4e060  x28      (xfer intreg #1)
   ea758dbdde5936c2  x29      (xfer intreg #2)
   35bdf1fb240d9d40  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 surb  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -666,7 +666,7 @@ surb  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   9c674973222a6e8e  x28      (xfer intreg #1)
   20133718ed73dca7  x29      (xfer intreg #2)
   c81c01c8b8480a9e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 surb  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -689,7 +689,7 @@ surb  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   7551da8cbb1e6eed  x28      (xfer intreg #1)
   b24f50816364208b  x29      (xfer intreg #2)
   1a89a54f083de477  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 LRH/LRHU (register, imm2)
@@ -713,7 +713,7 @@ lrh   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   00000000000029e0  x28      (xfer intreg #1)
   8e2c65bf0c2005de  x29      (xfer intreg #2)
   c61ac95d6e5a6ea0  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lrh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=1
@@ -736,7 +736,7 @@ lrh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=1
   0000000000007432  x28      (xfer intreg #1)
   465a1cf6ba2a0750  x29      (xfer intreg #2)
   cc5731db0a5623ef  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 lrh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
@@ -759,7 +759,7 @@ lrh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
   fffffffffffffb66  x28      (xfer intreg #1)
   d3f7ee660454d98d  x29      (xfer intreg #2)
   54f3349182f971f5  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 lrh   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -782,7 +782,7 @@ lrh   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   ffffffffffffc0e2  x28      (xfer intreg #1)
   554fed2f087c2100  x29      (xfer intreg #2)
   6a9180e4c1d87fc4  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 lrh   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -805,7 +805,7 @@ lrh   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   00000000000004ab  x28      (xfer intreg #1)
   d09c7e102c503d91  x29      (xfer intreg #2)
   c180dc98bb16e6ab  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 lrhu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
@@ -828,7 +828,7 @@ lrhu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   000000000000048c  x28      (xfer intreg #1)
   efc71e23d70cff67  x29      (xfer intreg #2)
   7380df8f25257af5  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lrhu  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=1
@@ -851,7 +851,7 @@ lrhu  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=1
   000000000000a4c5  x28      (xfer intreg #1)
   c32620a33b3773a7  x29      (xfer intreg #2)
   be7bbd88408401ae  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 lrhu  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
@@ -874,7 +874,7 @@ lrhu  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
   0000000000009838  x28      (xfer intreg #1)
   833d6ca80e6a9634  x29      (xfer intreg #2)
   c74dfae18e7ff85f  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 lrhu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -897,7 +897,7 @@ lrhu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   000000000000ab95  x28      (xfer intreg #1)
   4c7d41e64a091f6d  x29      (xfer intreg #2)
   597e325799f254cd  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 lrhu  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -920,7 +920,7 @@ lrhu  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   00000000000030f5  x28      (xfer intreg #1)
   e109f272f30839f3  x29      (xfer intreg #2)
   a604dac2b2073ebf  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 SRH (register, imm2)
@@ -944,7 +944,7 @@ srh   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   f0d5f3653f4ca688  x28      (xfer intreg #1)
   6a6caa7dd0a94661  x29      (xfer intreg #2)
   0302f8daaef4d4b5  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 srh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=1
@@ -967,7 +967,7 @@ srh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=1
   6e02cb740713d406  x28      (xfer intreg #1)
   38642a172f399c12  x29      (xfer intreg #2)
   ae8becf5aabeedb2  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 srh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
@@ -990,7 +990,7 @@ srh   x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=2
   c2bf1cd350c249e4  x28      (xfer intreg #1)
   7e9c89eea4d649df  x29      (xfer intreg #2)
   8a602ac7c6fad4f4  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 srh   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -1013,7 +1013,7 @@ srh   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   1a4fb488268d49d4  x28      (xfer intreg #1)
   176af20dca2dd1de  x29      (xfer intreg #2)
   e0aefc21ec870bb7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 srh   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -1036,7 +1036,7 @@ srh   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   48a277f89a3992c5  x28      (xfer intreg #1)
   4595689eff34ee25  x29      (xfer intreg #2)
   1fd243b3895508f7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 LURH/LURHU (register, imm2)
@@ -1060,7 +1060,7 @@ lurh  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   00000000000065f4  x28      (xfer intreg #1)
   6f1283a929f54d86  x29      (xfer intreg #2)
   9b1635cb5122f92b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 lurh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -1083,7 +1083,7 @@ lurh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967295
   000000000000311c  x28      (xfer intreg #1)
   e1c333d376445651  x29      (xfer intreg #2)
   50721e14fe38830b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 lurh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -1106,7 +1106,7 @@ lurh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
   000000000000660d  x28      (xfer intreg #1)
   8f377a211684e416  x29      (xfer intreg #2)
   9e4c225810317d4c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 lurh  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -1129,7 +1129,7 @@ lurh  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   00000000000078ce  x28      (xfer intreg #1)
   d06d35b302670761  x29      (xfer intreg #2)
   0d39f83f8cb4b85f  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 lurh  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -1152,7 +1152,7 @@ lurh  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   00000000000017dc  x28      (xfer intreg #1)
   2592d389b8abc77c  x29      (xfer intreg #2)
   0abaaf0ec036b936  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 lurhu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
@@ -1175,7 +1175,7 @@ lurhu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   000000000000eba7  x28      (xfer intreg #1)
   f3bf1a42fbdee231  x29      (xfer intreg #2)
   a6006b69fcbb7bff  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 lurhu x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -1198,7 +1198,7 @@ lurhu x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967295
   00000000000035bc  x28      (xfer intreg #1)
   43bce8d9951b8c86  x29      (xfer intreg #2)
   5da92712589230e7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 lurhu x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -1221,7 +1221,7 @@ lurhu x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
   0000000000001ee6  x28      (xfer intreg #1)
   87c1ee6717cc2d7f  x29      (xfer intreg #2)
   cb8173a9741d00d9  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 lurhu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -1244,7 +1244,7 @@ lurhu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   000000000000c8b3  x28      (xfer intreg #1)
   573075e5966725e1  x29      (xfer intreg #2)
   7643366b3287c73d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 lurhu x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -1267,7 +1267,7 @@ lurhu x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   000000000000728f  x28      (xfer intreg #1)
   2e5c1be76f318aea  x29      (xfer intreg #2)
   8a566cf37c8cd9ba  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 SURH (register, imm2)
@@ -1291,7 +1291,7 @@ surh  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   875d83ea47fd2584  x28      (xfer intreg #1)
   3046956203fee61a  x29      (xfer intreg #2)
   9791e8fc0336c0f5  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 surh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -1314,7 +1314,7 @@ surh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967295
   ce28f0daeb4d6a1a  x28      (xfer intreg #1)
   e65b6e687aeffcee  x29      (xfer intreg #2)
   53f7111efc9bfb51  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 surh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -1337,7 +1337,7 @@ surh  x28, x5, x6, 1  with  x5 = middle_of_block+0,  x6=-4294967294
   e502353f7921ae19  x28      (xfer intreg #1)
   ff37c5e78133839f  x29      (xfer intreg #2)
   5d7ca78de3a0c0ad  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 surh  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -1360,7 +1360,7 @@ surh  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   7120295f17c0e094  x28      (xfer intreg #1)
   0f66126e0ec8e8e8  x29      (xfer intreg #2)
   f6c07ede3ababa2a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 surh  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -1383,7 +1383,7 @@ surh  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   ffa3fb21313ea41c  x28      (xfer intreg #1)
   521fe0e81a380fbe  x29      (xfer intreg #2)
   c8cf40c24aa8cae3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 LRW/LRWU (register, imm2)
@@ -1407,7 +1407,7 @@ lrw   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   ffffffff88ebf0c8  x28      (xfer intreg #1)
   69089260655d1017  x29      (xfer intreg #2)
   a2e82ecae03ac7b3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lrw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
@@ -1430,7 +1430,7 @@ lrw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
   ffffffffe9e53f24  x28      (xfer intreg #1)
   1af520bc351efda4  x29      (xfer intreg #2)
   3933de21100e40f3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 lrw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
@@ -1453,7 +1453,7 @@ lrw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
   0000000027b503fa  x28      (xfer intreg #1)
   12a9da8215309997  x29      (xfer intreg #2)
   e789fd56f34e383a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 lrw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -1476,7 +1476,7 @@ lrw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   ffffffff9e79ad94  x28      (xfer intreg #1)
   a594239798d6215f  x29      (xfer intreg #2)
   6e310c106b74e81c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 lrw   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -1499,7 +1499,7 @@ lrw   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   ffffffff85705582  x28      (xfer intreg #1)
   8b9435fb16a10667  x29      (xfer intreg #2)
   b49e25d8dc0780ec  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 lrwu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
@@ -1522,7 +1522,7 @@ lrwu  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   00000000ae440391  x28      (xfer intreg #1)
   a4b5e28f6d31afdb  x29      (xfer intreg #2)
   8733b6d3f45ce47a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lrwu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
@@ -1545,7 +1545,7 @@ lrwu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
   00000000d4d76034  x28      (xfer intreg #1)
   b3f150d0c0f43a64  x29      (xfer intreg #2)
   59ff4486625771d6  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 lrwu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
@@ -1568,7 +1568,7 @@ lrwu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
   000000009d2d32d8  x28      (xfer intreg #1)
   25f1ba9a39e33ae8  x29      (xfer intreg #2)
   04822891a127b80c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 lrwu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -1591,7 +1591,7 @@ lrwu  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   0000000062d88393  x28      (xfer intreg #1)
   c9cb34e7c948784b  x29      (xfer intreg #2)
   85665375ad0e40e7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 lrwu  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -1614,7 +1614,7 @@ lrwu  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   000000008bdb103e  x28      (xfer intreg #1)
   98c2668ee57bb531  x29      (xfer intreg #2)
   c3470c4fcb1747af  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 SRW (register, imm2)
@@ -1638,7 +1638,7 @@ srw   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   c58a9eb9c0dfb4c6  x28      (xfer intreg #1)
   6e0a4f0449a065ba  x29      (xfer intreg #2)
   486daf9b44de80eb  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 srw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
@@ -1661,7 +1661,7 @@ srw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
   2964056fd2fc4ce3  x28      (xfer intreg #1)
   cd82021fb86b7445  x29      (xfer intreg #2)
   058d6ff2294dd41f  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 srw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
@@ -1684,7 +1684,7 @@ srw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
   ba3977dbfd86d06f  x28      (xfer intreg #1)
   a0796bceb8dd042e  x29      (xfer intreg #2)
   118c14cd0e5a2490  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 srw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -1707,7 +1707,7 @@ srw   x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   59f1984641979aa0  x28      (xfer intreg #1)
   f46a09e359052b91  x29      (xfer intreg #2)
   693dbc41d2ca04fc  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 srw   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -1730,7 +1730,7 @@ srw   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   0c9f9fd72355f868  x28      (xfer intreg #1)
   bec0b4caeec1b805  x29      (xfer intreg #2)
   b01e9cc154f18063  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 LURW/LURWU (register, imm2)
@@ -1754,7 +1754,7 @@ lurw  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   000000001931e8ab  x28      (xfer intreg #1)
   9b93574fd17bed62  x29      (xfer intreg #2)
   ee20bedf3d71dac2  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 lurw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -1777,7 +1777,7 @@ lurw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
   000000006b212d0a  x28      (xfer intreg #1)
   8a69b55d21ed457c  x29      (xfer intreg #2)
   545dc30cbcf748d3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 lurw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -1800,7 +1800,7 @@ lurw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
   ffffffff9371e88b  x28      (xfer intreg #1)
   b2f727ba86de2ee6  x29      (xfer intreg #2)
   f5dfa1544402b9cf  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 lurw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -1823,7 +1823,7 @@ lurw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   0000000021b3d932  x28      (xfer intreg #1)
   21df5bcdeae2ceb1  x29      (xfer intreg #2)
   8c6064234e9c8f2c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 lurw  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -1846,7 +1846,7 @@ lurw  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   ffffffffa4e7c99c  x28      (xfer intreg #1)
   89701459401fc02b  x29      (xfer intreg #2)
   3c05f0041c1f6560  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 lurwu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
@@ -1869,7 +1869,7 @@ lurwu x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   0000000061ec623c  x28      (xfer intreg #1)
   0369ef404003d6a2  x29      (xfer intreg #2)
   4923bc5d72f2c99c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 lurwu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -1892,7 +1892,7 @@ lurwu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
   00000000c4b19a52  x28      (xfer intreg #1)
   cfb71b41270fd81e  x29      (xfer intreg #2)
   e2fb98355d4a0193  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 lurwu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -1915,7 +1915,7 @@ lurwu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
   000000004ce72d85  x28      (xfer intreg #1)
   11331fba7a90422b  x29      (xfer intreg #2)
   da7e66eeefeac831  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 lurwu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -1938,7 +1938,7 @@ lurwu x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   00000000bfadeff8  x28      (xfer intreg #1)
   94659667c261098d  x29      (xfer intreg #2)
   680ae20cffe41165  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 lurwu x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -1961,7 +1961,7 @@ lurwu x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   000000005cd110a0  x28      (xfer intreg #1)
   8944f52250ac550a  x29      (xfer intreg #2)
   ed2b5dedec56c1d8  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 SURW (register, imm2)
@@ -1985,7 +1985,7 @@ surw  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   9d502cb8ad213437  x28      (xfer intreg #1)
   47f442a2f8a64725  x29      (xfer intreg #2)
   ae5b7c8f5a2e78b4  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 surw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -2008,7 +2008,7 @@ surw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
   2bda3b9a189f45ec  x28      (xfer intreg #1)
   0b87dc3dd957b2dd  x29      (xfer intreg #2)
   94c3fc4ef2e7485e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 surw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -2031,7 +2031,7 @@ surw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
   eafba0d0d202a555  x28      (xfer intreg #1)
   b8be39a61250e473  x29      (xfer intreg #2)
   f1f970a4244b7a3d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 surw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -2054,7 +2054,7 @@ surw  x28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   b40b886774f6d888  x28      (xfer intreg #1)
   97c6a2b08d735d22  x29      (xfer intreg #2)
   3dc100e8e7304e72  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 surw  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -2077,7 +2077,7 @@ surw  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   cbd0f4885e73979a  x28      (xfer intreg #1)
   16fcf70ab6af95e5  x29      (xfer intreg #2)
   d3cd2a10763bba9e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 LRD (register, imm2)
@@ -2101,7 +2101,7 @@ lrd   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   0dd889d1d3231792  x28      (xfer intreg #1)
   8ba9700143c2b935  x29      (xfer intreg #2)
   b77d836f13a029a0  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
@@ -2124,7 +2124,7 @@ lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
   cd6022b73ccaca55  x28      (xfer intreg #1)
   f1c75842edf66dc9  x29      (xfer intreg #2)
   52a07578c6e13c54  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
@@ -2147,7 +2147,7 @@ lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
   737d018a5a5442f2  x28      (xfer intreg #1)
   a8bbd29633e48a55  x29      (xfer intreg #2)
   333101791e8b8b56  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
@@ -2170,7 +2170,7 @@ lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
   df7940402282f316  x28      (xfer intreg #1)
   381997a41c35e04c  x29      (xfer intreg #2)
   ce1b7d62edfd63be  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -2193,7 +2193,7 @@ lrd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   cefcda2d6b742fce  x28      (xfer intreg #1)
   0d64b5b3f55df49e  x29      (xfer intreg #2)
   3ff6567c0e2188e2  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 SRD (register, imm2)
@@ -2217,7 +2217,7 @@ srd   x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   05cc47832f98b4e5  x28      (xfer intreg #1)
   3acc50660d5fc17b  x29      (xfer intreg #2)
   06c9ce332231f317  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
@@ -2240,7 +2240,7 @@ srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
   46cb53510633c92d  x28      (xfer intreg #1)
   39ef637f7f8c790f  x29      (xfer intreg #2)
   cbc7bdce4d749470  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
@@ -2263,7 +2263,7 @@ srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
   3329102ffd19ccb3  x28      (xfer intreg #1)
   a8987e9ee7454345  x29      (xfer intreg #2)
   1b135231fcff0f7e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
@@ -2286,7 +2286,7 @@ srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
   634ac61529c11f38  x28      (xfer intreg #1)
   0c8487ff29b5fd85  x29      (xfer intreg #2)
   287cd2a2a0758110  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -2309,7 +2309,7 @@ srd   x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   53801397e671d7fd  x28      (xfer intreg #1)
   91197c403198fa76  x29      (xfer intreg #2)
   8b41568273c73bf1  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 LURD (register, imm2)
@@ -2333,7 +2333,7 @@ lurd  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   83eca8c17c9c179d  x28      (xfer intreg #1)
   c62d2e19acf7c4bd  x29      (xfer intreg #2)
   03cf901130f685ad  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -2356,7 +2356,7 @@ lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
   5ff02707e2ffe81e  x28      (xfer intreg #1)
   63c60722d2eadabc  x29      (xfer intreg #2)
   357f852bdecd5b4c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -2379,7 +2379,7 @@ lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
   1e439bf94068375f  x28      (xfer intreg #1)
   06d4c3911e557154  x29      (xfer intreg #2)
   6d59520d85a83116  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -2402,7 +2402,7 @@ lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
   3e4ebfaa2cb6152d  x28      (xfer intreg #1)
   f0f939f912ac35a5  x29      (xfer intreg #2)
   5bd5ea11f531b14e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -2425,7 +2425,7 @@ lurd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   1dd92e901c2a76b3  x28      (xfer intreg #1)
   cb43120df6b008c9  x29      (xfer intreg #2)
   d595d56e841d7af8  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 SURD (register, imm2)
@@ -2449,7 +2449,7 @@ surd  x28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   3a9e4a06d1b8a608  x28      (xfer intreg #1)
   66ed8e5c9930c19d  x29      (xfer intreg #2)
   9a2cf1facff4e194  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -2472,7 +2472,7 @@ surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
   0cfdc88a0d46ad79  x28      (xfer intreg #1)
   752245140dcaed79  x29      (xfer intreg #2)
   0cdb33e977c7b3e0  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -2495,7 +2495,7 @@ surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
   dd7be89092fe5ce8  x28      (xfer intreg #1)
   54bae2c06ea88ff4  x29      (xfer intreg #2)
   f34f668ce4f8ef9a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -2518,7 +2518,7 @@ surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
   018810fcf222efc4  x28      (xfer intreg #1)
   c4fce90a9a43e2a1  x29      (xfer intreg #2)
   3f65e91305f78f3d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -2541,7 +2541,7 @@ surd  x28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   300179d18543d678  x28      (xfer intreg #1)
   ab5a717af82414d5  x29      (xfer intreg #2)
   c4e7734b0cff3fc0  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 LBIA/LBIB (imm5, imm2)
@@ -2565,7 +2565,7 @@ lbia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffffce  x28      (xfer intreg #1)
   d639e835349f0b5f  x29      (xfer intreg #2)
   ff4cd16134dd225b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbia   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
@@ -2588,7 +2588,7 @@ lbia   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
   0000000000000019  x28      (xfer intreg #1)
   b9a7d5bf0097234f  x29      (xfer intreg #2)
   cf7ca59e7daa9342  f28      (xfer freg #2)
-          67121009   x5       (base reg)
+                 1   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -2611,7 +2611,7 @@ lbia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffffcb  x28      (xfer intreg #1)
   2c238fbad33decb0  x29      (xfer intreg #2)
   3b8b272a6d8de068  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -2634,7 +2634,7 @@ lbia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffffd5  x28      (xfer intreg #1)
   2f5a0aa6acd1ef4f  x29      (xfer intreg #2)
   317ae6cad07b0f3e  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -2657,7 +2657,7 @@ lbia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   000000000000004e  x28      (xfer intreg #1)
   a5e489a0cf606972  x29      (xfer intreg #2)
   43fa87a278f79c72  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -2680,7 +2680,7 @@ lbib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   0000000000000033  x28      (xfer intreg #1)
   1b0c6b2385850ca2  x29      (xfer intreg #2)
   6a2984f4fcd338b1  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbib   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
@@ -2703,7 +2703,7 @@ lbib   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
   0000000000000006  x28      (xfer intreg #1)
   8186e2cbde2ac463  x29      (xfer intreg #2)
   c653ecdf7aed8965  f28      (xfer freg #2)
-          67121009   x5       (base reg)
+                 1   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -2726,7 +2726,7 @@ lbib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   0000000000000031  x28      (xfer intreg #1)
   ed37b50d71446ef7  x29      (xfer intreg #2)
   5bb2272258f3ef79  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -2749,7 +2749,7 @@ lbib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffff9e  x28      (xfer intreg #1)
   5ef10400189ba11f  x29      (xfer intreg #2)
   d42fb2d8fd203c11  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -2772,7 +2772,7 @@ lbib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffffcc  x28      (xfer intreg #1)
   76340318b78068da  x29      (xfer intreg #2)
   4220de3a9bfe7953  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -2795,7 +2795,7 @@ lbuia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   00000000000000f7  x28      (xfer intreg #1)
   3defbbe6f6950524  x29      (xfer intreg #2)
   dc089460e823a721  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuia   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
@@ -2818,7 +2818,7 @@ lbuia   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
   00000000000000f3  x28      (xfer intreg #1)
   e33ecfdb0189aeb9  x29      (xfer intreg #2)
   bf5b1200def47add  f28      (xfer freg #2)
-          67121009   x5       (base reg)
+                 1   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -2841,7 +2841,7 @@ lbuia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   000000000000006e  x28      (xfer intreg #1)
   7d2a34024dd951d1  x29      (xfer intreg #2)
   ae38ad2e81651e24  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -2864,7 +2864,7 @@ lbuia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   0000000000000094  x28      (xfer intreg #1)
   c56df6ca559152e2  x29      (xfer intreg #2)
   d12e901b98b7f494  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -2887,7 +2887,7 @@ lbuia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   0000000000000038  x28      (xfer intreg #1)
   dd2cf9ba570a4a61  x29      (xfer intreg #2)
   79f87ad7713a5487  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -2910,7 +2910,7 @@ lbuib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   0000000000000094  x28      (xfer intreg #1)
   0bbbb43b1aaac982  x29      (xfer intreg #2)
   d9418210a1094cd6  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuib   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
@@ -2933,7 +2933,7 @@ lbuib   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
   000000000000000d  x28      (xfer intreg #1)
   7d5df652aaa814f4  x29      (xfer intreg #2)
   cc62d5d1c0d15e97  f28      (xfer freg #2)
-          67121009   x5       (base reg)
+                 1   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -2956,7 +2956,7 @@ lbuib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   0000000000000050  x28      (xfer intreg #1)
   0502a36418c6e6a6  x29      (xfer intreg #2)
   941f75442f8b44e0  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -2979,7 +2979,7 @@ lbuib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   00000000000000e4  x28      (xfer intreg #1)
   dd0776f13d163185  x29      (xfer intreg #2)
   986efb71d33eae83  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lbuib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3002,7 +3002,7 @@ lbuib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   00000000000000bc  x28      (xfer intreg #1)
   63fabf5a77b6dd3c  x29      (xfer intreg #2)
   243154fddabf01d0  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 SBIA/SBIB (imm5, imm2)
@@ -3026,7 +3026,7 @@ sbia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   ebc7eb4aa3391974  x28      (xfer intreg #1)
   dc54259c699486f4  x29      (xfer intreg #2)
   2cf786ed74711857  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbia   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
@@ -3049,7 +3049,7 @@ sbia   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
   c8642d6468cfd7e8  x28      (xfer intreg #1)
   333e6413be2b4012  x29      (xfer intreg #2)
   08bf6a619a0605a4  f28      (xfer freg #2)
-          67121009   x5       (base reg)
+                 1   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3072,7 +3072,7 @@ sbia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   46fca866be8654d2  x28      (xfer intreg #1)
   b94e0e38e54455fc  x29      (xfer intreg #2)
   37b6725aca3cd001  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3095,7 +3095,7 @@ sbia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   adbea71f8d3f106c  x28      (xfer intreg #1)
   e5474d64d5b704d5  x29      (xfer intreg #2)
   1ef56475c7a13538  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3118,7 +3118,7 @@ sbia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   6d050c4143e983b3  x28      (xfer intreg #1)
   14dd9e8bc928433d  x29      (xfer intreg #2)
   c8441bad5b50684f  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -3141,7 +3141,7 @@ sbib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   db1c0b189541da1f  x28      (xfer intreg #1)
   496f960202cb7d13  x29      (xfer intreg #2)
   a6da4b1e17b3d34b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbib   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
@@ -3164,7 +3164,7 @@ sbib   x28, (x5), 1, 0  with  x5 = middle_of_block+0,  x6=0
   f1fcf2503b93b867  x28      (xfer intreg #1)
   eccb9f3b8b215233  x29      (xfer intreg #2)
   501c3cbd103fd5ee  f28      (xfer freg #2)
-          67121009   x5       (base reg)
+                 1   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3187,7 +3187,7 @@ sbib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   1109e3b4b677f83e  x28      (xfer intreg #1)
   8eeeb984efb95c38  x29      (xfer intreg #2)
   415a8d22a33c8479  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3210,7 +3210,7 @@ sbib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   c2d997ea0d966819  x28      (xfer intreg #1)
   a2c23ccc03f0e73c  x29      (xfer intreg #2)
   9d95f13f317b6b6b  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sbib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3233,7 +3233,7 @@ sbib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   70ee1b3989638fe7  x28      (xfer intreg #1)
   44df945fa1b2b793  x29      (xfer intreg #2)
   ed3cf326e21e4b41  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 LHIA/LHIB (imm5, imm2)
@@ -3257,7 +3257,7 @@ lhia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffbc56  x28      (xfer intreg #1)
   f44c02a56938c595  x29      (xfer intreg #2)
   e0ebb5c76454db35  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhia   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3280,7 +3280,7 @@ lhia   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffca86  x28      (xfer intreg #1)
   5a3b60e781c80052  x29      (xfer intreg #2)
   0a2cabb0ab1b8aff  f28      (xfer freg #2)
-          67121010   x5       (base reg)
+                 2   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3303,7 +3303,7 @@ lhia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   00000000000041ec  x28      (xfer intreg #1)
   02d1dc0b55790e5b  x29      (xfer intreg #2)
   a73763cdb0fd3b98  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3326,7 +3326,7 @@ lhia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   0000000000007a2b  x28      (xfer intreg #1)
   1fdcbb5456ed0b80  x29      (xfer intreg #2)
   58b13f2635d407f2  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3349,7 +3349,7 @@ lhia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   0000000000007d90  x28      (xfer intreg #1)
   4b9b1623bd15488d  x29      (xfer intreg #2)
   e37138a47f86fdc2  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -3372,7 +3372,7 @@ lhib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffc2ca  x28      (xfer intreg #1)
   447a9eb948f20c0d  x29      (xfer intreg #2)
   f5379bcd19cae437  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhib   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3395,7 +3395,7 @@ lhib   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
   0000000000003a19  x28      (xfer intreg #1)
   afd45af4fa4f5508  x29      (xfer intreg #2)
   e274ce8397e2f6c0  f28      (xfer freg #2)
-          67121010   x5       (base reg)
+                 2   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3418,7 +3418,7 @@ lhib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   0000000000005949  x28      (xfer intreg #1)
   d8b0660edd8796c6  x29      (xfer intreg #2)
   62050bca4e60a4cb  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3441,7 +3441,7 @@ lhib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   ffffffffffffc9a7  x28      (xfer intreg #1)
   6e85b561c246788a  x29      (xfer intreg #2)
   55f822801fe25781  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3464,7 +3464,7 @@ lhib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   0000000000004ad7  x28      (xfer intreg #1)
   4af7ce26ff409c57  x29      (xfer intreg #2)
   7e4739232cd62c8b  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -3487,7 +3487,7 @@ lhuia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   0000000000009f0f  x28      (xfer intreg #1)
   279891322efc56af  x29      (xfer intreg #2)
   4a998e8f9f37b6d1  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuia   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3510,7 +3510,7 @@ lhuia   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
   000000000000a9a2  x28      (xfer intreg #1)
   69a9f2b8f38d724f  x29      (xfer intreg #2)
   890432bd694fbf36  f28      (xfer freg #2)
-          67121010   x5       (base reg)
+                 2   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3533,7 +3533,7 @@ lhuia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   0000000000003809  x28      (xfer intreg #1)
   d9d7bb0bb554f2f5  x29      (xfer intreg #2)
   31cece86ff74065e  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3556,7 +3556,7 @@ lhuia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   0000000000003126  x28      (xfer intreg #1)
   66fe4d5962c0cc1b  x29      (xfer intreg #2)
   2128615f1dcb0069  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3579,7 +3579,7 @@ lhuia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   000000000000a900  x28      (xfer intreg #1)
   e4ea5e722e0fafba  x29      (xfer intreg #2)
   daf2fe1b860899b6  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -3602,7 +3602,7 @@ lhuib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   000000000000a182  x28      (xfer intreg #1)
   d011bb7f530bbd09  x29      (xfer intreg #2)
   477a91acc02cf2a1  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuib   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3625,7 +3625,7 @@ lhuib   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
   00000000000078bd  x28      (xfer intreg #1)
   085b05ccd1cd503b  x29      (xfer intreg #2)
   753e99e3db462446  f28      (xfer freg #2)
-          67121010   x5       (base reg)
+                 2   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3648,7 +3648,7 @@ lhuib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   00000000000092f8  x28      (xfer intreg #1)
   95db777f2e7eb845  x29      (xfer intreg #2)
   59a6ee2c2a34fa3c  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3671,7 +3671,7 @@ lhuib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   0000000000007037  x28      (xfer intreg #1)
   64949d5f3512fa97  x29      (xfer intreg #2)
   90cb7b540760ba5b  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lhuib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3694,7 +3694,7 @@ lhuib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   000000000000cee4  x28      (xfer intreg #1)
   07361c8fb90b92de  x29      (xfer intreg #2)
   193303439184db77  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 SHIA/SHIB (imm5, imm2)
@@ -3718,7 +3718,7 @@ shia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   4e8b878c250df93a  x28      (xfer intreg #1)
   77de6f51523d30c9  x29      (xfer intreg #2)
   1b93dfc37066ce24  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shia   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3741,7 +3741,7 @@ shia   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
   5c5eb483f3e71386  x28      (xfer intreg #1)
   d3daa7c41d857dc2  x29      (xfer intreg #2)
   a48dbc378e9db870  f28      (xfer freg #2)
-          67121010   x5       (base reg)
+                 2   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3764,7 +3764,7 @@ shia   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   2ac1b72d330f193e  x28      (xfer intreg #1)
   216329a77f91d5b0  x29      (xfer intreg #2)
   66706065de4b35ad  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3787,7 +3787,7 @@ shia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   b385aca0bf4b9e22  x28      (xfer intreg #1)
   0b627214e29c0dbc  x29      (xfer intreg #2)
   7afb652e18e21525  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3810,7 +3810,7 @@ shia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   9b2ac9507beeb031  x28      (xfer intreg #1)
   a12cd546752f2d0a  x29      (xfer intreg #2)
   201bfb5179e021e4  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -3833,7 +3833,7 @@ shib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   eb9f19cd0e998f67  x28      (xfer intreg #1)
   1c473954eee1357c  x29      (xfer intreg #2)
   7ca8a82c8693d572  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shib   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3856,7 +3856,7 @@ shib   x28, (x5), 1, 1  with  x5 = middle_of_block+0,  x6=0
   d2ff3c89a6fa737f  x28      (xfer intreg #1)
   9823def44919db74  x29      (xfer intreg #2)
   592d0a7cc8d62696  f28      (xfer freg #2)
-          67121010   x5       (base reg)
+                 2   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
@@ -3879,7 +3879,7 @@ shib   x28, (x5), 2, 1  with  x5 = middle_of_block+0,  x6=0
   65562791b79149b3  x28      (xfer intreg #1)
   d7e2183989c74a8f  x29      (xfer intreg #2)
   e89e921890d33c15  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3902,7 +3902,7 @@ shib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   5e5ae850bb667577  x28      (xfer intreg #1)
   04121156752fe36a  x29      (xfer intreg #2)
   802049bab3bf3772  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 shib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -3925,7 +3925,7 @@ shib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   de336250f2d59043  x28      (xfer intreg #1)
   6c6e8a5a5b9ffe61  x29      (xfer intreg #2)
   5ec58eb74da2edad  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 LWIA/LWIB (imm5, imm2)
@@ -3949,7 +3949,7 @@ lwia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   0000000055b71c2d  x28      (xfer intreg #1)
   45a19af3ce35a84c  x29      (xfer intreg #2)
   654ed4c3800da904  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwia   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3972,7 +3972,7 @@ lwia   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
   ffffffff93e5e746  x28      (xfer intreg #1)
   69036b2b6a9b6541  x29      (xfer intreg #2)
   dee867ae35e2ecb5  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwia   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
@@ -3995,7 +3995,7 @@ lwia   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
   ffffffffd30c57fa  x28      (xfer intreg #1)
   1a5a022e8ecaee56  x29      (xfer intreg #2)
   37ef272ad8102ebb  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4018,7 +4018,7 @@ lwia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   00000000380568a3  x28      (xfer intreg #1)
   be9af60320cbf25c  x29      (xfer intreg #2)
   c6af49841f549c8d  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4041,7 +4041,7 @@ lwia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   ffffffffc24248bf  x28      (xfer intreg #1)
   a3a7364f4b71d8a5  x29      (xfer intreg #2)
   861f1c66c3fadae2  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -4064,7 +4064,7 @@ lwib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   000000000e8810b3  x28      (xfer intreg #1)
   bb0fc71642217ac0  x29      (xfer intreg #2)
   d7a5c09c439bc170  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwib   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4087,7 +4087,7 @@ lwib   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
   0000000034d7ebbe  x28      (xfer intreg #1)
   60d1827afd8cea38  x29      (xfer intreg #2)
   41d5efcda6de21a9  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwib   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4110,7 +4110,7 @@ lwib   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
   fffffffff133c734  x28      (xfer intreg #1)
   1019d97bf9702f5a  x29      (xfer intreg #2)
   3032b63e39387e7e  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4133,7 +4133,7 @@ lwib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   000000005813bb34  x28      (xfer intreg #1)
   300291b5fb5b07ec  x29      (xfer intreg #2)
   b7ec3b934bacd51d  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4156,7 +4156,7 @@ lwib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   0000000072e05305  x28      (xfer intreg #1)
   cb538726cc67a5f7  x29      (xfer intreg #2)
   50a0788ef78b57b3  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -4179,7 +4179,7 @@ lwuia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   000000002d9fbd54  x28      (xfer intreg #1)
   52436ee6fd00737e  x29      (xfer intreg #2)
   991cfdced9352b2a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuia   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4202,7 +4202,7 @@ lwuia   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
   0000000005b6ad71  x28      (xfer intreg #1)
   5c368eeda39ad045  x29      (xfer intreg #2)
   171ab192d6d72fec  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuia   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4225,7 +4225,7 @@ lwuia   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
   0000000037ad4550  x28      (xfer intreg #1)
   667e85d11a7cd18c  x29      (xfer intreg #2)
   f6009074d72cb79f  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4248,7 +4248,7 @@ lwuia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   0000000051f80f88  x28      (xfer intreg #1)
   931b0886c47902d2  x29      (xfer intreg #2)
   c5a76c2f8c3e4ae8  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4271,7 +4271,7 @@ lwuia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   000000003f254252  x28      (xfer intreg #1)
   6c7ca11dcab22593  x29      (xfer intreg #2)
   3d12ae5a2c226a29  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -4294,7 +4294,7 @@ lwuib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   000000000996864f  x28      (xfer intreg #1)
   9f3d7186d956f10b  x29      (xfer intreg #2)
   f932152b32c04c44  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuib   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4317,7 +4317,7 @@ lwuib   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
   00000000d0febba4  x28      (xfer intreg #1)
   c2e7ee4fe462d2f1  x29      (xfer intreg #2)
   3da9753620899a56  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuib   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4340,7 +4340,7 @@ lwuib   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
   00000000bc923db7  x28      (xfer intreg #1)
   10b3a563e762ae3d  x29      (xfer intreg #2)
   b285772c3f3f377d  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4363,7 +4363,7 @@ lwuib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   00000000f52ab7f3  x28      (xfer intreg #1)
   2948f8cca12f9ce4  x29      (xfer intreg #2)
   27015e9d5bb1f993  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwuib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4386,7 +4386,7 @@ lwuib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   00000000ea543c3c  x28      (xfer intreg #1)
   d579df7257afae97  x29      (xfer intreg #2)
   5048bfb6897c6ff1  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 SWIA/SWIB (imm5, imm2)
@@ -4410,7 +4410,7 @@ swia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   e5060d42bfcdf34d  x28      (xfer intreg #1)
   c009aada9699a788  x29      (xfer intreg #2)
   89324604e4cc9c2d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swia   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4433,7 +4433,7 @@ swia   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
   89098f9c76b0afa4  x28      (xfer intreg #1)
   3e68bbe9f02fc325  x29      (xfer intreg #2)
   930576304a1ab8dd  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swia   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4456,7 +4456,7 @@ swia   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
   a3e7daee96475b55  x28      (xfer intreg #1)
   07734f9fbd0275db  x29      (xfer intreg #2)
   543668c223edf452  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4479,7 +4479,7 @@ swia   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   e216df91f03ba0a5  x28      (xfer intreg #1)
   fa3834dddab223d5  x29      (xfer intreg #2)
   99278adf189a365f  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4502,7 +4502,7 @@ swia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   1e3a28bed9431e96  x28      (xfer intreg #1)
   dcb0921f6baceabb  x29      (xfer intreg #2)
   d6e7600cde04d710  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -4525,7 +4525,7 @@ swib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   14e59249ede52ba9  x28      (xfer intreg #1)
   1984a6439ceb5f75  x29      (xfer intreg #2)
   e3f545e9eb5c6b74  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swib   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4548,7 +4548,7 @@ swib   x28, (x5), 1, 2  with  x5 = middle_of_block+0,  x6=0
   27571167cf34929e  x28      (xfer intreg #1)
   80c981415ab84ae6  x29      (xfer intreg #2)
   c0fd29f63ee27854  f28      (xfer freg #2)
-          67121012   x5       (base reg)
+                 4   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swib   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4571,7 +4571,7 @@ swib   x28, (x5), 2, 2  with  x5 = middle_of_block+0,  x6=0
   203e716ae590542f  x28      (xfer intreg #1)
   09c4cbf21d6a6cb1  x29      (xfer intreg #2)
   509a53521ba33bfa  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
@@ -4594,7 +4594,7 @@ swib   x28, (x5), 3, 2  with  x5 = middle_of_block+0,  x6=0
   ed7812801f6a6ad9  x28      (xfer intreg #1)
   92a885caa02739f8  x29      (xfer intreg #2)
   20141f78cb3a69ec  f28      (xfer freg #2)
-          67121020   x5       (base reg)
+                12   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4617,7 +4617,7 @@ swib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   64cda978b0fe7f94  x28      (xfer intreg #1)
   9c54c19ea5a29d19  x29      (xfer intreg #2)
   2020bf015e90eaae  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 LDIA/LDIB (imm5, imm2)
@@ -4641,7 +4641,7 @@ ldia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   d820d2a2d68c670a  x28      (xfer intreg #1)
   11166a5fb5dcb970  x29      (xfer intreg #2)
   66a3fd656b9d9f84  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldia   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4664,7 +4664,7 @@ ldia   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
   75264f4936aa98e0  x28      (xfer intreg #1)
   006b01dedce4a518  x29      (xfer intreg #2)
   f16ff5bbcc251c2e  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldia   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4687,7 +4687,7 @@ ldia   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
   421e2b65c73a6150  x28      (xfer intreg #1)
   5dbd5d8770972faa  x29      (xfer intreg #2)
   6304de74667c6dab  f28      (xfer freg #2)
-          67121024   x5       (base reg)
+                16   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldia   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4710,7 +4710,7 @@ ldia   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
   502dfbe0eded6365  x28      (xfer intreg #1)
   c4246926c96199fd  x29      (xfer intreg #2)
   c451c125de43d3f8  f28      (xfer freg #2)
-          67121032   x5       (base reg)
+                24   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4733,7 +4733,7 @@ ldia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   edefe2ad6b86f0d4  x28      (xfer intreg #1)
   3626e8a509fb5de5  x29      (xfer intreg #2)
   44723f3b632986ce  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -4756,7 +4756,7 @@ ldib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   6634518425a0c4b6  x28      (xfer intreg #1)
   d97832ccd42bebf5  x29      (xfer intreg #2)
   f8704ec569ac7468  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldib   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4779,7 +4779,7 @@ ldib   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
   42b1f223647a10f7  x28      (xfer intreg #1)
   bbbbf6011788673d  x29      (xfer intreg #2)
   9a05fa2e6bd6ff3b  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldib   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4802,7 +4802,7 @@ ldib   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
   647caef734dd1366  x28      (xfer intreg #1)
   8e40f907c4346e0d  x29      (xfer intreg #2)
   4c562600a701c1bc  f28      (xfer freg #2)
-          67121024   x5       (base reg)
+                16   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldib   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4825,7 +4825,7 @@ ldib   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
   5c50d2e53af9719f  x28      (xfer intreg #1)
   6bc5d4bf92a0d2b1  x29      (xfer intreg #2)
   54b74ba3e4934a1f  f28      (xfer freg #2)
-          67121032   x5       (base reg)
+                24   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4848,7 +4848,7 @@ ldib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   98438632fd60ad9f  x28      (xfer intreg #1)
   9136b9eac04c5834  x29      (xfer intreg #2)
   e06b371d2ec3df13  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 SDIA/SDIB (imm5, imm2)
@@ -4872,7 +4872,7 @@ sdia   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   bc653f28548023b7  x28      (xfer intreg #1)
   266e2de5d2857f1e  x29      (xfer intreg #2)
   c262ced096533b87  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdia   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4895,7 +4895,7 @@ sdia   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
   d1cc0ac7141d9ceb  x28      (xfer intreg #1)
   f4f4ce6c51263a36  x29      (xfer intreg #2)
   34f9cb3ff6545069  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdia   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4918,7 +4918,7 @@ sdia   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
   616ce325f00ad5d9  x28      (xfer intreg #1)
   2cbf0d588d58b341  x29      (xfer intreg #2)
   94be7fcaa9e70562  f28      (xfer freg #2)
-          67121024   x5       (base reg)
+                16   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdia   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4941,7 +4941,7 @@ sdia   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
   96d5f371b1873121  x28      (xfer intreg #1)
   24f2f3625d5209c1  x29      (xfer intreg #2)
   272a8f6e56f7f99b  f28      (xfer freg #2)
-          67121032   x5       (base reg)
+                24   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -4964,7 +4964,7 @@ sdia   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   bfc3fbbda4e5071b  x28      (xfer intreg #1)
   1ba1dedfdc1a12b8  x29      (xfer intreg #2)
   d866b887a4003d7b  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
@@ -4987,7 +4987,7 @@ sdib   x28, (x5), 0, 0  with  x5 = middle_of_block+0,  x6=0
   11e011b55c4064a2  x28      (xfer intreg #1)
   f38c43822c431963  x29      (xfer intreg #2)
   f8088c8e05cb1c68  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdib   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5010,7 +5010,7 @@ sdib   x28, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
   668361667544cccb  x28      (xfer intreg #1)
   f4df6d1d35ae9e00  x29      (xfer intreg #2)
   fed335dc6f2fd582  f28      (xfer freg #2)
-          67121016   x5       (base reg)
+                 8   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdib   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5033,7 +5033,7 @@ sdib   x28, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
   ff74eff84de9f7ab  x28      (xfer intreg #1)
   8ef93b61654a1b89  x29      (xfer intreg #2)
   477b2f661dd35e6c  f28      (xfer freg #2)
-          67121024   x5       (base reg)
+                16   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdib   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5056,7 +5056,7 @@ sdib   x28, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
   45a75275cc389715  x28      (xfer intreg #1)
   1622e59a71d4bc77  x29      (xfer intreg #2)
   d65f117f51e82104  f28      (xfer freg #2)
-          67121032   x5       (base reg)
+                24   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5079,7 +5079,7 @@ sdib   x28, (x5), 4, 3  with  x5 = middle_of_block+0,  x6=0
   82fd79811c040f5a  x28      (xfer intreg #1)
   8654b67511982580  x29      (xfer intreg #2)
   134d449913efc126  f28      (xfer freg #2)
-          67121040   x5       (base reg)
+                32   x5       (sub, base reg)
                  0   x6       (index reg)
 
 LWD/LWUD (imm2)
@@ -5103,7 +5103,7 @@ lwd   x28,x29, (x5), 0, 3  with  x5 = middle_of_block+0,  x6=0
   ffffffffa9b1fbf6  x28      (xfer intreg #1)
   000000006ddfd2ea  x29      (xfer intreg #2)
   8f42c905f17ad56e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwd   x28,x29, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5126,7 +5126,7 @@ lwd   x28,x29, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
   000000001a1071a9  x28      (xfer intreg #1)
   000000000cc5016c  x29      (xfer intreg #2)
   bd28f6afbfe3aaf3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwd   x28,x29, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5149,7 +5149,7 @@ lwd   x28,x29, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
   ffffffffed473d1e  x28      (xfer intreg #1)
   ffffffff98eb9fbb  x29      (xfer intreg #2)
   b99737e35717030d  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwd   x28,x29, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5172,7 +5172,7 @@ lwd   x28,x29, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
   0000000038b4f4a2  x28      (xfer intreg #1)
   000000000e3ce76c  x29      (xfer intreg #2)
   0395d00c594fdb10  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwud  x28,x29, (x5), 0, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5195,7 +5195,7 @@ lwud  x28,x29, (x5), 0, 3  with  x5 = middle_of_block+0,  x6=0
   000000000e19f428  x28      (xfer intreg #1)
   00000000b41577aa  x29      (xfer intreg #2)
   43579870ebd1210f  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwud  x28,x29, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5218,7 +5218,7 @@ lwud  x28,x29, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
   00000000e91f25bd  x28      (xfer intreg #1)
   0000000095b2efec  x29      (xfer intreg #2)
   05ffbef579b4799b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwud  x28,x29, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5241,7 +5241,7 @@ lwud  x28,x29, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
   000000006043af42  x28      (xfer intreg #1)
   000000004d47091a  x29      (xfer intreg #2)
   7c5c86e0749a0082  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 lwud  x28,x29, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5264,7 +5264,7 @@ lwud  x28,x29, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
   00000000cb256745  x28      (xfer intreg #1)
   000000001cfd4109  x29      (xfer intreg #2)
   42ad0b9215740791  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 SWD (imm2)
@@ -5288,7 +5288,7 @@ swd   x28,x29, (x5), 0, 3  with  x5 = middle_of_block+0,  x6=0
   e9817fadb857fa19  x28      (xfer intreg #1)
   5524132b95dfae90  x29      (xfer intreg #2)
   155efe4a1a42d552  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swd   x28,x29, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5311,7 +5311,7 @@ swd   x28,x29, (x5), 1, 3  with  x5 = middle_of_block+0,  x6=0
   4a9caff4122660c6  x28      (xfer intreg #1)
   adc0043e6251a975  x29      (xfer intreg #2)
   9bca64e686d167d0  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swd   x28,x29, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5334,7 +5334,7 @@ swd   x28,x29, (x5), 2, 3  with  x5 = middle_of_block+0,  x6=0
   be6e8e25ae3866c1  x28      (xfer intreg #1)
   026a910fcd545dcb  x29      (xfer intreg #2)
   1df85aa2637c324f  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 swd   x28,x29, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
@@ -5357,7 +5357,7 @@ swd   x28,x29, (x5), 3, 3  with  x5 = middle_of_block+0,  x6=0
   da8292cd7e8a7ac3  x28      (xfer intreg #1)
   97c38f31585b76b1  x29      (xfer intreg #2)
   4d5fd2d782ecdf15  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 LDD (imm2)
@@ -5381,7 +5381,7 @@ ldd   x28,x29, (x5), 0, 4  with  x5 = middle_of_block+0,  x6=0
   caa25f1fa7f8eea4  x28      (xfer intreg #1)
   37855ea1c9ce429d  x29      (xfer intreg #2)
   03a356be39d90d24  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldd   x28,x29, (x5), 1, 4  with  x5 = middle_of_block+0,  x6=0
@@ -5404,7 +5404,7 @@ ldd   x28,x29, (x5), 1, 4  with  x5 = middle_of_block+0,  x6=0
   410f0f385a37341c  x28      (xfer intreg #1)
   caba5b93469441e2  x29      (xfer intreg #2)
   fa56c32c22c711fe  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldd   x28,x29, (x5), 2, 4  with  x5 = middle_of_block+0,  x6=0
@@ -5427,7 +5427,7 @@ ldd   x28,x29, (x5), 2, 4  with  x5 = middle_of_block+0,  x6=0
   ca4878f16f16ed66  x28      (xfer intreg #1)
   28b5714e24c1f5e6  x29      (xfer intreg #2)
   96b90e54e1cab760  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 ldd   x28,x29, (x5), 3, 4  with  x5 = middle_of_block+0,  x6=0
@@ -5450,7 +5450,7 @@ ldd   x28,x29, (x5), 3, 4  with  x5 = middle_of_block+0,  x6=0
   db93fec21836641c  x28      (xfer intreg #1)
   79f5e5742d8f68cf  x29      (xfer intreg #2)
   a0790189dd430008  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 SDD (imm2)
@@ -5474,7 +5474,7 @@ sdd   x28,x29, (x5), 0, 4  with  x5 = middle_of_block+0,  x6=0
   fa3b082eaa5bf16a  x28      (xfer intreg #1)
   48b0b30bdac91242  x29      (xfer intreg #2)
   0772fdfa04a1e570  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdd   x28,x29, (x5), 1, 4  with  x5 = middle_of_block+0,  x6=0
@@ -5497,7 +5497,7 @@ sdd   x28,x29, (x5), 1, 4  with  x5 = middle_of_block+0,  x6=0
   0bc1f2548b84a5cc  x28      (xfer intreg #1)
   aad314449feae91c  x29      (xfer intreg #2)
   a070b8748a221191  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdd   x28,x29, (x5), 2, 4  with  x5 = middle_of_block+0,  x6=0
@@ -5520,7 +5520,7 @@ sdd   x28,x29, (x5), 2, 4  with  x5 = middle_of_block+0,  x6=0
   ff57a719f5624e09  x28      (xfer intreg #1)
   480d1c21b9bcbd24  x29      (xfer intreg #2)
   e5e9fe24a98faaa2  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 sdd   x28,x29, (x5), 3, 4  with  x5 = middle_of_block+0,  x6=0
@@ -5543,7 +5543,7 @@ sdd   x28,x29, (x5), 3, 4  with  x5 = middle_of_block+0,  x6=0
   9af94cfc0b6108cb  x28      (xfer intreg #1)
   966f5125dc24e969  x29      (xfer intreg #2)
   b7c57352610407d7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 FLRW (register, imm2)
@@ -5567,7 +5567,7 @@ flrw   f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   474f1ed7f87e68f8  x28      (xfer intreg #1)
   6c770df27e52fff8  x29      (xfer intreg #2)
   ffffffff22f99722  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 flrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
@@ -5590,7 +5590,7 @@ flrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
   d76e2fa5ab013675  x28      (xfer intreg #1)
   c9d140079d86879c  x29      (xfer intreg #2)
   ffffffff547ec41e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 flrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
@@ -5613,7 +5613,7 @@ flrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
   429b293e9b4132e5  x28      (xfer intreg #1)
   921730837fcdbd9e  x29      (xfer intreg #2)
   ffffffffbea653ab  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 flrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -5636,7 +5636,7 @@ flrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   630809168364d267  x28      (xfer intreg #1)
   53923be06bc25683  x29      (xfer intreg #2)
   ffffffff8f9740b6  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 flrw   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -5659,7 +5659,7 @@ flrw   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   be96e402251d015b  x28      (xfer intreg #1)
   fbf892b9734e3ad2  x29      (xfer intreg #2)
   ffffffffa7022bf7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 FSRW (register, imm2)
@@ -5683,7 +5683,7 @@ fsrw   f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   3c92a4f3096ce01e  x28      (xfer intreg #1)
   a32dfe852d6849cb  x29      (xfer intreg #2)
   ac79d2b9ac348898  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 fsrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
@@ -5706,7 +5706,7 @@ fsrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=1
   eb78cab93d6286ca  x28      (xfer intreg #1)
   46039e5a73d61931  x29      (xfer intreg #2)
   f0ca05c808b14966  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 fsrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
@@ -5729,7 +5729,7 @@ fsrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=2
   c1b42cc116dbc3f8  x28      (xfer intreg #1)
   88faa5ac29ebb502  x29      (xfer intreg #2)
   202692dcd5f633b5  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 fsrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
@@ -5752,7 +5752,7 @@ fsrw   f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=3
   595db7d8ec42d77f  x28      (xfer intreg #1)
   72011f0cf6475e3a  x29      (xfer intreg #2)
   7513610cc89a466a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 fsrw   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -5775,7 +5775,7 @@ fsrw   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   b4f92ce7e0523e32  x28      (xfer intreg #1)
   3333abea089b4c95  x29      (xfer intreg #2)
   0b01b00edd0336e3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 FLURW (register, imm2)
@@ -5799,7 +5799,7 @@ flurw  f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   f73ce5b698d067a6  x28      (xfer intreg #1)
   e09b4153d3636c4a  x29      (xfer intreg #2)
   ffffffffd79735f9  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 flurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -5822,7 +5822,7 @@ flurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
   32c990ab005276ea  x28      (xfer intreg #1)
   33f2ecb4d1ab22d1  x29      (xfer intreg #2)
   ffffffff2344d0f0  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 flurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -5845,7 +5845,7 @@ flurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
   15f0f28809fc084e  x28      (xfer intreg #1)
   4e5c8f9642cc079e  x29      (xfer intreg #2)
   ffffffffbe8aee0b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 flurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -5868,7 +5868,7 @@ flurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   bb6ea4306d3eee1e  x28      (xfer intreg #1)
   772fa361ec2caae4  x29      (xfer intreg #2)
   ffffffff7fbf2bd3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 flurw  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -5891,7 +5891,7 @@ flurw  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   6331d8636798ef64  x28      (xfer intreg #1)
   dbadf51adb025254  x29      (xfer intreg #2)
   ffffffff9a2cd4c6  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 FSURW (register, imm2)
@@ -5915,7 +5915,7 @@ fsurw  f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   3013137e7e5689aa  x28      (xfer intreg #1)
   4ec56b25200fb9dc  x29      (xfer intreg #2)
   69e410d5be214411  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 fsurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -5938,7 +5938,7 @@ fsurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967295
   ef9bf23c3955afb6  x28      (xfer intreg #1)
   08d7bf059466d069  x29      (xfer intreg #2)
   e7f66ecbca14535a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 fsurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -5961,7 +5961,7 @@ fsurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967294
   cfbfe878eabd8b4c  x28      (xfer intreg #1)
   696d4117942681a6  x29      (xfer intreg #2)
   e6155879afec8225  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 fsurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -5984,7 +5984,7 @@ fsurw  f28, x5, x6, 2  with  x5 = middle_of_block+0,  x6=-4294967293
   29a5fcea67c53cf0  x28      (xfer intreg #1)
   b503985bc53c67bb  x29      (xfer intreg #2)
   59cfd2e3a00eae01  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 fsurw  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -6007,7 +6007,7 @@ fsurw  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   385e8ee6ca7397a3  x28      (xfer intreg #1)
   d6c17f2bd123960f  x29      (xfer intreg #2)
   9723b828952be87c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 FLRD (register, imm2)
@@ -6031,7 +6031,7 @@ flrd   f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   e0aa12213759e8a2  x28      (xfer intreg #1)
   1f3c8b0327a45707  x29      (xfer intreg #2)
   fd7376f8bd4f579c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
@@ -6054,7 +6054,7 @@ flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
   6bb7d36d955ab12a  x28      (xfer intreg #1)
   063ae238bd96ebc6  x29      (xfer intreg #2)
   82de054882e77dc5  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
@@ -6077,7 +6077,7 @@ flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
   45e2b07853636837  x28      (xfer intreg #1)
   e86b04c1cf9f47eb  x29      (xfer intreg #2)
   a131801b769d9907  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
@@ -6100,7 +6100,7 @@ flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
   c675e09123333c41  x28      (xfer intreg #1)
   c73184f2a0f2d557  x29      (xfer intreg #2)
   dad3a4873050bd2c  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -6123,7 +6123,7 @@ flrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   e768af63c015d0fe  x28      (xfer intreg #1)
   0e59ce3c370f38e5  x29      (xfer intreg #2)
   8a8d0afe2741db63  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 FSRD (register, imm2)
@@ -6147,7 +6147,7 @@ fsrd   f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=0
   0a2241b8aaa1fc23  x28      (xfer intreg #1)
   4ae0e1ef22870630  x29      (xfer intreg #2)
   797cf60c4e87cc1b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  0   x6       (index reg)
 
 fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
@@ -6170,7 +6170,7 @@ fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=1
   b5364e38e77f9124  x28      (xfer intreg #1)
   f1af15f935b78e51  x29      (xfer intreg #2)
   006b6362f2f68723  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  1   x6       (index reg)
 
 fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
@@ -6193,7 +6193,7 @@ fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=2
   5626e329c22514f0  x28      (xfer intreg #1)
   1d60d5a54a88929e  x29      (xfer intreg #2)
   735e27db32e174e7  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  2   x6       (index reg)
 
 fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
@@ -6216,7 +6216,7 @@ fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=3
   ff23252d8f9481b6  x28      (xfer intreg #1)
   50f8655e01360d6d  x29      (xfer intreg #2)
   80f06166bb7749a0  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  3   x6       (index reg)
 
 fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
@@ -6239,7 +6239,7 @@ fsrd   f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=4
   29cc0f08641f08a3  x28      (xfer intreg #1)
   31ac9b6a7f06edd0  x29      (xfer intreg #2)
   bdad889180b57509  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
                  4   x6       (index reg)
 
 FLURD (register, imm2)
@@ -6263,7 +6263,7 @@ flurd  f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   74eb3258df25d2a3  x28      (xfer intreg #1)
   4c9da8af320ed858  x29      (xfer intreg #2)
   75b96b8312ad507e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -6286,7 +6286,7 @@ flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
   633c735be5d2bb1c  x28      (xfer intreg #1)
   d49ccf718af2ead2  x29      (xfer intreg #2)
   5234f694665043be  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -6309,7 +6309,7 @@ flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
   2326cfad60e318b7  x28      (xfer intreg #1)
   63e72b13bfa2730d  x29      (xfer intreg #2)
   a5b1fd450d90c35b  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -6332,7 +6332,7 @@ flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
   44801907ff607217  x28      (xfer intreg #1)
   b7ea6cd2911ebc93  x29      (xfer intreg #2)
   8cb7dccd3d708343  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -6355,7 +6355,7 @@ flurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   7d4eb902f86047a0  x28      (xfer intreg #1)
   75ff998e0233c16c  x29      (xfer intreg #2)
   072fcdbe0e4f14c1  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
 
 FSURD (register, imm2)
@@ -6379,7 +6379,7 @@ fsurd  f28, x5, x6, 0  with  x5 = middle_of_block+0,  x6=-4294967296
   6b836dd2c8c9ce32  x28      (xfer intreg #1)
   e82fce821c3cf7df  x29      (xfer intreg #2)
   dee5246df5c1133e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967296   x6       (index reg)
 
 fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
@@ -6402,7 +6402,7 @@ fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967295
   51bd0a0cef0db2eb  x28      (xfer intreg #1)
   c1f0fd08b0e10730  x29      (xfer intreg #2)
   ab7c74cd8c63cb7a  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967295   x6       (index reg)
 
 fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
@@ -6425,7 +6425,7 @@ fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967294
   d70c3b62b7efd4ea  x28      (xfer intreg #1)
   d7e6af5613dc8f63  x29      (xfer intreg #2)
   a7067c72d88fdde3  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967294   x6       (index reg)
 
 fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
@@ -6448,7 +6448,7 @@ fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967293
   cdac3f62ed3c0c07  x28      (xfer intreg #1)
   e7a2c344e1b0e6f9  x29      (xfer intreg #2)
   3e2b79370240dc5e  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967293   x6       (index reg)
 
 fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
@@ -6471,5 +6471,6 @@ fsurd  f28, x5, x6, 3  with  x5 = middle_of_block+0,  x6=-4294967292
   e8c6ad3ca593e79c  x28      (xfer intreg #1)
   54672d04bd70d7af  x29      (xfer intreg #2)
   3f037e18fabf91d1  f28      (xfer freg #2)
-          67121008   x5       (base reg)
+                 0   x5       (sub, base reg)
        -4294967292   x6       (index reg)
+
