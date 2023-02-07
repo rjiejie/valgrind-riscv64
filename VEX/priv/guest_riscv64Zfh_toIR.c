@@ -326,7 +326,8 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
          default:
             vassert(0);
       }
-      putIReg64(irsb, rd, unop(Iop_1Uto64, mkexpr(res)));
+      if (rd != 0)
+         putIReg64(irsb, rd, unop(Iop_1Uto64, mkexpr(res)));
       accumulateFFLAGS(
          irsb, mkIRExprCCall(Ity_I32, 0 /*regparms*/, hNames[opc], helpers[opc],
                              mkIRExprVec_2(eR1, eR2)));
@@ -339,11 +340,11 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
        && INSN(26, 25) == RV64_FMT_FH) {
       UInt  rd      = GET_RD();
       UInt  rs1     = GET_RS1();
-
-      putIReg64(irsb, rd,
-                mkIRExprCCall(
-                   Ity_I64, 0 /*regparms*/, "riscv64g_calculate_fclass_h",
-                   riscv64g_calculate_fclass_h, mkIRExprVec_1(getFReg16(rs1))));
+      if (rd != 0)
+         putIReg64(irsb, rd,
+                   mkIRExprCCall(
+                      Ity_I64, 0 /*regparms*/, "riscv64g_calculate_fclass_h",
+                      riscv64g_calculate_fclass_h, mkIRExprVec_1(getFReg16(rs1))));
       DIP("fclass.h %s,%s\n", nameIReg(rd), nameFReg(rs1));
       return True;
    }
@@ -372,13 +373,15 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       switch (opc) {
          case 0:
          case 1:
-            putIReg32(irsb, rd,
-                      binop(opc == 0 ? Iop_F16toI32S : Iop_F16toI32U, eRM, eR1));
+            if (rd != 0)
+               putIReg32(irsb, rd,
+                         binop(opc == 0 ? Iop_F16toI32S : Iop_F16toI32U, eRM, eR1));
             break;
          case 2:
          case 3:
-            putIReg64(irsb, rd,
-                      binop(opc == 2 ? Iop_F16toI64S : Iop_F16toI64U, eRM, eR1));
+            if (rd != 0)
+               putIReg64(irsb, rd,
+                         binop(opc == 2 ? Iop_F16toI64S : Iop_F16toI64U, eRM, eR1));
             break;
          default:
             vassert(0);
@@ -430,7 +433,8 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       UInt  rs1     = GET_RS1();
 
       if (GET_FUNCT5() == RV64_SOPC_FMV_X_H) {
-         putIReg16(irsb, rd, unop(Iop_ReinterpF16asI16, getFReg16(rs1)));
+         if (rd != 0)
+            putIReg16(irsb, rd, unop(Iop_ReinterpF16asI16, getFReg16(rs1)));
          DIP("fmv.x.h %s,%s\n", nameIReg(rd), nameFReg(rs1));
       } else {
          putFReg16(irsb, rd, unop(Iop_ReinterpI16asF16, getIReg16(rs1)));
