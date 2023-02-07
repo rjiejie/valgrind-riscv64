@@ -131,7 +131,7 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       const HChar* opcs[4] = { "fadd", "fsub", "fmul", "fdiv" };
       const UInt   opci    = INSN(28,27);
 
-      switch (GET_FUNCT7()) {
+      switch (GET_FUNCT5()) {
          case RV64_SOPC_FADD:
             assign(irsb, res, triop(Iop_AddF16, eRM, eR1, eR2));
             break;
