@@ -3617,8 +3617,10 @@ Int emit_RISCV64Instr(/*MB_MOD*/ Bool*    is_profInc,
                               disp_cp_chain_me_to_slowEP,
                               disp_cp_chain_me_to_fastEP, disp_cp_xindir,
                               disp_cp_xassisted);
-   if (ret != NULL)
+   if (ret != NULL) {
+      p = ret;
       goto done;
+   }
 #endif
 
    switch (i->tag) {
