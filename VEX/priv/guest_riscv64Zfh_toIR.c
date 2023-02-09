@@ -203,7 +203,7 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
                 unop(Iop_ReinterpI16asF16,
                      binop(opc == 2 ? Iop_Xor16 : Iop_Or16,
                            binop(Iop_And16, unop(Iop_ReinterpF16asI16, eR1),
-                                 mkU16(0X7FFF)),
+                                 opc != 2 ? mkU16(0x7FFF) : mkU16(0xFFFF)),
                            binop(Iop_And16, unop(Iop_ReinterpF16asI16, opc == 1 ? unop(Iop_NegF16, eR2) : eR2),
                                  mkU16(0x8000)))));
       DIP("%s.h %s,%s,%s\n", opcs[opc], nameFReg(rd), nameFReg(rs1), nameFReg(rs2));
