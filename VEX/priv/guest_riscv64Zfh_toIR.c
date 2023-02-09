@@ -80,21 +80,21 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
 
       switch (GET_OPCODE()) {
          case OPC_MADD:
-            assign(irsb, res, qop(Iop_MAddF16, eRM, eR1, eR2, eR3));
             break;
          case OPC_MSUB:
-            assign(irsb, res, qop(Iop_MAddF16, eRM, eR1, eR2, unop(Iop_NegF16, eR3)));
+            eR3 = unop(Iop_NegF16, eR3);
             break;
          case OPC_NMADD:
-            assign(irsb, res, qop(Iop_MAddF16, eRM, unop(Iop_NegF16, eR1), eR2,
-                                  unop(Iop_NegF16, eR3)));
+            eR1 = unop(Iop_NegF16, eR1);
+            eR3 = unop(Iop_NegF16, eR3);
             break;
          case OPC_NMSUB:
-            assign(irsb, res, qop(Iop_MAddF16, eRM, unop(Iop_NegF16, eR1), eR2, eR3));
+            eR1 = unop(Iop_NegF16, eR1);
             break;
          default:
             vassert(0);
       }
+      assign(irsb, res, qop(Iop_MAddF16, eRM, eR1, eR2, eR3));
       putFReg16(irsb, rd, mkexpr(res));
       accumulateFFLAGS(
          irsb,
@@ -136,7 +136,8 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
             assign(irsb, res, triop(Iop_AddF16, eRM, eR1, eR2));
             break;
          case RV64_SOPC_FSUB:
-            assign(irsb, res, triop(Iop_AddF16, eRM, eR1, unop(Iop_NegF16, eR2)));
+            eR2 = unop(Iop_NegF16, eR2);
+            assign(irsb, res, triop(Iop_AddF16, eRM, eR1, eR2));
             break;
          case RV64_SOPC_FMUL:
             assign(irsb, res, triop(Iop_MulF16, eRM, eR1, eR2));
