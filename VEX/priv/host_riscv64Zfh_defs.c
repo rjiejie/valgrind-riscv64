@@ -88,7 +88,7 @@ RISCV64Instr* RISCV64Instr_FCmpH(RISCV64CmpOp op, HReg rd, HReg rs1, HReg rs2)
    i->RISCV64in.FCmpH.op  = op;
    i->RISCV64in.FCmpH.rd  = rd;
    i->RISCV64in.FCmpH.rs1 = rs1;
-   i->RISCV64in.FCmpH.rs1 = rs2;
+   i->RISCV64in.FCmpH.rs2 = rs2;
    return i;
 }
 
@@ -290,6 +290,7 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
             case RV64_CMP_EQ:
             case RV64_CMP_LT:
                cmp_rm = i->RISCV64in.FCmpH.op;
+               break;
             default:
                return NULL;
          }

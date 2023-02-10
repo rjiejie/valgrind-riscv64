@@ -190,9 +190,9 @@ static HReg iselIntZfhExpr_R_wrk(ISelEnv* env, IRExpr* e, Bool* ok) {
          HReg lt = newVRegI(env);
          HReg gt = newVRegI(env);
 
-         addInstr(env, RISCV64Instr_FCmpH(RV64_CMP_EQ, lt, argL, argR));
+         addInstr(env, RISCV64Instr_FCmpH(RV64_CMP_EQ, eq, argL, argR));
          addInstr(env, RISCV64Instr_FCmpH(RV64_CMP_LT, gt, argR, argL));
-         addInstr(env, RISCV64Instr_FCmpH(RV64_CMP_LT, eq, argL, argR));
+         addInstr(env, RISCV64Instr_FCmpH(RV64_CMP_LT, lt, argL, argR));
          /*
             t0 = Ircr_UN
             t1 = Ircr_LT
