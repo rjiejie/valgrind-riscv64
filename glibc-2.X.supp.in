@@ -64,6 +64,12 @@
    obj:*/lib*/ld-@GLIBC_VERSION@*.so*
    obj:*/lib*/libdl-@GLIBC_VERSION@*.so*
 }
+{
+   dl-hack3-cond-5
+   Memcheck:Cond
+   obj:*/lib*/ld-@GLIBC_VERSION@*.so*
+   obj:*/lib*/ld-@GLIBC_VERSION@*.so*
+}
 
 {
    dl-hack4-64bit-addr-1
