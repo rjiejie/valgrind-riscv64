@@ -1062,7 +1062,7 @@ feq.h a0, fa0, fa1 ::
   output: a0=0x0000000000000001, fcsr=0x00000000
 feq.h a0, fa0, fa1 ::
   inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7e00, fcsr=0x00000000
-  output: a0=0x0000000000000000, fcsr=0x00000010
+  output: a0=0x0000000000000000, fcsr=0x00000000
 feq.h a0, fa0, fa1 ::
   inputs: fa0=0xffffffffffff0000, fa1=0xffffffffffff7d00, fcsr=0x00000000
   output: a0=0x0000000000000000, fcsr=0x00000010
