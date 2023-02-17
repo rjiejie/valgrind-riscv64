@@ -19,9 +19,9 @@
       set/clear fxcr bit using t1                            \
    */                                                        \
    __asm__ __volatile__(                                     \
-      "addi  t1, a0, 1;"                                     \
+      "addi  t1, x0, 1;"                                     \
       "slli  t1, t1, 31;"                                    \
-      #csr_inst " a0, fxcr, t1;"                             \
+      #csr_inst " x0, fxcr, t1;"                             \
       : "=X" (_dummy)                                        \
       :                                                      \
       :                                                      \
