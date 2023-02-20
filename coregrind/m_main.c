@@ -932,9 +932,17 @@ static void early_process_cmd_line_options ( /*OUT*/Int* need_help )
       VG_(log_output_sink).fd = 1;
       VG_(log_output_sink).type = VgLogTo_Fd;
       if (VG_(clo_verbosity) <= 1)
+#ifdef THEAD_VERSION
+         VG_(printf)("valgrind-" VERSION VG_STRINGIFY(THEAD_VERSION) "\n");
+#else
          VG_(printf)("valgrind-" VERSION "\n");
+#endif
       else
+#ifdef THEAD_VERSION
+         VG_(printf)("valgrind-" VERSION "-" VGGIT VG_STRINGIFY(THEAD_VERSION) "\n");
+#else
          VG_(printf)("valgrind-" VERSION "-" VGGIT "\n");
+#endif
       VG_(exit)(0);
    }
 
