@@ -30,11 +30,11 @@
 #   FILE*s state through mempcpy, which we intercept, so we also need
 #   to suppress such manipulations.
 
-#{
-#   helgrind-glibc2X-001
-#   Helgrind:Race
-#   obj:*/lib*/ld-2.*so*
-#}
+{
+   helgrind-glibc2X-001
+   Helgrind:Race
+   obj:*/lib*/ld-@GLIBC_VERSION@*.so*
+}
 
 # helgrind-glibc2X-002 was merged into helgrind-glibc2X-001
 
