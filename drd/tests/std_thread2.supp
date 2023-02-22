@@ -44,4 +44,9 @@
    drd:ConflictingAccess
    obj:/libexec/ld-elf*.so.1
 }
+{
+   drd-rtld
+   drd:ConflictingAccess
+   obj:*/lib*/ld-*.so*
+}
 
