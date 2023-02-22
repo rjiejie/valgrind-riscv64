@@ -384,7 +384,7 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
 {
    switch (i->tag) {
       case RISCV64in_FLdStH: {
-         HChar* opc = i->RISCV64in.FLdStH.isLoad ? "fl" : "fs";
+         const HChar* opc = i->RISCV64in.FLdStH.isLoad ? "fl" : "fs";
          vex_printf("%s.h    ", opc);
          ppHRegRISCV64(i->RISCV64in.FLdStH.sd);
          vex_printf(", %d(", i->RISCV64in.FLdStH.imm12);
@@ -403,7 +403,7 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
          ppHRegRISCV64(i->RISCV64in.FTriH.rs3);
          return True;
       case RISCV64in_FBinH: {
-         HChar* opc = "???";
+         const HChar* opc = "???";
          switch (i->RISCV64in.FBinH.op) {
             case Iop_AddF16:    opc = "fadd"; break;
             case Iop_MulF16:    opc = "fmul"; break;
@@ -421,7 +421,7 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
          return True;
       }
       case RISCV64in_FUnaryH: {
-         HChar* opc = "???";
+         const HChar* opc = "???";
          switch (i->RISCV64in.FUnaryH.op) {
             case Iop_SqrtF16: opc = "fsqrt.h"; break;
             case Iop_AbsF16:  opc = "fabs.h"; break;
@@ -437,7 +437,7 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
          return True;
       }
       case RISCV64in_FCvtH: {
-         HChar* opc = "???";
+         const HChar* opc = "???";
          switch (i->RISCV64in.FCvtH.op) {
             case Iop_F16toF32:  opc = "fcvt.s.h";  break;
             case Iop_F16toF64:  opc = "fcvt.d.h";  break;
@@ -460,8 +460,8 @@ Bool ppRISCV64ZfhInstr(const RISCV64Instr* i)
          return True;
       }
       case RISCV64in_FCmpH: {
-         HChar* opc = "???";
-         switch (i->RISCV64in.FCvtH.op) {
+         const HChar* opc = "???";
+         switch (i->RISCV64in.FCmpH.op) {
          case RV64_CMP_EQ: opc = "feq.h"; break;
          case RV64_CMP_LT: opc = "flt.h"; break;
          default: break;

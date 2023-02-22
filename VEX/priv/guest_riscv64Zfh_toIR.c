@@ -254,8 +254,8 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       IRExpr* eR1 = getFReg16(rs1);
       IRExpr* eRM = mkexpr(rmIR);
 
-      HChar* hName = NULL;
-      HChar* helper = NULL;
+      const HChar* hName = NULL;
+      void* helper = NULL;
       const HChar* opcodestr = "???";
       switch (opc) {
          case RV64_SOPC_FCVT_S_H:

@@ -602,9 +602,9 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
            ty == Ity_I1);
 
 #ifdef __riscv_zfh
-   Bool ok;
-   HReg ret = iselIntZfhExpr_R_wrk(env, e, &ok);
-   if (ok)
+   Bool zfh;
+   HReg ret = iselIntZfhExpr_R_wrk(env, e, &zfh);
+   if (zfh)
       return ret;
 #endif
 
