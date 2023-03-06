@@ -7,7 +7,7 @@
    This file is part of Valgrind, a dynamic binary instrumentation
    framework.
 
-   Copyright (C) 2020-2022 Petr Pavlu
+   Copyright (C) 2020-2023 Petr Pavlu
       petr.pavlu@dagobah.cz
 
    This program is free software; you can redistribute it and/or
@@ -96,207 +96,240 @@ ST_IN HReg hregRISCV64_x8(void) { return mkHReg(False, HRcInt64, 8, 40); }
 /*--- Instructions                                         ---*/
 /*------------------------------------------------------------*/
 
+/* RISCV64in_ALU sub-types. */
+typedef enum {
+   RISCV64op_ADD = 0x100, /* Addition of two registers. */
+   RISCV64op_SUB,         /* Subtraction of one register from another. */
+   RISCV64op_ADDW,        /* 32-bit addition of two registers. */
+   RISCV64op_SUBW,        /* 32-bit subtraction of one register from another. */
+   RISCV64op_XOR,         /* Bitwise XOR of two registers. */
+   RISCV64op_OR,          /* Bitwise OR of two registers. */
+   RISCV64op_AND,         /* Bitwise AND of two registers. */
+   RISCV64op_SLL,         /* Logical left shift on a register. */
+   RISCV64op_SRL,         /* Logical right shift on a register. */
+   RISCV64op_SRA,         /* Arithmetic right shift on a register. */
+   RISCV64op_SLLW,        /* 32-bit logical left shift on a register. */
+   RISCV64op_SRLW,        /* 32-bit logical right shift on a register. */
+   RISCV64op_SRAW,        /* 32-bit arithmetic right shift on a register. */
+   RISCV64op_SLT,         /* Signed comparison of two registers. */
+   RISCV64op_SLTU,        /* Unsigned comparison of two registers. */
+   RISCV64op_MUL,         /* Multiplication of two registers, producing the
+                             lower 64 bits. */
+   RISCV64op_MULH,        /* Signed multiplication of two registers, producing
+                             the upper 64 bits. */
+   RISCV64op_MULHU,       /* Unsigned multiplication of two registers, producing
+                             the upper 64 bits. */
+   RISCV64op_DIV,         /* Signed division of one register by another. */
+   RISCV64op_DIVU,        /* Unsigned division of one register by another. */
+   RISCV64op_REM,         /* Remainder from signed division of one register by
+                             another. */
+   RISCV64op_REMU,        /* Remainder from unsigned division of one register by
+                             another. */
+   RISCV64op_MULW,        /* 32-bit multiplication of two registers, producing
+                             the lower 32 bits. */
+   RISCV64op_DIVW,        /* 32-bit signed division of one register by
+                             another. */
+   RISCV64op_DIVUW,       /* 32-bit unsigned division of one register by
+                             another. */
+   RISCV64op_REMW,        /* Remainder from 32-bit signed division of one
+                             register by another. */
+   RISCV64op_REMUW,       /* Remainder from 32-bit unsigned division of one
+                             register by another. */
+} RISCV64ALUOp;
+
+/* RISCV64in_ALUImm sub-types. */
+typedef enum {
+   RISCV64op_ADDI = 0x200, /* Addition of a register and a sx-12-bit
+                              immediate. */
+   RISCV64op_ADDIW,        /* 32-bit addition of a register and a sx-12-bit
+                              immediate. */
+   RISCV64op_XORI,         /* Bitwise XOR of a register and a sx-12-bit
+                              immediate. */
+   RISCV64op_ANDI,         /* Bitwise AND of a register and a sx-12-bit
+                              immediate. */
+   RISCV64op_SLLI,         /* Logical left shift on a register by a 6-bit
+                              immediate. */
+   RISCV64op_SRLI,         /* Logical right shift on a register by a 6-bit
+                              immediate. */
+   RISCV64op_SRAI,         /* Arithmetic right shift on a register by a 6-bit
+                              immediate. */
+   RISCV64op_SLTIU,        /* Unsigned comparison of a register and a sx-12-bit
+                              immediate. */
+} RISCV64ALUImmOp;
+
+/* RISCV64in_Load sub-types. */
+typedef enum {
+   RISCV64op_LD = 0x300, /* 64-bit load. */
+   RISCV64op_LW,         /* sx-32-to-64-bit load. */
+   RISCV64op_LH,         /* sx-16-to-64-bit load. */
+   RISCV64op_LB,         /* sx-8-to-64-bit load. */
+} RISCV64LoadOp;
+
+/* RISCV64in_Store sub-types. */
+typedef enum {
+   RISCV64op_SD = 0x400, /* 64-bit store. */
+   RISCV64op_SW,         /* 32-bit store. */
+   RISCV64op_SH,         /* 16-bit store. */
+   RISCV64op_SB,         /* 8-bit store. */
+} RISCV64StoreOp;
+
+/* RISCV64in_LoadR sub-types. */
+typedef enum {
+   RISCV64op_LR_W = 0x500, /* sx-32-to-64-bit load-reserved. */
+} RISCV64LoadROp;
+
+/* RISCV64in_StoreC sub-types. */
+typedef enum {
+   RISCV64op_SC_W = 0x600, /* 32-bit store-conditional. */
+} RISCV64StoreCOp;
+
 /* RISCV64in_FpUnary sub-types. */
 typedef enum {
-   RISCV64fpu_FSQRT_S = 0x100, /* Square root of a 32-bit floating-point
-                                  register. */
-   RISCV64fpu_FSQRT_D,         /* Square root of a 64-bit floating-point
-                                  register. */
+   RISCV64op_FSQRT_S = 0x700, /* Square root of a 32-bit floating-point
+                                 register. */
+   RISCV64op_FSQRT_D,         /* Square root of a 64-bit floating-point
+                                 register. */
 } RISCV64FpUnaryOp;
 
 /* RISCV64in_FpBinary sub-types. */
 typedef enum {
-   RISCV64fpb_FADD_S = 0x200, /* Addition of two 32-bit floating-point
-                                 registers. */
-   RISCV64fpb_FMUL_S,         /* Multiplication of two 32-bit floating-point
-                                 registers. */
-   RISCV64fpb_FDIV_S,         /* Division of a 32-bit floating-point register by
-                                 another. */
-   RISCV64fpb_FSGNJN_S,       /* Copy of a 32-bit floating-point register to
-                                 another with the sign bit taken from the second
-                                 input and negated. */
-   RISCV64fpb_FSGNJX_S,       /* Copy of a 32-bit floating-point register to
-                                 another with the sign bit XOR'ed from the
-                                 second input. */
-   RISCV64fpb_FMIN_S,         /* Select minimum-number of two 32-bit
-                                 floating-point registers. */
-   RISCV64fpb_FMAX_S,         /* Select maximum-number of two 32-bit
-                                 floating-point registers. */
-   RISCV64fpb_FADD_D,         /* Addition of two 64-bit floating-point
-                                 registers. */
-   RISCV64fpb_FSUB_D,         /* Subtraction of one 64-bit floating-point
-                                 register from another. */
-   RISCV64fpb_FMUL_D,         /* Multiplication of two 64-bit floating-point
-                                 registers. */
-   RISCV64fpb_FDIV_D,         /* Division of a 64-bit floating-point register by
-                                 another. */
-   RISCV64fpb_FSGNJN_D,       /* Copy of a 64-bit floating-point register to
-                                 another with the sign bit taken from the second
-                                 input and negated. */
-   RISCV64fpb_FSGNJX_D,       /* Copy of a 64-bit floating-point register to
-                                 another with the sign bit XOR'ed from the
-                                 second input. */
-   RISCV64fpb_FMIN_D,         /* Select minimum-number of two 64-bit
-                                 floating-point registers. */
-   RISCV64fpb_FMAX_D,         /* Select maximum-number of two 64-bit
-                                 floating-point registers. */
+   RISCV64op_FADD_S = 0x800, /* Addition of two 32-bit floating-point
+                                registers. */
+   RISCV64op_FMUL_S,         /* Multiplication of two 32-bit floating-point
+                                registers. */
+   RISCV64op_FDIV_S,         /* Division of a 32-bit floating-point register by
+                                another. */
+   RISCV64op_FSGNJN_S,       /* Copy of a 32-bit floating-point register to
+                                another with the sign bit taken from the second
+                                input and negated. */
+   RISCV64op_FSGNJX_S,       /* Copy of a 32-bit floating-point register to
+                                another with the sign bit XOR'ed from the second
+                                input. */
+   RISCV64op_FMIN_S,         /* Select minimum-number of two 32-bit
+                                floating-point registers. */
+   RISCV64op_FMAX_S,         /* Select maximum-number of two 32-bit
+                                floating-point registers. */
+   RISCV64op_FADD_D,         /* Addition of two 64-bit floating-point
+                                registers. */
+   RISCV64op_FSUB_D,         /* Subtraction of one 64-bit floating-point
+                                register from another. */
+   RISCV64op_FMUL_D,         /* Multiplication of two 64-bit floating-point
+                                registers. */
+   RISCV64op_FDIV_D,         /* Division of a 64-bit floating-point register by
+                                another. */
+   RISCV64op_FSGNJN_D,       /* Copy of a 64-bit floating-point register to
+                                another with the sign bit taken from the second
+                                input and negated. */
+   RISCV64op_FSGNJX_D,       /* Copy of a 64-bit floating-point register to
+                                another with the sign bit XOR'ed from the second
+                                input. */
+   RISCV64op_FMIN_D,         /* Select minimum-number of two 64-bit
+                                floating-point registers. */
+   RISCV64op_FMAX_D,         /* Select maximum-number of two 64-bit
+                                floating-point registers. */
 } RISCV64FpBinaryOp;
 
 /* RISCV64in_FpTernary sub-types. */
 typedef enum {
-   RISCV64fpt_FMADD_S = 0x300, /* Fused multiply-add of 32-bit floating-point
-                                  registers. */
-   RISCV64fpt_FMADD_D,         /* Fused multiply-add of 64-bit floating-point
-                                  registers. */
+   RISCV64op_FMADD_S = 0x900, /* Fused multiply-add of 32-bit floating-point
+                                 registers. */
+   RISCV64op_FMADD_D,         /* Fused multiply-add of 64-bit floating-point
+                                 registers. */
 } RISCV64FpTernaryOp;
 
 /* RISCV64in_FpMove sub-types. */
 typedef enum {
-   RISCV64fpm_FMV_X_W = 0x400, /* Move as-is a 32-bit value from
-                                  a floating-point register to an integer
-                                  register. */
-   RISCV64fpm_FMV_W_X,         /* Move as-is a 32-bit value from an integer
-                                  register to a floating-point register. */
-   RISCV64fpm_FMV_D,           /* Copy one 64-bit floating-point register to
-                                  another. */
-   RISCV64fpm_FMV_X_D,         /* Move as-is a 64-bit value from
-                                  a floating-point register to an integer
-                                  register. */
-   RISCV64fpm_FMV_D_X,         /* Move as-is a 64-bit value from an integer
-                                  register to a floating-point register. */
+   RISCV64op_FMV_X_W = 0xa00, /* Move as-is a 32-bit value from a floating-point
+                                 register to an integer register. */
+   RISCV64op_FMV_W_X,         /* Move as-is a 32-bit value from an integer
+                                 register to a floating-point register. */
+   RISCV64op_FMV_D,           /* Copy one 64-bit floating-point register to
+                                 another. */
+   RISCV64op_FMV_X_D,         /* Move as-is a 64-bit value from a floating-point
+                                 register to an integer register. */
+   RISCV64op_FMV_D_X,         /* Move as-is a 64-bit value from an integer
+                                 register to a floating-point register. */
 } RISCV64FpMoveOp;
 
 /* RISCV64in_FpConvert sub-types. */
 typedef enum {
-   RISCV64fpc_FCVT_W_S = 0x500, /* Convert a 32-bit floating-point number to
-                                   a 32-bit signed integer. */
-   RISCV64fpc_FCVT_WU_S,        /* Convert a 32-bit floating-point number to
-                                   a 32-bit unsigned integer. */
-   RISCV64fpc_FCVT_S_W,         /* Convert a 32-bit signed integer to a 32-bit
-                                   floating-point number. */
-   RISCV64fpc_FCVT_S_WU,        /* Convert a 32-bit unsigned integer to a 32-bit
-                                   floating-point number. */
-   RISCV64fpc_FCVT_L_S,         /* Convert a 32-bit floating-point number to
-                                   a 64-bit signed integer. */
-   RISCV64fpc_FCVT_LU_S,        /* Convert a 32-bit floating-point number to
-                                   a 64-bit unsigned integer. */
-   RISCV64fpc_FCVT_S_L,         /* Convert a 64-bit signed integer to a 32-bit
-                                   floating-point number. */
-   RISCV64fpc_FCVT_S_LU,        /* Convert a 64-bit unsigned integer to a 32-bit
-                                   floating-point number. */
-   RISCV64fpc_FCVT_S_D,         /* Convert a 64-bit floating-point number to
-                                   a 32-bit floating-point number. */
-   RISCV64fpc_FCVT_D_S,         /* Convert a 32-bit floating-point number to
-                                   a 64-bit floating-point number. */
-   RISCV64fpc_FCVT_W_D,         /* Convert a 64-bit floating-point number to
-                                   a 32-bit signed integer. */
-   RISCV64fpc_FCVT_WU_D,        /* Convert a 64-bit floating-point number to
-                                   a 32-bit unsigned integer. */
-   RISCV64fpc_FCVT_D_W,         /* Convert a 32-bit signed integer to a 64-bit
-                                   floating-point number. */
-   RISCV64fpc_FCVT_D_WU,        /* Convert a 32-bit unsigned integer to a 64-bit
-                                   floating-point number. */
-   RISCV64fpc_FCVT_L_D,         /* Convert a 64-bit floating-point number to
-                                   a 64-bit signed integer. */
-   RISCV64fpc_FCVT_LU_D,        /* Convert a 64-bit floating-point number to
-                                   a 64-bit unsigned integer. */
-   RISCV64fpc_FCVT_D_L,         /* Convert a 64-bit signed integer to a 64-bit
-                                   floating-point number. */
-   RISCV64fpc_FCVT_D_LU,        /* Convert a 64-bit unsigned integer to a 64-bit
-                                   floating-point number. */
+   RISCV64op_FCVT_W_S = 0xb00, /* Convert a 32-bit floating-point number to
+                                  a 32-bit signed integer. */
+   RISCV64op_FCVT_WU_S,        /* Convert a 32-bit floating-point number to
+                                  a 32-bit unsigned integer. */
+   RISCV64op_FCVT_S_W,         /* Convert a 32-bit signed integer to a 32-bit
+                                  floating-point number. */
+   RISCV64op_FCVT_S_WU,        /* Convert a 32-bit unsigned integer to a 32-bit
+                                  floating-point number. */
+   RISCV64op_FCVT_L_S,         /* Convert a 32-bit floating-point number to
+                                  a 64-bit signed integer. */
+   RISCV64op_FCVT_LU_S,        /* Convert a 32-bit floating-point number to
+                                  a 64-bit unsigned integer. */
+   RISCV64op_FCVT_S_L,         /* Convert a 64-bit signed integer to a 32-bit
+                                  floating-point number. */
+   RISCV64op_FCVT_S_LU,        /* Convert a 64-bit unsigned integer to a 32-bit
+                                  floating-point number. */
+   RISCV64op_FCVT_S_D,         /* Convert a 64-bit floating-point number to
+                                  a 32-bit floating-point number. */
+   RISCV64op_FCVT_D_S,         /* Convert a 32-bit floating-point number to
+                                  a 64-bit floating-point number. */
+   RISCV64op_FCVT_W_D,         /* Convert a 64-bit floating-point number to
+                                  a 32-bit signed integer. */
+   RISCV64op_FCVT_WU_D,        /* Convert a 64-bit floating-point number to
+                                  a 32-bit unsigned integer. */
+   RISCV64op_FCVT_D_W,         /* Convert a 32-bit signed integer to a 64-bit
+                                  floating-point number. */
+   RISCV64op_FCVT_D_WU,        /* Convert a 32-bit unsigned integer to a 64-bit
+                                  floating-point number. */
+   RISCV64op_FCVT_L_D,         /* Convert a 64-bit floating-point number to
+                                  a 64-bit signed integer. */
+   RISCV64op_FCVT_LU_D,        /* Convert a 64-bit floating-point number to
+                                  a 64-bit unsigned integer. */
+   RISCV64op_FCVT_D_L,         /* Convert a 64-bit signed integer to a 64-bit
+                                  floating-point number. */
+   RISCV64op_FCVT_D_LU,        /* Convert a 64-bit unsigned integer to a 64-bit
+                                  floating-point number. */
 } RISCV64FpConvertOp;
 
 /* RISCV64in_FpCompare sub-types. */
 typedef enum {
-   RISCV64fpc_FEQ_S = 0x600, /* Equality comparison of two 32-bit floating-point
-                                registers. */
-   RISCV64fpc_FLT_S,         /* Less-than comparison of two 32-bit
-                                floating-point registers. */
-   RISCV64fpc_FEQ_D,         /* Equality comparison of two 64-bit floating-point
-                                registers. */
-   RISCV64fpc_FLT_D,         /* Less-than comparison of two 64-bit
-                                floating-point registers. */
+   RISCV64op_FEQ_S = 0xc00, /* Equality comparison of two 32-bit floating-point
+                               registers. */
+   RISCV64op_FLT_S,         /* Less-than comparison of two 32-bit floating-point
+                               registers. */
+   RISCV64op_FEQ_D,         /* Equality comparison of two 64-bit floating-point
+                               registers. */
+   RISCV64op_FLT_D,         /* Less-than comparison of two 64-bit floating-point
+                               registers. */
 } RISCV64FpCompareOp;
 
 /* RISCV64in_FpLdSt sub-types. */
 typedef enum {
-   RISCV64fpm_FLW = 0x700, /* 32-bit floating-point load. */
-   RISCV64fpm_FLD,         /* 64-bit floating-point load. */
-   RISCV64fpm_FSW,         /* 32-bit floating-point store. */
-   RISCV64fpm_FSD,         /* 64-bit floating-point store. */
+   RISCV64op_FLW = 0xd00, /* 32-bit floating-point load. */
+   RISCV64op_FLD,         /* 64-bit floating-point load. */
+   RISCV64op_FSW,         /* 32-bit floating-point store. */
+   RISCV64op_FSD,         /* 64-bit floating-point store. */
 } RISCV64FpLdStOp;
+
+/* RISCV64in_CAS sub-types. */
+typedef enum {
+   RISCV64op_CAS_D = 0xe00, /* 64-bit compare-and-swap pseudoinstruction. */
+   RISCV64op_CAS_W,         /* 32-bit compare-and-swap pseudoinstruction. */
+} RISCV64CASOp;
 
 /* The kind of instructions. */
 typedef enum {
    RISCV64in_LI = 0x52640000, /* Load immediate pseudoinstruction. */
    RISCV64in_MV,              /* Copy one register to another. */
-   RISCV64in_ADD,             /* Addition of two registers. */
-   RISCV64in_ADDI,            /* Addition of a register and a sx-12-bit
-                                 immediate. */
-   RISCV64in_ADDW,            /* 32-bit addition of two registers. */
-   RISCV64in_ADDIW,           /* 32-bit addition of a register and a sx-12-bit
-                                 immediate. */
-   RISCV64in_SUB,             /* Subtraction of one register from another. */
-   RISCV64in_SUBW,            /* 32-bit subtraction of one register from
-                                 another. */
-   RISCV64in_XOR,             /* Bitwise XOR of two registers. */
-   RISCV64in_XORI,            /* Bitwise XOR of a register and a sx-12-bit
-                                 immediate. */
-   RISCV64in_OR,              /* Bitwise OR of two registers. */
-   RISCV64in_AND,             /* Bitwise AND of two registers. */
-   RISCV64in_ANDI,            /* Bitwise AND of a register and a sx-12-bit
-                                 immediate. */
-   RISCV64in_SLL,             /* Logical left shift on a register. */
-   RISCV64in_SRL,             /* Logical right shift on a register. */
-   RISCV64in_SRA,             /* Arithmetic right shift on a register. */
-   RISCV64in_SLLI,            /* Logical left shift on a register by a 6-bit
-                                 immediate. */
-   RISCV64in_SRLI,            /* Logical right shift on a register by a 6-bit
-                                 immediate. */
-   RISCV64in_SRAI,            /* Arithmetic right shift on a register by a 6-bit
-                                 immediate. */
-   RISCV64in_SLLW,            /* 32-bit logical left shift on a register. */
-   RISCV64in_SRLW,            /* 32-bit logical right shift on a register. */
-   RISCV64in_SRAW,            /* 32-bit arithmetic right shift on a register. */
-   RISCV64in_SLT,             /* Signed comparison of two registers. */
-   RISCV64in_SLTU,            /* Unsigned comparison of two registers. */
-   RISCV64in_SLTIU,           /* Unsigned comparison of a register and
-                                 a sx-12-bit immediate. */
-   RISCV64in_CSRRW,           /* Atomic swap of values in a CSR an integer
+   RISCV64in_ALU,             /* Computational binary instruction. */
+   RISCV64in_ALUImm,          /* Computational binary instruction, with
+                                 an immediate as the second input. */
+   RISCV64in_Load,            /* Load from memory (sign-extended). */
+   RISCV64in_Store,           /* Store to memory. */
+   RISCV64in_LoadR,           /* Load-reserved from memory (sign-extended). */
+   RISCV64in_StoreC,          /* Store-conditional to memory. */
+   RISCV64in_CSRRW,           /* Atomic swap of values in a CSR and an integer
                                  register. */
-   RISCV64in_MUL,             /* Multiplication of two registers, producing the
-                                 lower 64 bits. */
-   RISCV64in_MULH,            /* Signed multiplication of two registers,
-                                 producing the upper 64 bits. */
-   RISCV64in_MULHU,           /* Unsigned multiplication of two registers,
-                                 producing the upper 64 bits. */
-   RISCV64in_DIV,             /* Signed division of one register by another. */
-   RISCV64in_DIVU,            /* Unsigned division of one register by
-                                 another. */
-   RISCV64in_REM,             /* Remainder from signed division of one register
-                                 by another. */
-   RISCV64in_REMU,            /* Remainder from unsigned division of one
-                                 register by another. */
-   RISCV64in_MULW,            /* 32-bit multiplication of two registers,
-                                 producing the lower 32 bits. */
-   RISCV64in_DIVW,            /* 32-bit signed division of one register by
-                                 another. */
-   RISCV64in_DIVUW,           /* 32-bit unsigned division of one register by
-                                 another. */
-   RISCV64in_REMW,            /* Remainder from 32-bit signed division of one
-                                 register by another. */
-   RISCV64in_REMUW,           /* Remainder from 32-bit unsigned division of one
-                                 register by another. */
-   RISCV64in_LD,              /* 64-bit load. */
-   RISCV64in_LW,              /* sx-32-to-64-bit load. */
-   RISCV64in_LH,              /* sx-16-to-64-bit load. */
-   RISCV64in_LB,              /* sx-8-to-64-bit load. */
-   RISCV64in_SD,              /* 64-bit store. */
-   RISCV64in_SW,              /* 32-bit store. */
-   RISCV64in_SH,              /* 16-bit store. */
-   RISCV64in_SB,              /* 8-bit store. */
-   RISCV64in_LR_W,            /* sx-32-to-64-bit load-reserved. */
-   RISCV64in_SC_W,            /* 32-bit store-conditional. */
    RISCV64in_FpUnary,         /* Floating-point unary instruction. */
    RISCV64in_FpBinary,        /* Floating-point binary instruction. */
    RISCV64in_FpTernary,       /* Floating-point ternary instruction. */
@@ -304,8 +337,7 @@ typedef enum {
    RISCV64in_FpConvert,       /* Floating-point convert instruction. */
    RISCV64in_FpCompare,       /* Floating-point compare instruction. */
    RISCV64in_FpLdSt,          /* Floating-point load/store instruction. */
-   RISCV64in_CAS_W,           /* 32-bit compare-and-swap pseudoinstruction. */
-   RISCV64in_CAS_D,           /* 64-bit compare-and-swap pseudoinstruction. */
+   RISCV64in_CAS,             /* Compare-and-swap pseudoinstruction. */
    RISCV64in_FENCE,           /* Device I/O and memory fence. */
    RISCV64in_CSEL,            /* Conditional-select pseudoinstruction. */
    RISCV64in_Call,            /* Call pseudoinstruction. */
@@ -313,6 +345,7 @@ typedef enum {
    RISCV64in_XIndir,          /* Indirect transfer to guest address. */
    RISCV64in_XAssisted,       /* Assisted transfer to guest address. */
    RISCV64in_EvCheck,         /* Event check. */
+   RISCV64in_ProfInc          /* 64-bit profile counter increment. */
    RISCV64in_FLdStH,
    RISCV64in_FTriH,
    RISCV64in_FBinH,
@@ -385,282 +418,54 @@ typedef struct {
          HReg dst;
          HReg src;
       } MV;
-      /* Addition of two registers. */
+      /* Computational binary instruction. */
       struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } ADD;
-      /* Addition of a register and a sx-12-bit immediate. */
+         RISCV64ALUOp op;
+         HReg         dst;
+         HReg         src1;
+         HReg         src2;
+      } ALU;
+      /* Computational binary instruction, with an immediate as the second
+         input. */
       struct {
-         HReg dst;
-         HReg src;
-         Int  simm12;
-      } ADDI;
-      /* 32-bit addition of two registers. */
+         RISCV64ALUImmOp op;
+         HReg            dst;
+         HReg            src;
+         Int             imm12; /* simm12 or uimm6 */
+      } ALUImm;
+      /* Load from memory (sign-extended). */
       struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } ADDW;
-      /* 32-bit addition of a register and a sx-12-bit immediate. */
+         RISCV64LoadOp op;
+         HReg          dst;
+         HReg          base;
+         Int           soff12; /* -2048 .. +2047 */
+      } Load;
+      /* Store to memory. */
       struct {
-         HReg dst;
-         HReg src;
-         Int  simm12;
-      } ADDIW;
-      /* Subtraction of one register from another. */
+         RISCV64StoreOp op;
+         HReg           src;
+         HReg           base;
+         Int            soff12; /* -2048 .. +2047 */
+      } Store;
+      /* Load-reserved from memory (sign-extended). */
       struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SUB;
-      /* 32-bit subtraction of one register from another. */
+         RISCV64LoadROp op;
+         HReg           dst;
+         HReg           addr;
+      } LoadR;
+      /* Store-conditional to memory. */
       struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SUBW;
-      /* Bitwise XOR of two registers. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } XOR;
-      /* Bitwise XOR of a register and a sx-12-bit immediate. */
-      struct {
-         HReg dst;
-         HReg src;
-         Int  simm12;
-      } XORI;
-      /* Bitwise OR of two registers. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } OR;
-      /* Bitwise AND of two registers. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } AND;
-      /* Bitwise AND of a register and a sx-12-bit immediate. */
-      struct {
-         HReg dst;
-         HReg src;
-         Int  simm12;
-      } ANDI;
-      /* Logical left shift on a register. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SLL;
-      /* Logical right shift on a register. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SRL;
-      /* Arithmetic right shift on a register. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SRA;
-      /* Logical left shift on a register by a 6-bit immediate. */
-      struct {
-         HReg dst;
-         HReg src;
-         UInt uimm6;
-      } SLLI;
-      /* Logical right shift on a register by a 6-bit immediate. */
-      struct {
-         HReg dst;
-         HReg src;
-         UInt uimm6;
-      } SRLI;
-      /* Arithmetic right shift on a register by a 6-bit immediate. */
-      struct {
-         HReg dst;
-         HReg src;
-         UInt uimm6;
-      } SRAI;
-      /* 32-bit logical left shift on a register. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SLLW;
-      /* 32-bit logical right shift on a register. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SRLW;
-      /* 32-bit arithmetic right shift on a register. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SRAW;
-      /* Signed comparison of two registers. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SLT;
-      /* Unsigned comparison of two registers. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } SLTU;
-      /* Unsigned comparison of a register and a sx-12-bit immediate. */
-      struct {
-         HReg dst;
-         HReg src;
-         Int  simm12;
-      } SLTIU;
-      /* Atomic swap of values in a CSR an integer register. */
+         RISCV64StoreCOp op;
+         HReg            res;
+         HReg            src;
+         HReg            addr;
+      } StoreC;
+      /* Atomic swap of values in a CSR and an integer register. */
       struct {
          HReg dst;
          HReg src;
          UInt csr;
       } CSRRW;
-      /* Multiplication of two registers, producing the lower 64 bits. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } MUL;
-      /* Signed multiplication of two registers, producing the upper 64 bits. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } MULH;
-      /* Unsigned multiplication of two registers, producing the upper 64 bits.
-       */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } MULHU;
-      /* Signed division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } DIV;
-      /* Unsigned division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } DIVU;
-      /* Remainder from signed division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } REM;
-      /* Remainder from unsigned division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } REMU;
-      /* 32-bit multiplication of two registers, producing the lower 32 bits. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } MULW;
-      /* 32-bit signed division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } DIVW;
-      /* 32-bit unsigned division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } DIVUW;
-      /* Remainder from 32-bit signed division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } REMW;
-      /* Remainder from 32-bit unsigned division of one register by another. */
-      struct {
-         HReg dst;
-         HReg src1;
-         HReg src2;
-      } REMUW;
-      /* 64-bit load. */
-      struct {
-         HReg dst;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } LD;
-      /* sx-32-to-64-bit load. */
-      struct {
-         HReg dst;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } LW;
-      /* sx-16-to-64-bit load. */
-      struct {
-         HReg dst;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } LH;
-      /* sx-8-to-64-bit load. */
-      struct {
-         HReg dst;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } LB;
-      /* 64-bit store. */
-      struct {
-         HReg src;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } SD;
-      /* 32-bit store. */
-      struct {
-         HReg src;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } SW;
-      /* 16-bit store. */
-      struct {
-         HReg src;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } SH;
-      /* 8-bit store. */
-      struct {
-         HReg src;
-         HReg base;
-         Int  soff12; /* -2048 .. +2047 */
-      } SB;
-      /* sx-32-to-64-bit load-reserved. */
-      struct {
-         HReg dst;
-         HReg addr;
-      } LR_W;
-      /* 32-bit store-conditional. */
-      struct {
-         HReg res;
-         HReg src;
-         HReg addr;
-      } SC_W;
       /* Floating-point unary instruction. */
       struct {
          RISCV64FpUnaryOp op;
@@ -704,24 +509,18 @@ typedef struct {
       /* Floating-point load/store instruction. */
       struct {
          RISCV64FpLdStOp op;
-         HReg            reg; /* dst for load, src store */
+         HReg            reg; /* dst for load, src for store */
          HReg            base;
          Int             soff12; /* -2048 .. +2047 */
       } FpLdSt;
-      /* 32-bit compare-and-swap pseudoinstruction. */
+      /* Compare-and-swap pseudoinstruction. */
       struct {
-         HReg old;
-         HReg addr;
-         HReg expd;
-         HReg data;
-      } CAS_W;
-      /* 64-bit compare-and-swap pseudoinstruction. */
-      struct {
-         HReg old;
-         HReg addr;
-         HReg expd;
-         HReg data;
-      } CAS_D;
+         RISCV64CASOp op;
+         HReg         old;
+         HReg         addr;
+         HReg         expd;
+         HReg         data;
+      } CAS;
       /* Device I/O and memory fence. */
       struct {
       } FENCE;
@@ -778,56 +577,28 @@ typedef struct {
          Int soff12_amFailAddr; /* Offset from the base register to access
                                    host_EvC_FAILADDR. */
       } EvCheck;
+      /* 64-bit profile counter increment. */
+      struct {
+         /* No fields. The address of the counter to inc is installed later,
+            post-translation, by patching it in, as it is not known at
+            translation time. */
+      } ProfInc;
    } RISCV64in;
 } RISCV64Instr;
 
 RISCV64Instr* RISCV64Instr_LI(HReg dst, ULong imm64);
 RISCV64Instr* RISCV64Instr_MV(HReg dst, HReg src);
-RISCV64Instr* RISCV64Instr_ADD(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_ADDI(HReg dst, HReg src, Int simm12);
-RISCV64Instr* RISCV64Instr_ADDW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_ADDIW(HReg dst, HReg src, Int simm12);
-RISCV64Instr* RISCV64Instr_SUB(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SUBW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_XOR(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_XORI(HReg dst, HReg src, Int simm12);
-RISCV64Instr* RISCV64Instr_OR(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_AND(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_ANDI(HReg dst, HReg src, Int simm12);
-RISCV64Instr* RISCV64Instr_SLL(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SRL(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SRA(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SLLI(HReg dst, HReg src, UInt uimm6);
-RISCV64Instr* RISCV64Instr_SRLI(HReg dst, HReg src, UInt uimm6);
-RISCV64Instr* RISCV64Instr_SRAI(HReg dst, HReg src, UInt uimm6);
-RISCV64Instr* RISCV64Instr_SLLW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SRLW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SRAW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SLT(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SLTU(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_SLTIU(HReg dst, HReg src, Int simm12);
+RISCV64Instr* RISCV64Instr_ALU(RISCV64ALUOp op, HReg dst, HReg src1, HReg src2);
+RISCV64Instr*
+RISCV64Instr_ALUImm(RISCV64ALUImmOp op, HReg dst, HReg src, Int imm12);
+RISCV64Instr*
+RISCV64Instr_Load(RISCV64LoadOp op, HReg dst, HReg base, Int soff12);
+RISCV64Instr*
+RISCV64Instr_Store(RISCV64StoreOp op, HReg src, HReg base, Int soff12);
+RISCV64Instr* RISCV64Instr_LoadR(RISCV64LoadROp op, HReg dst, HReg addr);
+RISCV64Instr*
+RISCV64Instr_StoreC(RISCV64StoreCOp op, HReg res, HReg src, HReg addr);
 RISCV64Instr* RISCV64Instr_CSRRW(HReg dst, HReg src, UInt csr);
-RISCV64Instr* RISCV64Instr_MUL(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_MULH(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_MULHU(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_DIV(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_DIVU(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_REM(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_REMU(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_MULW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_DIVW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_DIVUW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_REMW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_REMUW(HReg dst, HReg src1, HReg src2);
-RISCV64Instr* RISCV64Instr_LD(HReg dst, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_LW(HReg dst, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_LH(HReg dst, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_LB(HReg dst, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_SD(HReg src, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_SW(HReg src, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_SH(HReg src, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_SB(HReg src, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_LR_W(HReg dst, HReg addr);
 RISCV64Instr* RISCV64Instr_FpUnary(RISCV64FpUnaryOp op, HReg dst, HReg src);
 RISCV64Instr*
 RISCV64Instr_FpBinary(RISCV64FpBinaryOp op, HReg dst, HReg src1, HReg src2);
@@ -839,9 +610,8 @@ RISCV64Instr*
 RISCV64Instr_FpCompare(RISCV64FpCompareOp op, HReg dst, HReg src1, HReg src2);
 RISCV64Instr*
 RISCV64Instr_FpLdSt(RISCV64FpLdStOp op, HReg reg, HReg base, Int soff12);
-RISCV64Instr* RISCV64Instr_SC_W(HReg res, HReg src, HReg addr);
-RISCV64Instr* RISCV64Instr_CAS_W(HReg old, HReg addr, HReg expd, HReg data);
-RISCV64Instr* RISCV64Instr_CAS_D(HReg old, HReg addr, HReg expd, HReg data);
+RISCV64Instr*
+RISCV64Instr_CAS(RISCV64CASOp op, HReg old, HReg addr, HReg expd, HReg data);
 RISCV64Instr* RISCV64Instr_FENCE(void);
 RISCV64Instr* RISCV64Instr_CSEL(HReg dst, HReg iftrue, HReg iffalse, HReg cond);
 RISCV64Instr* RISCV64Instr_Call(
@@ -855,6 +625,7 @@ RISCV64Instr* RISCV64Instr_EvCheck(HReg base_amCounter,
                                    Int  soff12_amCounter,
                                    HReg base_amFailAddr,
                                    Int  soff12_amFailAddr);
+RISCV64Instr* RISCV64Instr_ProfInc(void);
 
 RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12);
 RISCV64Instr* RISCV64Instr_FTriH(IROp op, HReg rd, HReg rs1, HReg rs2, HReg rs3);
