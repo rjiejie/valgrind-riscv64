@@ -1996,7 +1996,28 @@ static const HChar* show_hwcaps_mips64 ( UInt hwcaps )
 
 static const HChar* show_hwcaps_riscv64 ( UInt hwcaps )
 {
-   return "riscv64";
+   static const HChar prefix[] = "rv64gc";
+   static const struct {
+      UInt  hwcaps_bit;
+      HChar name[16];
+   } hwcaps_list[] = {
+      { VEX_HWCAPS_RISCV64_Zicsr,     "zicsr" },
+#ifdef __riscv_zfh
+      { VEX_HWCAPS_RISCV64_Zfh,       "zfh"   },
+#endif
+   };
+
+   static HChar buf[sizeof prefix +                       // '\0'
+                    NUM_HWCAPS * (sizeof hwcaps_list[0].name + 1) + 1];
+
+   HChar *p = buf + vex_sprintf(buf, "%s", prefix);
+   UInt i;
+   for (i = 0 ; i < NUM_HWCAPS; ++i) {
+      if (hwcaps & hwcaps_list[i].hwcaps_bit)
+         p = p + vex_sprintf(p, "-%s", hwcaps_list[i].name);
+   }
+
+   return buf;
 }
 
 #undef NUM_HWCAPS
@@ -2281,6 +2302,10 @@ static void check_hwcaps ( VexArch arch, UInt hwcaps )
       case VexArchRISCV64:
          if (hwcaps == 0)
             return;
+#ifdef __riscv_zfh
+         if (!(hwcaps & ~VEX_HWCAPS_RISCV64_Zfh))
+            return;
+#endif
          invalid_hwcaps(arch, hwcaps, "Cannot handle capabilities\n");
 
       default:

@@ -415,7 +415,11 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
             addInstr(env, RISCV64Instr_MV(argregs[nextArgReg],
                                           iselIntExpr_R(env, args[i])));
             nextArgReg++;
-         } else if (aTy == Ity_F32 || aTy == Ity_F64) {
+         } else if (aTy == Ity_F32 || aTy == Ity_F64
+#ifdef __riscv_zfh
+                    || aTy == Ity_F16
+#endif
+                   ) {
             if (nextFArgReg >= RISCV64_N_FARGREGS)
                return False; /* Out of fargregs. */
             addInstr(env,
@@ -453,7 +457,11 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
                return False; /* Out of argregs. */
             tmpregs[nextArgReg] = iselIntExpr_R(env, args[i]);
             nextArgReg++;
-         } else if (aTy == Ity_F32 || aTy == Ity_F64) {
+         } else if (aTy == Ity_F32 || aTy == Ity_F64
+#ifdef __riscv_zfh
+                    || aTy == Ity_F16
+#endif
+                   ) {
             if (nextFArgReg >= RISCV64_N_FARGREGS)
                return False; /* Out of fargregs. */
             ftmpregs[nextFArgReg] = iselFltExpr(env, args[i]);
@@ -549,6 +557,11 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
 }
 
 /*------------------------------------------------------------*/
+/*--- Extensions                                           ---*/
+/*------------------------------------------------------------*/
+#include "host_riscv64Zfh_isel.c"
+
+/*------------------------------------------------------------*/
 /*--- ISEL: Integer expressions (64/32/16/8/1 bit)         ---*/
 /*------------------------------------------------------------*/
 
@@ -589,6 +602,13 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
    vassert(ty == Ity_I64 || ty == Ity_I32 || ty == Ity_I16 || ty == Ity_I8 ||
            ty == Ity_I1);
 
+#ifdef __riscv_zfh
+   Bool zfh;
+   HReg ret = iselIntZfhExpr_R_wrk(env, e, &zfh);
+   if (zfh)
+      return ret;
+#endif
+
    switch (e->tag) {
    /* ------------------------ TEMP ------------------------- */
    case Iex_RdTmp: {
@@ -623,15 +643,19 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
       switch (e->Iex.Binop.op) {
       case Iop_Add64:
       case Iop_Add32:
+      case Iop_Add16:
       case Iop_Sub64:
       case Iop_Sub32:
       case Iop_Xor64:
       case Iop_Xor32:
+      case Iop_Xor16:
       case Iop_Or64:
       case Iop_Or32:
+      case Iop_Or16:
       case Iop_Or1:
       case Iop_And64:
       case Iop_And32:
+      case Iop_And16:
       case Iop_And1:
       case Iop_Shl64:
       case Iop_Shl32:
@@ -651,6 +675,7 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
             op = RISCV64op_ADD;
             break;
          case Iop_Add32:
+         case Iop_Add16:
             op = RISCV64op_ADDW;
             break;
          case Iop_Sub64:
@@ -661,15 +686,18 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
             break;
          case Iop_Xor64:
          case Iop_Xor32:
+         case Iop_Xor16:
             op = RISCV64op_XOR;
             break;
          case Iop_Or64:
          case Iop_Or32:
+         case Iop_Or16:
          case Iop_Or1:
             op = RISCV64op_OR;
             break;
          case Iop_And64:
          case Iop_And32:
+         case Iop_And16:
          case Iop_And1:
             op = RISCV64op_AND;
             break;
@@ -999,6 +1027,7 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
          addInstr(env, RISCV64Instr_ALUImm(RISCV64op_SRAI, dst, tmp, 63));
          return dst;
       }
+      case Iop_16Sto32:
       case Iop_1Uto64:
       case Iop_8Sto64:
       case Iop_16Sto64:
@@ -1161,6 +1190,10 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
          vassert(ty == Ity_I8);
          u = vex_sx_to_64(e->Iex.Const.con->Ico.U8, 8);
          break;
+      case Ico_U1:
+         vassert(ty == Ity_I1);
+         u = e->Iex.Const.con->Ico.U1 ? 1 : 0;
+         break;
       default:
          goto irreducible;
       }
@@ -1284,7 +1317,18 @@ static void iselInt128Expr(HReg* rHi, HReg* rLo, ISelEnv* env, IRExpr* e)
 static HReg iselFltExpr_wrk(ISelEnv* env, IRExpr* e)
 {
    IRType ty = typeOfIRExpr(env->type_env, e);
-   vassert(ty == Ity_F32 || ty == Ity_F64);
+   vassert(ty == Ity_F32 || ty == Ity_F64
+#ifdef __riscv_zfh
+           || ty == Ity_F16
+#endif
+           );
+
+#ifdef __riscv_zfh
+   Bool ok;
+   HReg ret = iselFlt16Expr_wrk(env, e, &ok);
+   if (ok)
+      return ret;
+#endif
 
    switch (e->tag) {
    /* ------------------------ TEMP ------------------------- */
@@ -1608,7 +1652,11 @@ static void iselStmt(ISelEnv* env, IRStmt* stmt)
             vassert(0);
          return;
       }
-      if (tyd == Ity_F32 || tyd == Ity_F64) {
+      if (tyd == Ity_F32 || tyd == Ity_F64
+#ifdef __riscv_zfh
+          || tyd == Ity_F16
+#endif
+         ) {
          HReg src  = iselFltExpr(env, stmt->Ist.Store.data);
          HReg addr = iselIntExpr_R(env, stmt->Ist.Store.addr);
 
@@ -1616,6 +1664,10 @@ static void iselStmt(ISelEnv* env, IRStmt* stmt)
             addInstr(env, RISCV64Instr_FpLdSt(RISCV64op_FSW, src, addr, 0));
          else if (tyd == Ity_F64)
             addInstr(env, RISCV64Instr_FpLdSt(RISCV64op_FSD, src, addr, 0));
+#ifdef __riscv_zfh
+         else if (tyd == Ity_F16)
+            addInstr(env, RISCV64Instr_FLdStH(False, src, addr, 0));
+#endif
          else
             vassert(0);
          return;
@@ -1645,7 +1697,11 @@ static void iselStmt(ISelEnv* env, IRStmt* stmt)
             vassert(0);
          return;
       }
-      if (tyd == Ity_F32 || tyd == Ity_F64) {
+      if (tyd == Ity_F32 || tyd == Ity_F64
+#ifdef __riscv_zfh
+          || tyd == Ity_F16
+#endif
+         ) {
          HReg src  = iselFltExpr(env, stmt->Ist.Put.data);
          HReg base = get_baseblock_register();
          Int  off  = stmt->Ist.Put.offset - BASEBLOCK_OFFSET_ADJUSTMENT;
@@ -1655,6 +1711,10 @@ static void iselStmt(ISelEnv* env, IRStmt* stmt)
             addInstr(env, RISCV64Instr_FpLdSt(RISCV64op_FSW, src, base, off));
          else if (tyd == Ity_F64)
             addInstr(env, RISCV64Instr_FpLdSt(RISCV64op_FSD, src, base, off));
+#ifdef __riscv_zfh
+         else if (tyd == Ity_F16)
+            addInstr(env, RISCV64Instr_FLdStH(False, src, base, off));
+#endif
          else
             vassert(0);
          return;
@@ -1673,7 +1733,11 @@ static void iselStmt(ISelEnv* env, IRStmt* stmt)
          addInstr(env, RISCV64Instr_MV(dst, src));
          return;
       }
-      if (ty == Ity_F32 || ty == Ity_F64) {
+      if (ty == Ity_F32 || ty == Ity_F64
+#ifdef __riscv_zfh
+          || ty == Ity_F16
+#endif
+         ) {
          HReg dst = lookupIRTemp(env, stmt->Ist.WrTmp.tmp);
          HReg src = iselFltExpr(env, stmt->Ist.WrTmp.data);
          addInstr(env, RISCV64Instr_FpMove(RISCV64op_FMV_D, dst, src));
@@ -2046,6 +2110,9 @@ HInstrArray* iselSB_RISCV64(const IRSB*        bb,
          hreg   = mkHReg(True, HRcInt64, 0, j++);
          hregHI = mkHReg(True, HRcInt64, 0, j++);
          break;
+#ifdef __riscv_zfh
+      case Ity_F16:
+#endif
       case Ity_F32:
       case Ity_F64:
          hreg = mkHReg(True, HRcFlt64, 0, j++);

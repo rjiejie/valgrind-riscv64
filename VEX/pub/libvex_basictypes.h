@@ -90,8 +90,11 @@ typedef
    V256;
 
 /* Floating point. */
-typedef  float   Float;    /* IEEE754 single-precision (32-bit) value */
-typedef  double  Double;   /* IEEE754 double-precision (64-bit) value */
+#ifdef __riscv_zfh
+typedef  _Float16 Float16;  /* IEEE754 half-precision   (16-bit) value */
+#endif
+typedef  float    Float;    /* IEEE754 single-precision (32-bit) value */
+typedef  double   Double;   /* IEEE754 double-precision (64-bit) value */
 
 /* Bool is always 8 bits. */
 typedef  unsigned char  Bool;

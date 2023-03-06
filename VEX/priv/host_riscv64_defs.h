@@ -31,6 +31,7 @@
 
 #include "libvex.h"
 #include "libvex_basictypes.h"
+#include "libvex_riscv_common.h"
 
 #include "host_generic_regs.h"
 
@@ -344,12 +345,69 @@ typedef enum {
    RISCV64in_XIndir,          /* Indirect transfer to guest address. */
    RISCV64in_XAssisted,       /* Assisted transfer to guest address. */
    RISCV64in_EvCheck,         /* Event check. */
-   RISCV64in_ProfInc          /* 64-bit profile counter increment. */
+   RISCV64in_ProfInc,         /* 64-bit profile counter increment. */
+   RISCV64in_FLdStH,
+   RISCV64in_FTriH,
+   RISCV64in_FBinH,
+   RISCV64in_FUnaryH,
+   RISCV64in_FCvtH,           /* 16-bit floating-point number conversion */
+   RISCV64in_FCmpH            /* 16-bit floating-point number comparison */
 } RISCV64InstrTag;
+
+/*--------------------------------------------------------------------*/
+/*--- Zfh comparison operation types                               ---*/
+/*--------------------------------------------------------------------*/
+typedef
+   enum {
+      RV64_CMP_LE = 0b000,
+      RV64_CMP_LT,
+      RV64_CMP_EQ
+   }
+   RISCV64CmpOp;
 
 typedef struct {
    RISCV64InstrTag tag;
    union {
+      struct {
+         Bool isLoad;
+         HReg sd;
+         HReg base;
+         Int  imm12;
+      } FLdStH;
+      /* 16-bit FP ternary arithmetic */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+         HReg rs3;
+      } FTriH;
+      /* 16-bit FP binary arithmetic */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+      } FBinH;
+      /* 16-bit FP unary */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+      } FUnaryH;
+      /* 16-bit floating-point conversion */
+      struct {
+         IROp op;
+         HReg rd;
+         HReg rs1;
+      } FCvtH;
+      /* 16-bit floating-point comparison */
+      struct {
+         RISCV64CmpOp op;
+         HReg rd;
+         HReg rs1;
+         HReg rs2;
+      } FCmpH;
       /* Load immediate pseudoinstruction. */
       struct {
          HReg  dst;
@@ -568,6 +626,26 @@ RISCV64Instr* RISCV64Instr_EvCheck(HReg base_amCounter,
                                    HReg base_amFailAddr,
                                    Int  soff12_amFailAddr);
 RISCV64Instr* RISCV64Instr_ProfInc(void);
+
+RISCV64Instr* RISCV64Instr_FLdStH(Bool isLoad, HReg sd, HReg base, Int imm12);
+RISCV64Instr* RISCV64Instr_FTriH(IROp op, HReg rd, HReg rs1, HReg rs2, HReg rs3);
+RISCV64Instr* RISCV64Instr_FBinH(IROp op, HReg rd, HReg rs1, HReg rs2);
+RISCV64Instr* RISCV64Instr_FUnaryH(IROp op, HReg rd, HReg rs1);
+RISCV64Instr* RISCV64Instr_FCvtH(IROp op, HReg rd, HReg rs1);
+RISCV64Instr* RISCV64Instr_FCmpH(RISCV64CmpOp op, HReg rd, HReg rs1, HReg rs2);
+UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
+                            UChar*              buf,
+                            Int                 nbuf,
+                            const RISCV64Instr* i,
+                            Bool                mode64,
+                            VexEndness          endness_host,
+                            const void*         disp_cp_chain_me_to_slowEP,
+                            const void*         disp_cp_chain_me_to_fastEP,
+                            const void*         disp_cp_xindir,
+                            const void*         disp_cp_xassisted);
+Bool getRegUsage_RISCV64ZfhInstr(HRegUsage* u, const RISCV64Instr* i);
+Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i);
+Bool ppRISCV64ZfhInstr(const RISCV64Instr* i);
 
 /*------------------------------------------------------------*/
 /*--- Misc helpers                                         ---*/

@@ -669,6 +669,11 @@ void ppRISCV64Instr(const RISCV64Instr* i, Bool mode64)
 {
    vassert(mode64 == True);
 
+#ifdef __riscv_zfh
+   if (ppRISCV64ZfhInstr(i))
+      return;
+#endif
+
    switch (i->tag) {
    case RISCV64in_LI:
       vex_printf("li      ");
@@ -978,6 +983,12 @@ void getRegUsage_RISCV64Instr(HRegUsage* u, const RISCV64Instr* i, Bool mode64)
    vassert(mode64 == True);
 
    initHRegUsage(u);
+
+#ifdef __riscv_zfh
+   if (getRegUsage_RISCV64ZfhInstr(u, i))
+      return;
+#endif
+
    switch (i->tag) {
    case RISCV64in_LI:
       addHRegUse(u, HRmWrite, i->RISCV64in.LI.dst);
@@ -1198,6 +1209,11 @@ static void mapReg(HRegRemap* m, HReg* r) { *r = lookupHRegRemap(m, *r); }
 void mapRegs_RISCV64Instr(HRegRemap* m, RISCV64Instr* i, Bool mode64)
 {
    vassert(mode64 == True);
+
+#ifdef __riscv_zfh
+   if (mapRegs_RISCV64ZfhInstr(m, i))
+      return;
+#endif
 
    switch (i->tag) {
    case RISCV64in_LI:
@@ -1750,8 +1766,19 @@ Int emit_RISCV64Instr(/*MB_MOD*/ Bool*    is_profInc,
    vassert(nbuf >= 32);
    vassert(mode64 == True);
    vassert(((HWord)buf & 1) == 0);
-
    UChar* p = &buf[0];
+   UChar* ret = NULL;
+
+#ifdef __riscv_zfh
+   ret = emit_RISCV64ZfhInstr(is_profInc, buf, nbuf, i, mode64, endness_host,
+                              disp_cp_chain_me_to_slowEP,
+                              disp_cp_chain_me_to_fastEP, disp_cp_xindir,
+                              disp_cp_xassisted);
+   if (ret != NULL) {
+      p = ret;
+      goto done;
+   }
+#endif
 
    switch (i->tag) {
    case RISCV64in_LI:
@@ -2713,6 +2740,11 @@ VexInvalRange patchProfInc_RISCV64(VexEndness   endness_host,
    VexInvalRange vir = {(HWord)p, 28};
    return vir;
 }
+
+/*--------------------------------------------------------------------*/
+/*--- Extensions                                                   ---*/
+/*--------------------------------------------------------------------*/
+#include "host_riscv64Zfh_defs.c"
 
 /*--------------------------------------------------------------------*/
 /*--- end                                      host_riscv64_defs.c ---*/

@@ -112,6 +112,52 @@
 #endif
 
 /* CALLED FROM GENERATED CODE: CLEAN HELPERS */
+#ifdef __riscv_zfh
+UInt riscv64g_calculate_fflags_fsqrt_h(Float16 a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_F("fsqrt.h");
+}
+UInt riscv64g_calculate_fflags_fcvt_h_s(Float a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_F("fcvt.h.s");
+}
+UInt riscv64g_calculate_fflags_fcvt_h_d(Double a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_F("fcvt.h.d");
+}
+UInt riscv64g_calculate_fflags_fcvt_w_h(Float16 a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_IF("fcvt.w.h");
+}
+UInt riscv64g_calculate_fflags_fcvt_wu_h(Float16 a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_IF("fcvt.wu.h");
+}
+UInt riscv64g_calculate_fflags_fcvt_l_h(Float16 a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_IF("fcvt.l.h");
+}
+UInt riscv64g_calculate_fflags_fcvt_lu_h(Float16 a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_IF("fcvt.lu.h");
+}
+UInt riscv64g_calculate_fflags_fcvt_h_w(UInt a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_FI("fcvt.h.w");
+}
+UInt riscv64g_calculate_fflags_fcvt_h_wu(UInt a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_FI("fcvt.h.wu");
+}
+UInt riscv64g_calculate_fflags_fcvt_h_l(ULong a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_FI("fcvt.h.l");
+}
+UInt riscv64g_calculate_fflags_fcvt_h_lu(ULong a1, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_UNARY64_FI("fcvt.h.lu");
+}
+#endif
 UInt riscv64g_calculate_fflags_fsqrt_s(Float a1, UInt rm_RISCV)
 {
    CALCULATE_FFLAGS_UNARY64_F("fsqrt.s");
@@ -227,6 +273,45 @@ UInt riscv64g_calculate_fflags_fcvt_d_lu(ULong a1, UInt rm_RISCV)
 #endif
 
 /* CALLED FROM GENERATED CODE: CLEAN HELPERS */
+#ifdef __riscv_zfh
+UInt riscv64g_calculate_fflags_fadd_h(Float16 a1, Float16 a2, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_BINARY64("fadd.h");
+}
+UInt riscv64g_calculate_fflags_fmul_h(Float16 a1, Float16 a2, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_BINARY64("fmul.h");
+}
+UInt riscv64g_calculate_fflags_fdiv_h(Float16 a1, Float16 a2, UInt rm_RISCV)
+{
+   CALCULATE_FFLAGS_BINARY64("fdiv.h");
+}
+UInt riscv64g_calculate_fflags_fmin_h(Float16 a1, Float16 a2)
+{
+   UInt rm_RISCV = 0; /* unused */
+   CALCULATE_FFLAGS_BINARY64("fmin.h");
+}
+UInt riscv64g_calculate_fflags_fmax_h(Float16 a1, Float16 a2)
+{
+   UInt rm_RISCV = 0; /* unused */
+   CALCULATE_FFLAGS_BINARY64("fmax.h");
+}
+UInt riscv64g_calculate_fflags_feq_h(Float16 a1, Float16 a2)
+{
+   UInt rm_RISCV = 0; /* unused */
+   CALCULATE_FFLAGS_BINARY64_IFF("feq.h");
+}
+UInt riscv64g_calculate_fflags_flt_h(Float16 a1, Float16 a2)
+{
+   UInt rm_RISCV = 0; /* unused */
+   CALCULATE_FFLAGS_BINARY64_IFF("flt.h");
+}
+UInt riscv64g_calculate_fflags_fle_h(Float16 a1, Float16 a2)
+{
+   UInt rm_RISCV = 0; /* unused */
+   CALCULATE_FFLAGS_BINARY64_IFF("fle.h");
+}
+#endif
 UInt riscv64g_calculate_fflags_fadd_s(Float a1, Float a2, UInt rm_RISCV)
 {
    CALCULATE_FFLAGS_BINARY64("fadd.s");
@@ -329,6 +414,15 @@ UInt riscv64g_calculate_fflags_fle_d(Double a1, Double a2)
 #endif
 
 /* CALLED FROM GENERATED CODE: CLEAN HELPERS */
+#ifdef __riscv_zfh
+UInt riscv64g_calculate_fflags_fmadd_h(Float16 a1,
+                                       Float16 a2,
+                                       Float16 a3,
+                                       UInt    rm_RISCV)
+{
+   CALCULATE_FFLAGS_TERNARY64("fmadd.h");
+}
+#endif
 UInt riscv64g_calculate_fflags_fmadd_s(Float a1,
                                        Float a2,
                                        Float a3,
@@ -365,6 +459,9 @@ UInt riscv64g_calculate_fflags_fmadd_d(Double a1,
 #endif
 
 /* CALLED FROM GENERATED CODE: CLEAN HELPERS */
+#ifdef __riscv_zfh
+ULong riscv64g_calculate_fclass_h(Float16 a1) { CALCULATE_FCLASS("fclass.h"); }
+#endif
 ULong riscv64g_calculate_fclass_s(Float a1) { CALCULATE_FCLASS("fclass.s"); }
 ULong riscv64g_calculate_fclass_d(Double a1) { CALCULATE_FCLASS("fclass.d"); }
 

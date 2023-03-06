@@ -121,6 +121,13 @@ static IRExpr* mkU64(ULong i) { return IRExpr_Const(IRConst_U64(i)); }
 /* Create an expression to produce a 32-bit constant. */
 static IRExpr* mkU32(UInt i) { return IRExpr_Const(IRConst_U32(i)); }
 
+/* Create an expression to produce an 16-bit constant. */
+static IRExpr* mkU16 ( UInt i )
+{
+   vassert(i < 65536);
+   return IRExpr_Const(IRConst_U16(i));
+}
+
 /* Create an expression to produce an 8-bit constant. */
 static IRExpr* mkU8(UInt i)
 {
@@ -406,6 +413,21 @@ static void putIReg32(/*OUT*/ IRSB* irsb, UInt iregNo, /*IN*/ IRExpr* e)
    stmt(irsb, IRStmt_Put(offsetIReg64(iregNo), unop(Iop_32Sto64, e)));
 }
 
+/* Read a 16-bit value from a guest integer register. */
+static IRExpr* getIReg16(UInt iregNo)
+{
+   vassert(iregNo < 32);
+   return unop(Iop_64to16, IRExpr_Get(offsetIReg64(iregNo), Ity_I64));
+}
+
+/* Write a 16-bit value into a guest integer register. */
+static void putIReg16(/*OUT*/ IRSB* irsb, UInt iregNo, /*IN*/ IRExpr* e)
+{
+   vassert(iregNo > 0 && iregNo < 32);
+   vassert(typeOfIRExpr(irsb->tyenv, e) == Ity_I16);
+   stmt(irsb, IRStmt_Put(offsetIReg64(iregNo), unop(Iop_16Sto64, e)));
+}
+
 /* Write an address into the guest pc. */
 static void putPC(/*OUT*/ IRSB* irsb, /*IN*/ IRExpr* e)
 {
@@ -539,6 +561,33 @@ static void putFReg32(/*OUT*/ IRSB* irsb, UInt fregNo, /*IN*/ IRExpr* e)
    /* Write 1's in the upper bits of the target 64-bit register to create
       a NaN-boxed value, as mandated by the RISC-V ISA. */
    stmt(irsb, IRStmt_Put(offset + 4, mkU32(0xffffffff)));
+   /* TODO Check that this works with Memcheck. */
+}
+
+/* Read a 16-bit value from a guest floating-point register. */
+static IRExpr* getFReg16(UInt fregNo)
+{
+   vassert(fregNo < 32);
+   /* Note that the following access depends on the host being little-endian
+      which is checked in disInstr_RISCV64(). */
+   /* TODO Check that the value is correctly NaN-boxed. If not then return
+      the 16-bit canonical qNaN, as mandated by the RISC-V ISA. */
+   return IRExpr_Get(offsetFReg(fregNo), Ity_F16);
+}
+
+/* Write a 16-bit value into a guest floating-point register. */
+static void putFReg16(/*OUT*/ IRSB* irsb, UInt fregNo, /*IN*/ IRExpr* e)
+{
+   vassert(fregNo < 32);
+   vassert(typeOfIRExpr(irsb->tyenv, e) == Ity_F16);
+   /* Note that the following access depends on the host being little-endian
+      which is checked in disInstr_RISCV64(). */
+   Int offset = offsetFReg(fregNo);
+   stmt(irsb, IRStmt_Put(offset, e));
+   /* Write 1's in the upper bits of the target 64-bit register to create
+      a NaN-boxed value, as mandated by the RISC-V ISA. */
+   stmt(irsb, IRStmt_Put(offset + 2, mkU16(0xFFFF)));
+   stmt(irsb, IRStmt_Put(offset + 4, mkU32(0XFFFFFFFF)));
    /* TODO Check that this works with Memcheck. */
 }
 
@@ -3277,6 +3326,8 @@ static Bool dis_RV64Zicsr(/*MB_OUT*/ DisResult* dres,
    return False;
 }
 
+#include "guest_riscv64Zfh_toIR.c"
+
 static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
                                  /*OUT*/ IRSB*         irsb,
                                  UInt                  insn,
@@ -3299,6 +3350,8 @@ static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
       ok = dis_RV64D(dres, irsb, insn);
    if (!ok)
       ok = dis_RV64Zicsr(dres, irsb, insn);
+   if (!ok)
+      ok = dis_RV64Zfh(dres, irsb, insn);
    if (ok)
       return True;
 

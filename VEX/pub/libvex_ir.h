@@ -619,7 +619,7 @@ typedef
       Iop_SqrtF16,
 
       /* :: IRRoundingMode(I32) x F16 x F16 -> F16 */
-      Iop_SubF16, Iop_AddF16,
+      Iop_SubF16, Iop_AddF16, Iop_MulF16, Iop_DivF16,
 
       /* Comparison, yielding GT/LT/EQ/UN(ordered), as per the following:
             0x45 Unordered
@@ -703,12 +703,22 @@ typedef
       Iop_F32toF64,  /*                       F32 -> F64 */
       Iop_F64toF32,  /* IRRoundingMode(I32) x F64 -> F32 */
 
+      Iop_F16toI32S, /* IRRoundingMode(I32) x F16 -> signed I32 */
+      Iop_F16toI64S, /* IRRoundingMode(I32) x F16 -> signed I64 */
+      Iop_F16toI32U, /* IRRoundingMode(I32) x F16 -> unsigned I32 */
+      Iop_F16toI64U, /* IRRoundingMode(I32) x F16 -> unsigned I64 */
+      Iop_I32StoF16, /* IRRoundingMode(I32) x signed I32 -> F16 */
+      Iop_I64StoF16, /* IRRoundingMode(I32) x signed I64 -> F16 */
+      Iop_I32UtoF16, /* IRRoundingMode(I32) x unsigned I32 -> F16 */
+      Iop_I64UtoF16, /* IRRoundingMode(I32) x unsigned I64 -> F16 */
+
       /* Reinterpretation.  Take an F32/64/128 and produce an I32/64/128
          with the same bit pattern, or vice versa. */
       Iop_ReinterpV128asI128, Iop_ReinterpI128asV128,
       Iop_ReinterpF128asI128, Iop_ReinterpI128asF128,
       Iop_ReinterpF64asI64, Iop_ReinterpI64asF64,
       Iop_ReinterpF32asI32, Iop_ReinterpI32asF32,
+      Iop_ReinterpF16asI16, Iop_ReinterpI16asF16,
 
       /* Support for 128-bit floating point */
       Iop_F64HLtoF128,/* (high half of F128,low half of F128) -> F128 */
@@ -785,6 +795,11 @@ typedef
       Iop_RoundF32toInt, /* F32 value to nearest integral value (still
                             as F32) */
 
+      /* Fused multiply-add/sub */
+      /* :: IRRoundingMode(I32) x F16 x F16 x F16 -> F16
+            (computes arg2 * arg3 +/- arg4) */
+      Iop_MAddF16, Iop_MSubF16,
+
       /* --- guest s390 specifics, not mandated by 754. --- */
 
       /* Fused multiply-add/sub */
@@ -833,6 +848,8 @@ typedef
       Iop_MinNumF64,  /* min, F64, ditto */
       Iop_MaxNumF32,  /* max, F32, ditto */
       Iop_MinNumF32,  /* min, F32, ditto */
+      Iop_MaxNumF16,  /* max, F16, ditto */
+      Iop_MinNumF16,  /* min, F16, ditto */
 
       /* ------------------ 16-bit scalar FP ------------------ */
 
