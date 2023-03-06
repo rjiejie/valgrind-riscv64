@@ -345,13 +345,13 @@ typedef enum {
    RISCV64in_XIndir,          /* Indirect transfer to guest address. */
    RISCV64in_XAssisted,       /* Assisted transfer to guest address. */
    RISCV64in_EvCheck,         /* Event check. */
-   RISCV64in_ProfInc          /* 64-bit profile counter increment. */
+   RISCV64in_ProfInc,         /* 64-bit profile counter increment. */
    RISCV64in_FLdStH,
    RISCV64in_FTriH,
    RISCV64in_FBinH,
    RISCV64in_FUnaryH,
    RISCV64in_FCvtH,           /* 16-bit floating-point number conversion */
-   RISCV64in_FCmpH,           /* 16-bit floating-point number comparison */
+   RISCV64in_FCmpH            /* 16-bit floating-point number comparison */
 } RISCV64InstrTag;
 
 /*--------------------------------------------------------------------*/
