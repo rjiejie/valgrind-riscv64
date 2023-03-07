@@ -643,15 +643,19 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
       switch (e->Iex.Binop.op) {
       case Iop_Add64:
       case Iop_Add32:
+      case Iop_Add16:
       case Iop_Sub64:
       case Iop_Sub32:
       case Iop_Xor64:
       case Iop_Xor32:
+      case Iop_Xor16:
       case Iop_Or64:
       case Iop_Or32:
+      case Iop_Or16:
       case Iop_Or1:
       case Iop_And64:
       case Iop_And32:
+      case Iop_And16:
       case Iop_And1:
       case Iop_Shl64:
       case Iop_Shl32:
@@ -671,6 +675,7 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
             op = RISCV64op_ADD;
             break;
          case Iop_Add32:
+         case Iop_Add16:
             op = RISCV64op_ADDW;
             break;
          case Iop_Sub64:
@@ -681,15 +686,18 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
             break;
          case Iop_Xor64:
          case Iop_Xor32:
+         case Iop_Xor16:
             op = RISCV64op_XOR;
             break;
          case Iop_Or64:
          case Iop_Or32:
+         case Iop_Or16:
          case Iop_Or1:
             op = RISCV64op_OR;
             break;
          case Iop_And64:
          case Iop_And32:
+         case Iop_And16:
          case Iop_And1:
             op = RISCV64op_AND;
             break;
