@@ -1,6 +1,8 @@
 /* Tests for the RV64 Zfh standard half-precision floating-point instruction-set
    extension. */
 
+#ifdef __riscv_zfh
+
 #include "testinst.h"
 
 static void test_float16_shared(void)
@@ -1555,9 +1557,13 @@ static void test_float16_additions(void)
    TESTINST_1_1_FI(4, "fcvt.h.lu fa0, a0", 0x0000000000000801, 0x80, fa0, a0);
 }
 
+#endif
+
 int main(void)
 {
+#ifdef __riscv_zfh
    test_float16_shared();
    test_float16_additions();
+#endif
    return 0;
 }
