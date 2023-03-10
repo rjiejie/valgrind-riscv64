@@ -1,3 +1,5 @@
+# set directories
+set directories ../memcheck/tests
 # connect gdb to Valgrind gdbserver:
 target remote | ./vgdb --wait=60 --vgdb-prefix=./vgdb-prefix-mcblocklistsearch
 echo vgdb launched process attached\n
