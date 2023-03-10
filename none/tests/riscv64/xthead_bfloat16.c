@@ -1,6 +1,8 @@
 /* Tests for the RV64 broad half-precison floating-point (BF16)
    T-HEAD vendor instruction-set extension. */
 
+#ifdef __riscv_xthead
+
 #include "testinst.h"
 
 /*
@@ -1606,11 +1608,15 @@ static void test_xthead_bfloat16_additions(void)
    TESTINST_1_1_FI(4, "fcvt.h.lu fa0, a0", 0x0000000000000101, 0x80, fa0, a0);
 }
 
+#endif
+
 int main(void)
 {
+#ifdef __riscv_xthead
    SET_BF16_MODE(csrrs);
    test_xthead_bfloat16_shared();
    test_xthead_bfloat16_additions();
    SET_BF16_MODE(csrrc);
+#endif
    return 0;
 }

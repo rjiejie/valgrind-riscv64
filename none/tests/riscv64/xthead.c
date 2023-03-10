@@ -1,5 +1,7 @@
 /* Tests for the T-HEAD vendor extension instruction set. */
 
+#ifdef __riscv_xthead
+
 #include <stdio.h>
 #include <malloc.h>  // memalign
 #include <string.h>  // memset
@@ -437,9 +439,13 @@ MEM_TEST("fsurd  f28, x5, x6, 3", 0, 0xFFFFFFFF00000003);
 MEM_TEST("fsurd  f28, x5, x6, 3", 0, 0xFFFFFFFF00000004);
 }
 
+#endif
+
 int main(void)
 {
+#ifdef __riscv_xthead
    test_integer_load_store();
    test_float_load_store();
+#endif
    return 0;
 }

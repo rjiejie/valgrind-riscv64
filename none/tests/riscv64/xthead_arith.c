@@ -1,5 +1,7 @@
 /* Tests for the T-HEAD vendor extension instruction set. */
 
+#ifdef __riscv_xthead
+
 #include "testinst.h"
 
 #define TESTINST_1_2_SETRD(length, instruction, rd_val, rs1_val, rs2_val, rd, rs1, rs2)      \
@@ -154,8 +156,12 @@ static __attribute__((noinline)) void test_integer_arithmetic(void)
    TESTINST_1_2_SETRD(4, "mulsw a0, a1, a2", 0xffff000000000001, 0x00000000ffffffff, 0x0000000000000002, a0, a1, a2);
 }
 
+#endif
+
 int main(void)
 {
+#ifdef __riscv_xthead
    test_integer_arithmetic();
+#endif
    return 0;
 }
