@@ -1,3 +1,5 @@
+# set directories
+set directories ../none/tests
 # connect gdb to Valgrind gdbserver:
 target remote | ./vgdb --wait=60 --vgdb-prefix=./vgdb-prefix-hgtls
 echo vgdb launched process attached\n
