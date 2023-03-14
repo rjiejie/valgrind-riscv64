@@ -164,6 +164,16 @@ ULong riscv64g_calculate_fclass_h(Float16 a1);
 ULong riscv64g_calculate_fclass_s(Float a1);
 ULong riscv64g_calculate_fclass_d(Double a1);
 
+#if defined(__riscv_xthead)
+/* Hack: X-Thead customized FXCR register has a BF16 flag bit to control the
+   behavior of Zfh FP16 instructions. When BF16 bit is set, all FP16 computations
+   are switched to BF16 mode. This feature is supported by changing the real host
+   X-Thead FXCR. */
+void riscv64xthead_fxcr_csrrc(ULong a1);
+void riscv64xthead_fxcr_csrrw(ULong a1);
+void riscv64xthead_fxcr_csrrs(ULong a1);
+#endif
+
 #endif /* ndef __VEX_GUEST_RISCV64_DEFS_H */
 
 /*--------------------------------------------------------------------*/

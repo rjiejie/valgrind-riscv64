@@ -3477,11 +3477,10 @@ static Bool disInstr_RISCV64_WRK(/*MB_OUT*/ DisResult* dres,
 
    case 0b11:
       dres->len = inst_size = 4;
-      if (OPC_IS_CUSTOMS()) {
-         ok = dis_RISCV64_xthead(dres, irsb, insn, guest_pc_curr_instr, abiinfo,
-                                 sigill_diag);
+      ok = dis_RISCV64_xthead(dres, irsb, insn, guest_pc_curr_instr, abiinfo,
+                              sigill_diag);
+      if (ok)
          break;
-      }
       ok = dis_RISCV64_standard(dres, irsb, insn, guest_pc_curr_instr, abiinfo,
                                 sigill_diag);
       break;

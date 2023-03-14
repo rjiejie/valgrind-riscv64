@@ -93,6 +93,10 @@
 #define RV64_SOPC_FCVT_IF  0b11000   // floating-point-integer conversion
 #define RV64_SOPC_FCVT_FF  0b01000   // floating-point conversion
 
+#define RV64_SOPC_CSRRW    0b001
+#define RV64_SOPC_CSRRS    0b010
+#define RV64_SOPC_CSRRC    0b011
+
 #endif /* __LIBVEX_PUB_RISCV_H */
 
 /*--------------------------------------------------------------------*/

@@ -66,6 +66,20 @@
 #define XTHEAD_SOPC_DCACHE_CVAL1 0b00100
 #define XTHEAD_SOPC_ICACHE_IVA   0b10000
 
+#define OFFB_XTHEAD_FXCR offsetof(VexGuestRISCV64State, guest_xthead_fxcr)
+
+/* Read a 64-bit value from the xthead fxcr. */
+static IRExpr* get_xthead_FXCR(void) {
+   return IRExpr_Get(OFFB_XTHEAD_FXCR, Ity_I64);
+}
+
+/* Write a 64-bit value into the xthead fxcr. */
+static void put_xthead_FXCR(/*OUT*/ IRSB* irsb, /*IN*/ IRExpr* e)
+{
+   vassert(typeOfIRExpr(irsb->tyenv, e) == Ity_I64);
+   stmt(irsb, IRStmt_Put(OFFB_XTHEAD_FXCR, e));
+}
+
 static ULong xthead_helper_insn_ff0(ULong rs1)
 {
    Long i = 0;
@@ -605,12 +619,98 @@ static Bool dis_XTHEAD_cmo(/*MB_OUT*/ DisResult* dres,
    return False;
 }
 
-static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
-                               /*OUT*/ IRSB*         irsb,
-                               UInt                  insn,
-                               Addr                  guest_pc_curr_instr,
-                               const VexAbiInfo*     abiinfo,
-                               Bool                  sigill_diag)
+static Bool dis_RISCV64_xthead_csr(/*MB_OUT*/ DisResult* dres,
+                                   /*OUT*/ IRSB*         irsb,
+                                   UInt                  insn,
+                                   Bool                  sigill_diag) {
+   UInt rd  = GET_RD();
+   UInt rs1 = GET_RS1();
+   UInt csr = INSN(31, 20);
+
+   if (GET_FUNCT3() == RV64_SOPC_CSRRW) {
+      DIP("csrrw %s, %s, %s\n", nameIReg(rd), nameCSR(csr), nameIReg(rs1));
+      switch (csr) {
+         case 0x800: {
+            /* fxcr */
+            IRExpr *eR1 = getIReg64(rs1);
+            IRExpr *orig_fxcr = get_xthead_FXCR();
+            put_xthead_FXCR(irsb, eR1);
+            /* Hack: set real host FXCR state */
+            IRDirty *d = unsafeIRDirty_0_N(0 /*regparms*/,
+                                           "riscv64xthead_fxcr_csrrw",
+                                           riscv64xthead_fxcr_csrrw,
+                                           mkIRExprVec_1(eR1));
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_fxcr);
+            stmt(irsb, IRStmt_Dirty(d));
+            return True;
+         }
+         default:
+            return False;
+      }
+   }
+
+   if (GET_FUNCT3() == RV64_SOPC_CSRRS) {
+      DIP("csrrs %s, %s, %s\n", nameIReg(rd), nameCSR(csr), nameIReg(rs1));
+      switch (csr) {
+         case 0x800: {
+            /* fxcr */
+            IRTemp fxcr = newTemp(irsb, Ity_I64);
+            IRExpr *eR1 = getIReg64(rs1);
+            IRExpr *orig_fxcr = get_xthead_FXCR();
+            assign(irsb, fxcr, binop(Iop_Or64, eR1, orig_fxcr));
+            put_xthead_FXCR(irsb, mkexpr(fxcr));
+
+             /* Hack: set real host FXCR state */
+            IRDirty *d = unsafeIRDirty_0_N(0 /*regparms*/,
+                                           "riscv64xthead_fxcr_csrrs",
+                                           riscv64xthead_fxcr_csrrs,
+                                           mkIRExprVec_1(eR1));
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_fxcr);
+            stmt(irsb, IRStmt_Dirty(d));
+            return True;
+         }
+         default:
+            return False;
+      }
+   }
+
+   if (GET_FUNCT3() == RV64_SOPC_CSRRC) {
+      DIP("csrrc %s, %s, %s\n", nameIReg(rd), nameCSR(csr), nameIReg(rs1));
+      /* currently only support XTHEAD fxcr */
+      switch (csr) {
+         case 0x800: {
+            /* fxcr */
+            IRTemp fxcr = newTemp(irsb, Ity_I64);
+            IRExpr *eR1 = getIReg64(rs1);
+            IRExpr *orig_fxcr = get_xthead_FXCR();
+            assign(irsb, fxcr, binop(Iop_Add64, binop(Iop_Xor64, eR1, orig_fxcr),
+                                     orig_fxcr));
+            put_xthead_FXCR(irsb, mkexpr(fxcr));
+
+            /* Hack: set real host FXCR state */
+            IRDirty *d = unsafeIRDirty_0_N(0 /*regparms*/,
+                                           "riscv64xthead_fxcr_csrrc",
+                                           riscv64xthead_fxcr_csrrc,
+                                           mkIRExprVec_1(eR1));
+
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_fxcr);
+            stmt(irsb, IRStmt_Dirty(d));
+            return True;
+         }
+         default:
+            return False;
+      }
+   }
+   return False;
+}
+
+static Bool dis_RISCV64_xthead_custom(/*MB_OUT*/ DisResult* dres,
+                                      /*OUT*/ IRSB*         irsb,
+                                      UInt                  insn,
+                                      Bool                  sigill_diag)
 {
    vassert(GET_OPCODE() == OPC_CUSTOM_0);
 
@@ -635,6 +735,29 @@ static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
          break;
       default:
          vassert(0); /* Can't happen */
+   }
+
+   return ok;
+}
+
+static Bool dis_RISCV64_xthead(/*MB_OUT*/ DisResult* dres,
+                               /*OUT*/ IRSB*         irsb,
+                               UInt                  insn,
+                               Addr                  guest_pc_curr_instr,
+                               const VexAbiInfo*     abiinfo,
+                               Bool                  sigill_diag)
+{
+   Bool ok = False;
+
+   switch (GET_OPCODE()) {
+      case OPC_CUSTOM_0:
+         ok = dis_RISCV64_xthead_custom(dres, irsb, insn, sigill_diag);
+         break;
+      case OPC_SYSTEM:
+         ok = dis_RISCV64_xthead_csr(dres, irsb, insn, sigill_diag);
+         break;
+      default:
+         break;
    }
 
    return ok;

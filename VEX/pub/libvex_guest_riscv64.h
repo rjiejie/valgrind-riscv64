@@ -128,8 +128,10 @@ typedef struct {
    /* 576 */ ULong guest_LLSC_ADDR; /* Address of the transaction. */
    /* 584 */ ULong guest_LLSC_DATA; /* Original value at ADDR, sign-extended. */
 
+   /* 592 */ ULong guest_xthead_fxcr;
+
    /* Padding to 16 bytes. */
-   /* 592 */
+   /* 600 */ ULong _padding;
 } VexGuestRISCV64State;
 
 /*------------------------------------------------------------*/

@@ -462,6 +462,21 @@ UInt riscv64g_calculate_fflags_fmadd_d(Double a1,
 #ifdef __riscv_zfh
 ULong riscv64g_calculate_fclass_h(Float16 a1) { CALCULATE_FCLASS("fclass.h"); }
 #endif
+
+#if defined(__riscv_xthead)
+#define XTHEAD_FXCR_SET(inst)                                                        \
+   do {                                                                       \
+      __asm__ __volatile__(                                                   \
+         inst " x0, fxcr, %[a1]\n\t"                                          \
+         :                                                                    \
+         : [a1] "r"(a1));                                                     \
+   } while (0)
+
+void riscv64xthead_fxcr_csrrs(ULong a1) {XTHEAD_FXCR_SET("csrrs");}
+void riscv64xthead_fxcr_csrrc(ULong a1) {XTHEAD_FXCR_SET("csrrc");}
+void riscv64xthead_fxcr_csrrw(ULong a1) {XTHEAD_FXCR_SET("csrrw");}
+#endif
+
 ULong riscv64g_calculate_fclass_s(Float a1) { CALCULATE_FCLASS("fclass.s"); }
 ULong riscv64g_calculate_fclass_d(Double a1) { CALCULATE_FCLASS("fclass.d"); }
 
