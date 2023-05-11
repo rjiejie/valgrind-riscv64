@@ -352,7 +352,9 @@ typedef enum {
    RISCV64in_FBinH,
    RISCV64in_FUnaryH,
    RISCV64in_FCvtH,           /* 16-bit floating-point number conversion */
-   RISCV64in_FCmpH            /* 16-bit floating-point number comparison */
+   RISCV64in_FCmpH,           /* 16-bit floating-point number comparison */
+   /* Indicating vector */
+   RISCV64in_VBinV
 } RISCV64InstrTag;
 
 /*--------------------------------------------------------------------*/
@@ -657,6 +659,20 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
 Bool getRegUsage_RISCV64ZfhInstr(HRegUsage* u, const RISCV64Instr* i);
 Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i);
 Bool ppRISCV64ZfhInstr(const RISCV64Instr* i);
+
+UChar* emit_RISCV64VInstr(/*MB_MOD*/ Bool*    is_profInc,
+                          UChar*              buf,
+                          Int                 nbuf,
+                          const RISCV64Instr* i,
+                          Bool                mode64,
+                          VexEndness          endness_host,
+                          const void*         disp_cp_chain_me_to_slowEP,
+                          const void*         disp_cp_chain_me_to_fastEP,
+                          const void*         disp_cp_xindir,
+                          const void*         disp_cp_xassisted);
+Bool getRegUsage_RISCV64VInstr(HRegUsage* u, const RISCV64Instr* i);
+Bool mapRegs_RISCV64VInstr(HRegRemap* m, RISCV64Instr* i);
+Bool ppRISCV64VInstr(const RISCV64Instr* i);
 
 /*------------------------------------------------------------*/
 /*--- Misc helpers                                         ---*/

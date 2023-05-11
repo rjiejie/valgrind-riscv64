@@ -559,6 +559,7 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
 /*------------------------------------------------------------*/
 /*--- Extensions                                           ---*/
 /*------------------------------------------------------------*/
+#include "host_riscv64V_isel.c"
 #include "host_riscv64Zfh_isel.c"
 
 /*------------------------------------------------------------*/
