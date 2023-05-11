@@ -26,6 +26,8 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+#include "host_riscv64V0p7_defs.c"
+
 UChar* emit_RISCV64VInstr(/*MB_MOD*/ Bool*    is_profInc,
                           UChar*              buf,
                           Int                 nbuf,
@@ -37,21 +39,36 @@ UChar* emit_RISCV64VInstr(/*MB_MOD*/ Bool*    is_profInc,
                           const void*         disp_cp_xindir,
                           const void*         disp_cp_xassisted)
 {
+   UChar* ret = NULL;
+
+   ret = emit_RISCV64V0p7Instr(is_profInc, buf, nbuf, i, mode64, endness_host,
+                               disp_cp_chain_me_to_slowEP,
+                               disp_cp_chain_me_to_fastEP, disp_cp_xindir,
+                               disp_cp_xassisted);
+   if (ret != NULL)
+      return ret;
+
    return NULL;
 }
 
 Bool getRegUsage_RISCV64VInstr(HRegUsage* u, const RISCV64Instr* i)
 {
+   if (getRegUsage_RISCV64V0p7Instr(u, i))
+      return True;
    return False;
 }
 
 Bool mapRegs_RISCV64VInstr(HRegRemap* m, RISCV64Instr* i)
 {
+   if (mapRegs_RISCV64V0p7Instr(m, i))
+      return True;
    return False;
 }
 
 Bool ppRISCV64VInstr(const RISCV64Instr* i)
 {
+   if (ppRISCV64V0p7Instr(i))
+      return True;
    return False;
 }
 

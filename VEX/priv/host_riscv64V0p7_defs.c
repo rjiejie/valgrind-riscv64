@@ -1,6 +1,6 @@
 
 /*--------------------------------------------------------------------*/
-/*--- begin                              host_riscv64V_isel.c --------*/
+/*--- begin                              host_riscv64V0p7_defs.c -----*/
 /*--------------------------------------------------------------------*/
 
 /*
@@ -26,31 +26,35 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include "host_riscv64V0p7_isel.c"
-
-static HReg iselVExpr_wrk(ISelEnv* env, IRExpr* e)
+static UChar* emit_RISCV64V0p7Instr(/*MB_MOD*/ Bool*    is_profInc,
+                                    UChar*              buf,
+                                    Int                 nbuf,
+                                    const RISCV64Instr* i,
+                                    Bool                mode64,
+                                    VexEndness          endness_host,
+                                    const void*         disp_cp_chain_me_to_slowEP,
+                                    const void*         disp_cp_chain_me_to_fastEP,
+                                    const void*         disp_cp_xindir,
+                                    const void*         disp_cp_xassisted)
 {
-   IRType ty = typeOfIRExpr(env->type_env, e);
-   vassert(e);
-   vassert(ty == Ity_V128);
-
-   Bool ok;
-   HReg ret = iselV0p7Expr_wrk(env, e, &ok);
-   if (ok)
-      return ret;
-
-   ppIRExpr(e);
-   vpanic("iselVExpr(riscv64)");
+   return NULL;
 }
 
-static HReg iselVExpr(ISelEnv* env, IRExpr* e)
+static Bool getRegUsage_RISCV64V0p7Instr(HRegUsage* u, const RISCV64Instr* i)
 {
-   HReg r = iselVExpr_wrk( env, e );
-   vassert(hregClass(r) == HRcVec128);
-   vassert(hregIsVirtual(r));
-   return r;
+   return False;
+}
+
+static Bool mapRegs_RISCV64V0p7Instr(HRegRemap* m, RISCV64Instr* i)
+{
+   return False;
+}
+
+static Bool ppRISCV64V0p7Instr(const RISCV64Instr* i)
+{
+   return False;
 }
 
 /*--------------------------------------------------------------------*/
-/*--- end                                host_riscv64V_isel.c --------*/
+/*--- end                                host_riscv64V0p7_defs.c -----*/
 /*--------------------------------------------------------------------*/
