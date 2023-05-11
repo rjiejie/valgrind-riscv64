@@ -3330,6 +3330,7 @@ static Bool dis_RV64Zicsr(/*MB_OUT*/ DisResult* dres,
 }
 
 #include "guest_riscv64Zfh_toIR.c"
+#include "guest_riscv64V_toIR.c"
 
 static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
                                  /*OUT*/ IRSB*         irsb,
@@ -3355,6 +3356,8 @@ static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
       ok = dis_RV64Zicsr(dres, irsb, insn);
    if (!ok)
       ok = dis_RV64Zfh(dres, irsb, insn);
+   if (!ok)
+      ok = dis_RV64V(dres, irsb, insn);
    if (ok)
       return True;
 
