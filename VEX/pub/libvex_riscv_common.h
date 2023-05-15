@@ -97,6 +97,15 @@
 #define RV64_SOPC_CSRRS    0b010
 #define RV64_SOPC_CSRRC    0b011
 
+#define RV64_SOPC_OPIVV    0b000
+#define RV64_SOPC_OPFVV    0b001
+#define RV64_SOPC_OPMVV    0b010
+#define RV64_SOPC_OPIVI    0b011
+#define RV64_SOPC_OPIVX    0b100
+#define RV64_SOPC_OPFVF    0b101
+#define RV64_SOPC_OPMVX    0b110
+#define RV64_SOPC_OPCFG    0b111
+
 #endif /* __LIBVEX_PUB_RISCV_H */
 
 /*--------------------------------------------------------------------*/
