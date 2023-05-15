@@ -26,11 +26,52 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
+                             /*OUT*/ IRSB*         irsb,
+                             UInt                  insn)
+{
+   if (GET_FUNCT3() != RV64_SOPC_OPCFG)
+      return False;
+
+   return False;
+}
+
+static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
+                              /*OUT*/ IRSB*         irsb,
+                              UInt                  insn)
+{
+   Bool isLD = GET_OPCODE() == OPC_LOAD_FP;
+   return False;
+}
+
+static Bool dis_RV64V0p7_arith(/*MB_OUT*/ DisResult* dres,
+                               /*OUT*/ IRSB*         irsb,
+                               UInt                  insn)
+{
+   return False;
+}
+
 static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
                          /*OUT*/ IRSB*         irsb,
                          UInt                  insn)
 {
-   return False;
+   Bool ok = False;
+
+   switch (GET_OPCODE()) {
+      case OPC_OP_V:
+         ok = dis_RV64V0p7_cfg(dres, irsb, insn);
+         if (!ok)
+            ok = dis_RV64V0p7_arith(dres, irsb, insn);
+         break;
+      case OPC_LOAD_FP:
+      case OPC_STORE_FP:
+         ok = dis_RV64V0p7_ldst(dres, irsb, insn);
+         break;
+      default:
+         break;
+   }
+
+   return ok;
 }
 
 /*--------------------------------------------------------------------*/
