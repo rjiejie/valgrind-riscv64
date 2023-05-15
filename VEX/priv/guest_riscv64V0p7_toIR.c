@@ -30,9 +30,6 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
                              /*OUT*/ IRSB*         irsb,
                              UInt                  insn)
 {
-   if (GET_FUNCT3() != RV64_SOPC_OPCFG)
-      return False;
-
    return False;
 }
 
@@ -59,9 +56,9 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
 
    switch (GET_OPCODE()) {
       case OPC_OP_V:
-         ok = dis_RV64V0p7_cfg(dres, irsb, insn);
-         if (!ok)
-            ok = dis_RV64V0p7_arith(dres, irsb, insn);
+         if (GET_FUNCT3() == RV64_SOPC_OPCFG)
+            return dis_RV64V0p7_cfg(dres, irsb, insn);
+         ok = dis_RV64V0p7_arith(dres, irsb, insn);
          break;
       case OPC_LOAD_FP:
       case OPC_STORE_FP:
