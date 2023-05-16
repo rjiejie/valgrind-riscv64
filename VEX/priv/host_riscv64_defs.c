@@ -1033,6 +1033,7 @@ const RRegUniverse* getRRegUniverse_RISCV64(void)
    /* TODO */
    ru->regs[ru->size++] = hregRISCV64_x0(); /* zero */
    ru->regs[ru->size++] = hregRISCV64_x2(); /* sp */
+   ru->regs[ru->size++] = hregRISCV64_x5(); /* t0 */
    ru->regs[ru->size++] = hregRISCV64_x8(); /* s0 */
 
    initialised = True;

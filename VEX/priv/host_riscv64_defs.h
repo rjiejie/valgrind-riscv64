@@ -101,7 +101,8 @@ ST_IN HReg hregRISCV64_v30(void) { return mkHReg(False, HRcVec, 30, 52); }
 
 ST_IN HReg hregRISCV64_x0(void) { return mkHReg(False, HRcInt64, 0, 53); }
 ST_IN HReg hregRISCV64_x2(void) { return mkHReg(False, HRcInt64, 2, 54); }
-ST_IN HReg hregRISCV64_x8(void) { return mkHReg(False, HRcInt64, 8, 55); }
+ST_IN HReg hregRISCV64_x5(void) { return mkHReg(False, HRcInt64, 5, 55); }
+ST_IN HReg hregRISCV64_x8(void) { return mkHReg(False, HRcInt64, 8, 56); }
 #undef ST_IN
 
 /* Number of registers used for argument passing in function calls. */
