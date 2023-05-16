@@ -28,6 +28,25 @@
 
 #include "host_riscv64V0p7_defs.c"
 
+RISCV64Instr* RISCV64Instr_VLdStWholeReg(UChar m, Bool isLoad, HReg sd, HReg base) {
+   RISCV64Instr* i            = LibVEX_Alloc_inline(sizeof(RISCV64Instr));
+   i->tag                     = RISCV64in_VLdStWholeReg;
+   i->RISCV64in.VLdStWholeReg.isLoad = isLoad;
+   i->RISCV64in.VLdStWholeReg.sd     = sd;
+   i->RISCV64in.VLdStWholeReg.base   = base;
+   i->RISCV64in.VLdStWholeReg.m      = m;
+   return i;
+}
+
+RISCV64Instr* RISCV64Instr_VMV(UChar m, HReg dst, HReg src) {
+   RISCV64Instr* i        = LibVEX_Alloc_inline(sizeof(RISCV64Instr));
+   i->tag                 = RISCV64in_VMV;
+   i->RISCV64in.VMV.dst   = dst;
+   i->RISCV64in.VMV.src   = src;
+   i->RISCV64in.VMV.m     = m;
+   return i;
+}
+
 UChar* emit_RISCV64VInstr(/*MB_MOD*/ Bool*    is_profInc,
                           UChar*              buf,
                           Int                 nbuf,

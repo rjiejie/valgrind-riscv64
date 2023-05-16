@@ -1444,7 +1444,12 @@ void genSpill_RISCV64(/*OUT*/ HInstr** i1,
    case HRcFlt64:
       *i1 = RISCV64Instr_FpLdSt(RISCV64op_FSD, rreg, base, soff12);
       return;
-   /* TODO: VLA Vector */
+   case HRcVec: {
+      HReg t0   = hregRISCV64_x5();
+      *i1 = RISCV64Instr_ALUImm(RISCV64op_ADDI, t0, base, soff12);
+      *i2 = RISCV64Instr_VLdStWholeReg(1, False/*!isLoad*/, rreg, t0);
+      return;
+   }
    default:
       ppHRegClass(rclass);
       vpanic("genSpill_RISCV64: unimplemented regclass");
@@ -1473,7 +1478,12 @@ void genReload_RISCV64(/*OUT*/ HInstr** i1,
    case HRcFlt64:
       *i1 = RISCV64Instr_FpLdSt(RISCV64op_FLD, rreg, base, soff12);
       return;
-   /* TODO: VLA Vector */
+   case HRcVec: {
+      HReg t0   = hregRISCV64_x5();
+      *i1 = RISCV64Instr_ALUImm(RISCV64op_ADDI, t0, base, soff12);
+      *i2 = RISCV64Instr_VLdStWholeReg(1, True/*isLoad*/, rreg, t0);
+      return;
+   }
    default:
       ppHRegClass(rclass);
       vpanic("genReload_RISCV64: unimplemented regclass");
@@ -1490,7 +1500,8 @@ RISCV64Instr* genMove_RISCV64(HReg from, HReg to, Bool mode64)
       return RISCV64Instr_MV(to, from);
    case HRcFlt64:
       return RISCV64Instr_FpMove(RISCV64op_FMV_D, to, from);
-   /* TODO: VLA Vector */
+   case HRcVec:
+      return RISCV64Instr_VMV(1, to, from);
    default:
       ppHRegClass(rclass);
       vpanic("genMove_RISCV64: unimplemented regclass");
