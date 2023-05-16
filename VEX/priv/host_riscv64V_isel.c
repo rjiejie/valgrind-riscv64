@@ -46,7 +46,7 @@ static HReg iselVExpr_wrk(ISelEnv* env, IRExpr* e)
 static HReg iselVExpr(ISelEnv* env, IRExpr* e)
 {
    HReg r = iselVExpr_wrk( env, e );
-   vassert(hregClass(r) == HRcVec128);
+   vassert(hregClass(r) == HRcVec);
    vassert(hregIsVirtual(r));
    return r;
 }

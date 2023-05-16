@@ -126,6 +126,13 @@ static HReg newVRegF(ISelEnv* env)
    return reg;
 }
 
+static HReg newVRegV(ISelEnv* env)
+{
+   HReg reg = mkHReg(True /*virtual*/, HRcVec, 0, env->vreg_ctr);
+   env->vreg_ctr++;
+   return reg;
+}
+
 /*------------------------------------------------------------*/
 /*--- ISEL: Forward declarations                           ---*/
 /*------------------------------------------------------------*/
@@ -2127,6 +2134,7 @@ HInstrArray* iselSB_RISCV64(const IRSB*        bb,
       case Ity_F64:
          hreg = mkHReg(True, HRcFlt64, 0, j++);
          break;
+      /* TODO: VLA Vector */
       default:
          ppIRType(bb->tyenv->types[i]);
          vpanic("iselBB(riscv64): IRTemp type");

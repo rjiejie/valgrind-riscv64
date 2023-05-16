@@ -854,6 +854,8 @@ HInstrArray* doRegisterAllocation_v3(
          definition of HRegClass. */
       UInt ss_no;
       switch (vreg_state[v_idx].reg_class) {
+         /* TODO: VLA Vector */
+         case HRcVec:
          case HRcFlt64:
          case HRcVec128:
             /* Find two adjacent free slots which provide up to 128 bits to
@@ -895,6 +897,8 @@ HInstrArray* doRegisterAllocation_v3(
 
       /* Independent check that we've made a sane choice of the slot. */
       switch (vreg_state[v_idx].reg_class) {
+      /* TODO: VLA Vector */
+      case HRcVec:
       case HRcVec128: case HRcFlt64:
          vassert((vreg_state[v_idx].spill_offset % 16) == 0);
          break;

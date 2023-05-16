@@ -48,22 +48,27 @@ UInt ppHRegRISCV64(HReg reg)
       "fa6", "fa7", "fs2",  "fs3",  "fs4", "fs5", "fs6",  "fs7",
       "fs8", "fs9", "fs10", "fs11", "ft8", "ft9", "ft10", "ft11"};
 
+   static const HChar* vnames[32] = {
+      "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7",
+      "v8",  "v9",  "v10", "v11", "v12", "v13", "v14", "v15",
+      "v16", "v17", "v18", "v19", "v20", "v21", "v22", "v23",
+      "v24", "v25", "v26", "v27", "v28", "v29", "v30", "v31"};
+
    /* Be generic for all virtual regs. */
    if (hregIsVirtual(reg))
       return ppHReg(reg);
 
+   UInt r = hregEncoding(reg);
+   vassert(r < 32);
+
    /* Be specific for real regs. */
    switch (hregClass(reg)) {
-   case HRcInt64: {
-      UInt r = hregEncoding(reg);
-      vassert(r < 32);
+   case HRcInt64:
       return vex_printf("%s", inames[r]);
-   }
-   case HRcFlt64: {
-      UInt r = hregEncoding(reg);
-      vassert(r < 32);
+   case HRcFlt64:
       return vex_printf("%s", fnames[r]);
-   }
+   case HRcVec:
+      return vex_printf("%s", vnames[r]);
    default:
       vpanic("ppHRegRISCV64");
    }
@@ -83,6 +88,16 @@ static inline UInt fregEnc(HReg r)
 {
    UInt n;
    vassert(hregClass(r) == HRcFlt64);
+   vassert(!hregIsVirtual(r));
+   n = hregEncoding(r);
+   vassert(n < 32);
+   return n;
+}
+
+static inline UInt vregEnc(HReg r)
+{
+   UInt n;
+   vassert(hregClass(r) == HRcVec);
    vassert(!hregIsVirtual(r));
    n = hregEncoding(r);
    vassert(n < 32);
@@ -993,8 +1008,27 @@ const RRegUniverse* getRRegUniverse_RISCV64(void)
    ru->regs[ru->size++]          = hregRISCV64_f30(); /* ft10 */
    ru->regs[ru->size++]          = hregRISCV64_f31(); /* ft11 */
    ru->allocable_end[HRcFlt64]   = ru->size - 1;
-   ru->allocable                 = ru->size;
 
+   /* Vector registers, all of which are caller-saved. */
+   ru->allocable_start[HRcVec] = ru->size;
+   ru->regs[ru->size++]          = hregRISCV64_v2();
+   ru->regs[ru->size++]          = hregRISCV64_v4();
+   ru->regs[ru->size++]          = hregRISCV64_v6();
+   ru->regs[ru->size++]          = hregRISCV64_v8();
+   ru->regs[ru->size++]          = hregRISCV64_v10();
+   ru->regs[ru->size++]          = hregRISCV64_v12();
+   ru->regs[ru->size++]          = hregRISCV64_v14();
+   ru->regs[ru->size++]          = hregRISCV64_v16();
+   ru->regs[ru->size++]          = hregRISCV64_v18();
+   ru->regs[ru->size++]          = hregRISCV64_v20();
+   ru->regs[ru->size++]          = hregRISCV64_v22();
+   ru->regs[ru->size++]          = hregRISCV64_v24();
+   ru->regs[ru->size++]          = hregRISCV64_v26();
+   ru->regs[ru->size++]          = hregRISCV64_v28();
+   ru->regs[ru->size++]          = hregRISCV64_v30();
+   ru->allocable_end[HRcVec]     = ru->size - 1;
+
+   ru->allocable                 = ru->size;
    /* Add the registers that are not available for allocation. */
    /* TODO */
    ru->regs[ru->size++] = hregRISCV64_x0(); /* zero */
@@ -1409,6 +1443,7 @@ void genSpill_RISCV64(/*OUT*/ HInstr** i1,
    case HRcFlt64:
       *i1 = RISCV64Instr_FpLdSt(RISCV64op_FSD, rreg, base, soff12);
       return;
+   /* TODO: VLA Vector */
    default:
       ppHRegClass(rclass);
       vpanic("genSpill_RISCV64: unimplemented regclass");
@@ -1437,6 +1472,7 @@ void genReload_RISCV64(/*OUT*/ HInstr** i1,
    case HRcFlt64:
       *i1 = RISCV64Instr_FpLdSt(RISCV64op_FLD, rreg, base, soff12);
       return;
+   /* TODO: VLA Vector */
    default:
       ppHRegClass(rclass);
       vpanic("genReload_RISCV64: unimplemented regclass");
@@ -1453,6 +1489,7 @@ RISCV64Instr* genMove_RISCV64(HReg from, HReg to, Bool mode64)
       return RISCV64Instr_MV(to, from);
    case HRcFlt64:
       return RISCV64Instr_FpMove(RISCV64op_FMV_D, to, from);
+   /* TODO: VLA Vector */
    default:
       ppHRegClass(rclass);
       vpanic("genMove_RISCV64: unimplemented regclass");
