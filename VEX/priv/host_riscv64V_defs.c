@@ -38,12 +38,12 @@ RISCV64Instr* RISCV64Instr_VLdStWholeReg(UChar m, Bool isLoad, HReg sd, HReg bas
    return i;
 }
 
-RISCV64Instr* RISCV64Instr_VMV(UChar m, HReg dst, HReg src) {
+RISCV64Instr* RISCV64Instr_VMvWholeReg(UChar m, HReg dst, HReg src) {
    RISCV64Instr* i        = LibVEX_Alloc_inline(sizeof(RISCV64Instr));
-   i->tag                 = RISCV64in_VMV;
-   i->RISCV64in.VMV.dst   = dst;
-   i->RISCV64in.VMV.src   = src;
-   i->RISCV64in.VMV.m     = m;
+   i->tag                 = RISCV64in_VMvWholeReg;
+   i->RISCV64in.VMvWholeReg.dst   = dst;
+   i->RISCV64in.VMvWholeReg.src   = src;
+   i->RISCV64in.VMvWholeReg.m     = m;
    return i;
 }
 

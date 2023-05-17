@@ -59,10 +59,10 @@ static UChar* emit_RISCV64V0p7Instr(/*MB_MOD*/ Bool*    is_profInc,
          p = emit_R(p, OPC_OP_V, 0,  RV64_SOPC_OPCFG, 6, 7, 0b1000000);
          break;
       }
-      case RISCV64in_VMV: {
-         UInt dst    = vregEnc(i->RISCV64in.VMV.dst);
-         UInt src    = vregEnc(i->RISCV64in.VMV.src);
-         UChar m     = i->RISCV64in.VMV.m;
+      case RISCV64in_VMvWholeReg: {
+         UInt dst    = vregEnc(i->RISCV64in.VMvWholeReg.dst);
+         UInt src    = vregEnc(i->RISCV64in.VMvWholeReg.src);
+         UChar m     = i->RISCV64in.VMvWholeReg.m;
          /*
           csrr t1, vl
           csrr t2, vtype
@@ -93,9 +93,9 @@ static Bool getRegUsage_RISCV64V0p7Instr(HRegUsage* u, const RISCV64Instr* i)
          else
             addHRegUse(u, HRmRead, i->RISCV64in.VLdStWholeReg.sd);
          return True;
-      case RISCV64in_VMV:
-         addHRegUse(u, HRmRead,  i->RISCV64in.VMV.src);
-         addHRegUse(u, HRmWrite, i->RISCV64in.VMV.dst);
+      case RISCV64in_VMvWholeReg:
+         addHRegUse(u, HRmRead,  i->RISCV64in.VMvWholeReg.src);
+         addHRegUse(u, HRmWrite, i->RISCV64in.VMvWholeReg.dst);
          return True;
       default:
          break;
@@ -110,9 +110,9 @@ static Bool mapRegs_RISCV64V0p7Instr(HRegRemap* m, RISCV64Instr* i)
          mapReg(m, &i->RISCV64in.VLdStWholeReg.base);
          mapReg(m, &i->RISCV64in.VLdStWholeReg.sd);
          return True;
-      case RISCV64in_VMV:
-         mapReg(m, &i->RISCV64in.VMV.src);
-         mapReg(m, &i->RISCV64in.VMV.dst);
+      case RISCV64in_VMvWholeReg:
+         mapReg(m, &i->RISCV64in.VMvWholeReg.src);
+         mapReg(m, &i->RISCV64in.VMvWholeReg.dst);
          return True;
       default:
          break;
@@ -132,11 +132,11 @@ static Bool ppRISCV64V0p7Instr(const RISCV64Instr* i)
          vex_printf(")");
          return True;
       }
-      case RISCV64in_VMV:
+      case RISCV64in_VMvWholeReg:
          vex_printf("vmv.v.v    ");
-         ppHRegRISCV64(i->RISCV64in.VMV.dst);
+         ppHRegRISCV64(i->RISCV64in.VMvWholeReg.dst);
          vex_printf(", ");
-         ppHRegRISCV64(i->RISCV64in.VMV.src);
+         ppHRegRISCV64(i->RISCV64in.VMvWholeReg.src);
          return True;
       default:
          break;

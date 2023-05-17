@@ -1501,7 +1501,7 @@ RISCV64Instr* genMove_RISCV64(HReg from, HReg to, Bool mode64)
    case HRcFlt64:
       return RISCV64Instr_FpMove(RISCV64op_FMV_D, to, from);
    case HRcVec:
-      return RISCV64Instr_VMV(1, to, from);
+      return RISCV64Instr_VMvWholeReg(1, to, from);
    default:
       ppHRegClass(rclass);
       vpanic("genMove_RISCV64: unimplemented regclass");

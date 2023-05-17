@@ -372,7 +372,7 @@ typedef enum {
    RISCV64in_FCmpH,           /* 16-bit floating-point number comparison */
    /* Indicating vector */
    RISCV64in_VLdStWholeReg,
-   RISCV64in_VMV,
+   RISCV64in_VMvWholeReg,
    RISCV64in_VBinV
 } RISCV64InstrTag;
 
@@ -400,7 +400,7 @@ typedef struct {
          HReg dst;
          HReg src;
          UChar m;
-      } VMV;
+      } VMvWholeReg;
       /* 16-bit FP load/store arithmetic */
       struct {
          Bool isLoad;
@@ -692,7 +692,7 @@ Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i);
 Bool ppRISCV64ZfhInstr(const RISCV64Instr* i);
 
 RISCV64Instr* RISCV64Instr_VLdStWholeReg(UChar m, Bool isLoad, HReg sd, HReg base);
-RISCV64Instr* RISCV64Instr_VMV(UChar m, HReg dst, HReg src);
+RISCV64Instr* RISCV64Instr_VMvWholeReg(UChar m, HReg dst, HReg src);
 UChar* emit_RISCV64VInstr(/*MB_MOD*/ Bool*    is_profInc,
                           UChar*              buf,
                           Int                 nbuf,
