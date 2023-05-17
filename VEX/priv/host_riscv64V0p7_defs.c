@@ -85,16 +85,62 @@ static UChar* emit_RISCV64V0p7Instr(/*MB_MOD*/ Bool*    is_profInc,
 
 static Bool getRegUsage_RISCV64V0p7Instr(HRegUsage* u, const RISCV64Instr* i)
 {
+   switch (i->tag) {
+      case RISCV64in_VLdStWholeReg:
+         addHRegUse(u, HRmRead, i->RISCV64in.VLdStWholeReg.base);
+         if (i->RISCV64in.VLdStWholeReg.isLoad)
+            addHRegUse(u, HRmWrite, i->RISCV64in.VLdStWholeReg.sd);
+         else
+            addHRegUse(u, HRmRead, i->RISCV64in.VLdStWholeReg.sd);
+         return True;
+      case RISCV64in_VMV:
+         addHRegUse(u, HRmRead,  i->RISCV64in.VMV.src);
+         addHRegUse(u, HRmWrite, i->RISCV64in.VMV.dst);
+         return True;
+      default:
+         break;
+   }
    return False;
 }
 
 static Bool mapRegs_RISCV64V0p7Instr(HRegRemap* m, RISCV64Instr* i)
 {
+   switch (i->tag) {
+      case RISCV64in_VLdStWholeReg:
+         mapReg(m, &i->RISCV64in.VLdStWholeReg.base);
+         mapReg(m, &i->RISCV64in.VLdStWholeReg.sd);
+         return True;
+      case RISCV64in_VMV:
+         mapReg(m, &i->RISCV64in.VMV.src);
+         mapReg(m, &i->RISCV64in.VMV.dst);
+         return True;
+      default:
+         break;
+   }
    return False;
 }
 
 static Bool ppRISCV64V0p7Instr(const RISCV64Instr* i)
 {
+   switch (i->tag) {
+      case RISCV64in_VLdStWholeReg: {
+         const HChar* opc = i->RISCV64in.VLdStWholeReg.isLoad ? "vle" : "vse";
+         vex_printf("%s.v    ", opc);
+         ppHRegRISCV64(i->RISCV64in.VLdStWholeReg.sd);
+         vex_printf(", (");
+         ppHRegRISCV64(i->RISCV64in.VLdStWholeReg.base);
+         vex_printf(")");
+         return True;
+      }
+      case RISCV64in_VMV:
+         vex_printf("vmv.v.v    ");
+         ppHRegRISCV64(i->RISCV64in.VMV.dst);
+         vex_printf(", ");
+         ppHRegRISCV64(i->RISCV64in.VMV.src);
+         return True;
+      default:
+         break;
+   }
    return False;
 }
 
