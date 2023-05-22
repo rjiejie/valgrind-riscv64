@@ -26,6 +26,8 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+#define GET_VMASK() INSN(25, 25)
+
 #include "guest_riscv64V0p7_toIR.c"
 
 static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
