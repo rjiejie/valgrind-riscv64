@@ -41,11 +41,51 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
    return False;
 }
 
+static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
+                                   /*OUT*/ IRSB*         irsb,
+                                   UInt                  insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
+                                   /*OUT*/ IRSB*         irsb,
+                                   UInt                  insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
+                                   /*OUT*/ IRSB*         irsb,
+                                   UInt                  insn)
+{
+   return False;
+}
+
 static Bool dis_RV64V0p7_arith(/*MB_OUT*/ DisResult* dres,
                                /*OUT*/ IRSB*         irsb,
                                UInt                  insn)
 {
-   return False;
+   Bool ok = False;
+
+   switch (GET_FUNCT3()) {
+      case RV64_SOPC_OPIVV:
+      case RV64_SOPC_OPIVX:
+      case RV64_SOPC_OPIVI:
+         ok = dis_RV64V0p7_arith_OPI(dres, irsb, insn);
+         break;
+      case RV64_SOPC_OPMVV:
+      case RV64_SOPC_OPMVX:
+         ok = dis_RV64V0p7_arith_OPM(dres, irsb, insn);
+         break;
+      case RV64_SOPC_OPFVV:
+      case RV64_SOPC_OPFVF:
+         ok = dis_RV64V0p7_arith_OPF(dres, irsb, insn);
+         break;
+      default:
+         vassert(0);
+   }
+   return ok;
 }
 
 static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
