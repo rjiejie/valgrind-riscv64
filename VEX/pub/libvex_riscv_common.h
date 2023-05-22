@@ -59,6 +59,7 @@
 #define GET_OPCODE()    INSN(6, 0)
 #define GET_FUNCT3()    INSN(14, 12)
 #define GET_FUNCT5()    INSN(31, 27)
+#define GET_FUNCT6()    INSN(31, 26)
 #define GET_FUNCT7()    INSN(31, 25)
 #define GET_RD()        INSN(11, 7)
 #define GET_RS1()       INSN(19, 15)
