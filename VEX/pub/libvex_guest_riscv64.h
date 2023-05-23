@@ -132,39 +132,7 @@ typedef struct {
 
    /* Vector state. */
 #define RV_VLEN_MAX 1024
-   ULong guest_v0[RV_VLEN_MAX / 64];
-   ULong guest_v1[RV_VLEN_MAX / 64];
-   ULong guest_v2[RV_VLEN_MAX / 64];
-   ULong guest_v3[RV_VLEN_MAX / 64];
-   ULong guest_v4[RV_VLEN_MAX / 64];
-   ULong guest_v5[RV_VLEN_MAX / 64];
-   ULong guest_v6[RV_VLEN_MAX / 64];
-   ULong guest_v7[RV_VLEN_MAX / 64];
-   ULong guest_v8[RV_VLEN_MAX / 64];
-   ULong guest_v9[RV_VLEN_MAX / 64];
-   ULong guest_v10[RV_VLEN_MAX / 64];
-   ULong guest_v11[RV_VLEN_MAX / 64];
-   ULong guest_v12[RV_VLEN_MAX / 64];
-   ULong guest_v13[RV_VLEN_MAX / 64];
-   ULong guest_v14[RV_VLEN_MAX / 64];
-   ULong guest_v15[RV_VLEN_MAX / 64];
-   ULong guest_v16[RV_VLEN_MAX / 64];
-   ULong guest_v17[RV_VLEN_MAX / 64];
-   ULong guest_v18[RV_VLEN_MAX / 64];
-   ULong guest_v19[RV_VLEN_MAX / 64];
-   ULong guest_v20[RV_VLEN_MAX / 64];
-   ULong guest_v21[RV_VLEN_MAX / 64];
-   ULong guest_v22[RV_VLEN_MAX / 64];
-   ULong guest_v23[RV_VLEN_MAX / 64];
-   ULong guest_v24[RV_VLEN_MAX / 64];
-   ULong guest_v25[RV_VLEN_MAX / 64];
-   ULong guest_v26[RV_VLEN_MAX / 64];
-   ULong guest_v27[RV_VLEN_MAX / 64];
-   ULong guest_v28[RV_VLEN_MAX / 64];
-   ULong guest_v29[RV_VLEN_MAX / 64];
-   ULong guest_v30[RV_VLEN_MAX / 64];
-   ULong guest_v31[RV_VLEN_MAX / 64];
-
+   ULong guest_vreg[32 * RV_VLEN_MAX / 64];
    ULong guest_vstart;
    ULong guest_vl;
    ULong guest_vtype;
