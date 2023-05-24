@@ -331,6 +331,10 @@ void foo ( void )
    GENOFFSET(RISCV64,riscv64,f30);
    GENOFFSET(RISCV64,riscv64,f31);
    GENOFFSET(RISCV64,riscv64,fcsr);
+   GENOFFSET(RISCV64,riscv64,vreg);
+   GENOFFSET(RISCV64,riscv64,vstart);
+   GENOFFSET(RISCV64,riscv64,vl);
+   GENOFFSET(RISCV64,riscv64,vtype);
 }
 
 /*--------------------------------------------------------------------*/

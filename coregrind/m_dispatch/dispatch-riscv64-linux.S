@@ -183,6 +183,19 @@ VG_(disp_cp_xindir):
 	/* Try a fast lookup in the translation cache. This is pretty much
 	   a handcoded version of VG_(lookupInFastCache). */
 
+	/* Compute s1 = flag */
+	/* VTYPE */
+	ld   t3, OFFSET_riscv64_vtype-2048(s0)  /* Get real vtype */
+	andi s1, t3, 0xFF						/* Save vtype[7:0] to s1[7:0] */
+	/* VL */
+	ld   t3, OFFSET_riscv64_vl-2048(s0)     /* Get real vl */
+	slli t3, t3, 8                          /* Shift left to align to flag bit field [23:8] */
+	or   s1, s1, t2                         /* Save vl to s1[23:8] */
+	/* VSTART */
+	ld   t3, OFFSET_riscv64_vstart-2048(s0) /* Get real vstart */
+	slli t3, t3, 24                         /* Shift left to align to flag bit field [39:24] */
+	or   s1, s1, t2                         /* Save vstart to s1[39:24] */
+
 	/* Compute t6 = VG_TT_FAST_HASH(guest). */
 	srli t6, t0, 2                       /* g2 = guest >> 2 */
 	srli t4, t6, VG_TT_FAST_BITS         /* g2 >> VG_TT_FAST_BITS */
@@ -195,9 +208,11 @@ VG_(disp_cp_xindir):
 	slli t6, t6, VG_FAST_CACHE_SET_BITS
 	add t6, t4, t6                       /* &VG_(tt_fast)[setNo] */
 
-	/* LIVE: s0 (guest state ptr), t0 (guest addr), t6 (cache set). */
+	/* LIVE: s0 (guest state ptr), t0 (guest addr), s1 (flag), t6 (cache set). */
 	/* Try way 0. */
 	ld t4, FCS_g0(t6)                    /* t4 = .guest0 */
+	ld t3, FCS_f0(t6)                    /* t3 = .flag0  */
+	bne t3, s1, 1f						 /* cmp against .flag0 */
 	bne t4, t0, 1f                       /* cmp against .guest0 */
 	/* Hit at way 0. */
 	/* Go to .host0. */
@@ -207,58 +222,79 @@ VG_(disp_cp_xindir):
 
 1:	/* Try way 1. */
 	ld t4, FCS_g1(t6)
+	ld t3, FCS_f1(t6)
+	bne t3, s1, 2f                       /* cmp against .flag1 */
 	bne t4, t0, 2f                       /* cmp against .guest1 */
 	/* Hit at way 1; swap upwards. */
 	ld t1, FCS_g0(t6)                    /* t1 = old .guest0 */
-	ld t2, FCS_h0(t6)                    /* t2 = old .host0 */
-	ld t3, FCS_h1(t6)                    /* t3 = old .host1 */
+	ld t2, FCS_f0(t6)                    /* t2 = old .flag0 */
+	ld t3, FCS_h0(t6)                    /* t3 = old .host0 */
+	ld t4, FCS_h1(t6)                    /* t4 = old .host1 */
 	sd t0, FCS_g0(t6)                    /* new .guest0 = guest */
-	sd t3, FCS_h0(t6)                    /* new .host0 = old .host1 */
+	sd s1, FCS_f0(t6)                    /* new .flag0 = flag */
+	sd t4, FCS_h0(t6)                    /* new .host0 = old .host1 */
 	sd t1, FCS_g1(t6)                    /* new .guest1 = old .guest0 */
-	sd t2, FCS_h1(t6)                    /* new .host1 = old .host0 */
+	sd t2, FCS_f1(t6)                    /* new .flag1 = old .flag0 */
+	sd t3, FCS_h1(t6)                    /* new .host1 = old .host0 */
 	/* Stats only. */
 	lw t4, VG_(stats__n_xIndir_hits1_32)
 	addi t4, t4, 1
 	sw t4, VG_(stats__n_xIndir_hits1_32), t5
 	/* Go to old .host1 a.k.a. new .host0. */
+	/* Reload host code to t3 as allocatable regs exhausted */
+	ld t3, FCS_h0(t6)               
 	jr t3
 	/*NOTREACHED*/
 
 2:	/* Try way 2. */
 	ld t4, FCS_g2(t6)
+	ld t3, FCS_f2(t6)
+	bne t3, s1, 3f                       /* cmp against .flag2 */
 	bne t4, t0, 3f                       /* cmp against .guest2 */
 	/* Hit at way 2; swap upwards. */
 	ld t1, FCS_g1(t6)
-	ld t2, FCS_h1(t6)
-	ld t3, FCS_h2(t6)
+	ld t2, FCS_f1(t6)
+	ld t3, FCS_h1(t6)
+	ld t4, FCS_h2(t6)
 	sd t0, FCS_g1(t6)
-	sd t3, FCS_h1(t6)
+	sd s1, FCS_f1(t6)
+	sd t4, FCS_h1(t6)
 	sd t1, FCS_g2(t6)
-	sd t2, FCS_h2(t6)
+	sd t2, FCS_f2(t6)
+	sd t3, FCS_h2(t6)
 	/* Stats only. */
 	lw t4, VG_(stats__n_xIndir_hits2_32)
 	addi t4, t4, 1
 	sw t4, VG_(stats__n_xIndir_hits2_32), t5
 	/* Go to old .host2 a.k.a. new .host1. */
+	/* Reload host code to t3 as allocatable regs exhausted */
+	ld t3, FCS_h1(t6)
 	jr t3
 	/*NOTREACHED*/
 
 3:	/* Try way 3. */
 	ld t4, FCS_g3(t6)
+	ld t3, FCS_f3(t6)
+	bne t3, s1, 4f                       /* cmp against .flag3 */
 	bne t4, t0, 4f                       /* cmp against .guest3 */
 	/* Hit at way 3; swap upwards. */
 	ld t1, FCS_g2(t6)
-	ld t2, FCS_h2(t6)
-	ld t3, FCS_h3(t6)
+	ld t2, FCS_f2(t6)
+	ld t3, FCS_h2(t6)
+	ld t4, FCS_h3(t6)
 	sd t0, FCS_g2(t6)
-	sd t3, FCS_h2(t6)
+	sd s1, FCS_f2(t6)
+	sd t4, FCS_h2(t6)
 	sd t1, FCS_g3(t6)
-	sd t2, FCS_h3(t6)
+	sd t2, FCS_f3(t6)
+	sd t3, FCS_h3(t6)
 	/* Stats only. */
 	lw t4, VG_(stats__n_xIndir_hits3_32)
 	addi t4, t4, 1
 	sw t4, VG_(stats__n_xIndir_hits3_32), t5
 	/* Go to old .host3 a.k.a. new .host2. */
+	/* Reload host code to t3 as allocatable regs exhausted */
+	ld t3, FCS_h2(t6)
 	jr t3
 	/*NOTREACHED*/
 

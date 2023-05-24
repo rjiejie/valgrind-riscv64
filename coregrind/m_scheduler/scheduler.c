@@ -953,6 +953,8 @@ void run_thread_for_a_while ( /*OUT*/HWord* two_words,
    do_pre_run_checks( tst );
    /* end Paranoia */
 
+   ULong flag = get_flag_from_guest_state(&tst->arch.vex);
+
    /* Futz with the XIndir stats counters. */
    vg_assert(VG_(stats__n_xIndirs_32) == 0);
    vg_assert(VG_(stats__n_xIndir_hits1_32) == 0);
@@ -972,7 +974,8 @@ void run_thread_for_a_while ( /*OUT*/HWord* two_words,
       Addr host_from_fast_cache = 0;
       Bool found_in_fast_cache
          = VG_(lookupInFastCache)( &host_from_fast_cache,
-                                   (Addr)tst->arch.vex.VG_INSTR_PTR );
+                                   (Addr)tst->arch.vex.VG_INSTR_PTR,
+                                   flag);
       if (found_in_fast_cache) {
          host_code_addr = host_from_fast_cache;
       } else {
@@ -982,6 +985,7 @@ void run_thread_for_a_while ( /*OUT*/HWord* two_words,
             to the scheduler. */
          Bool  found = VG_(search_transtab)(&res, NULL, NULL,
                                             (Addr)tst->arch.vex.VG_INSTR_PTR,
+                                            flag,
                                             True/*upd cache*/
                                             );
          if (LIKELY(found)) {
@@ -1138,16 +1142,19 @@ static void handle_tt_miss ( ThreadId tid )
    Bool found;
    Addr ip = VG_(get_IP)(tid);
 
+   ThreadState * volatile tst = VG_(get_ThreadState)(tid);
+   ULong flag = get_flag_from_guest_state(&tst->arch.vex);
+
    /* Trivial event.  Miss in the fast-cache.  Do a full
       lookup for it. */
    found = VG_(search_transtab)( NULL, NULL, NULL,
-                                 ip, True/*upd_fast_cache*/ );
+                                 ip, flag, True/*upd_fast_cache*/ );
    if (UNLIKELY(!found)) {
       /* Not found; we need to request a translation. */
       if (VG_(translate)( tid, ip, /*debug*/False, 0/*not verbose*/, 
                           bbs_done, True/*allow redirection*/ )) {
          found = VG_(search_transtab)( NULL, NULL, NULL,
-                                       ip, True ); 
+                                       ip, flag, True ); 
          vg_assert2(found, "handle_tt_miss: missing tt_fast entry");
       
       } else {
@@ -1168,14 +1175,17 @@ void handle_chain_me ( ThreadId tid, void* place_to_chain, Bool toFastEP )
    SECno to_sNo         = INV_SNO;
    TTEno to_tteNo       = INV_TTE;
 
+   ThreadState * volatile tst = VG_(get_ThreadState)(tid);
+   ULong flag = get_flag_from_guest_state(&tst->arch.vex);
+
    found = VG_(search_transtab)( NULL, &to_sNo, &to_tteNo,
-                                 ip, False/*dont_upd_fast_cache*/ );
+                                 ip, flag, False/*dont_upd_fast_cache*/ );
    if (!found) {
       /* Not found; we need to request a translation. */
       if (VG_(translate)( tid, ip, /*debug*/False, 0/*not verbose*/, 
                           bbs_done, True/*allow redirection*/ )) {
          found = VG_(search_transtab)( NULL, &to_sNo, &to_tteNo,
-                                       ip, False ); 
+                                       ip, flag, False ); 
          vg_assert2(found, "handle_chain_me: missing tt_fast entry");
       } else {
 	 // If VG_(translate)() fails, it's because it had to throw a
@@ -1248,13 +1258,16 @@ void handle_noredir_jump ( /*OUT*/HWord* two_words,
    Addr  hcode = 0;
    Addr  ip    = VG_(get_IP)(tid);
 
-   Bool  found = VG_(search_unredir_transtab)( &hcode, ip );
+   ThreadState * volatile tst = VG_(get_ThreadState)(tid);
+   ULong flag = get_flag_from_guest_state(&tst->arch.vex);
+
+   Bool  found = VG_(search_unredir_transtab)( &hcode, ip, flag );
    if (!found) {
       /* Not found; we need to request a translation. */
       if (VG_(translate)( tid, ip, /*debug*/False, 0/*not verbose*/, bbs_done,
                           False/*NO REDIRECTION*/ )) {
 
-         found = VG_(search_unredir_transtab)( &hcode, ip );
+         found = VG_(search_unredir_transtab)( &hcode, ip, flag );
          vg_assert2(found, "unredir translation missing after creation?!");
       } else {
 	 // If VG_(translate)() fails, it's because it had to throw a

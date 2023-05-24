@@ -378,6 +378,10 @@ typedef
       /* ARM64: does the host require us to use the fallback LLSC
          implementation? */
       Bool arm64_requires_fallback_LLSC;
+      /* General basic block flag can be used by all archs, the
+         concrete meaning of bit fields in this flag is defined
+         by each arch. */
+      ULong bb_flag;
    }
    VexArchInfo;
 

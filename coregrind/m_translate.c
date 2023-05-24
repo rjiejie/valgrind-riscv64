@@ -1605,6 +1605,8 @@ Bool VG_(translate) ( ThreadId tid,
    }
 
    /* Are we allowed to translate here? */
+   ThreadState * volatile tst = VG_(get_ThreadState)(tid);
+   ULong flag = get_flag_from_guest_state(&tst->arch.vex);
 
    { /* BEGIN new scope specially for 'seg' */
    NSegment const* seg = VG_(am_find_nsegment)(addr);
@@ -1677,6 +1679,8 @@ Bool VG_(translate) ( ThreadId tid,
 
    /* Get the CPU info established at startup. */
    VG_(machine_get_VexArchInfo)( &vex_arch, &vex_archinfo );
+   /* Deposit runtime arch info to bb_flag */
+   vex_archinfo.bb_flag = flag;
 
    /* Set up 'abiinfo' structure with stuff Vex needs to know about
       the guest and host ABIs. */
@@ -1866,6 +1870,7 @@ Bool VG_(translate) ( ThreadId tid,
           // addr, which might have been changed by the redirection
           VG_(add_to_transtab)( &vge,
                                 nraddr,
+                                flag,
                                 (Addr)(&tmpbuf[0]), 
                                 tmpbuf_used,
                                 tres.n_sc_extents > 0,
@@ -1875,6 +1880,7 @@ Bool VG_(translate) ( ThreadId tid,
           vg_assert(tres.offs_profInc == -1); /* -1 == unset */
           VG_(add_to_unredir_transtab)( &vge,
                                         nraddr,
+                                        flag,
                                         (Addr)(&tmpbuf[0]), 
                                         tmpbuf_used );
       }

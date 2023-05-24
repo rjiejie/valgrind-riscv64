@@ -69,6 +69,12 @@
 #  error Unknown arch
 #endif
 
+#if !defined(VGA_riscv64)
+static inline ULong get_flag_from_guest_state(VexGuestArchState *vex_state) {
+   return 0;
+}
+#endif
+
 #endif   // __PUB_TOOL_GUEST_H
 
 /*--------------------------------------------------------------------*/

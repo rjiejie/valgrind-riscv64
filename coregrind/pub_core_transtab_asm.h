@@ -85,32 +85,53 @@
     || defined(VGA_ppc64be) || defined(VGA_ppc64le) \
     || (defined(VGA_mips64) && defined(VGABI_64)) \
     || defined(VGA_s390x) || defined(VGA_riscv64)
-  // And all other 64-bit hosts
-# define VG_FAST_CACHE_SET_BITS 6
+
+/* On 64-bit host, FastCacheSet is composed of 4 ways. Each way has a
+   8-byte guest addr, 8-byte bb flag, and 8-byte host addr. The total size
+   is (8 + 8 + 8) * 4 = 96. As the total size cannot be reprensented by
+   a simple shift operation and using multiplication may causes some 
+   performance degradation, we align its address by 16-byte. Additionally,
+   the sizeof(Addr) cannot be trivially known at compiliation time, we use
+   the maximum alignment in 64-bit and 32-bit platforms. 
+*/
+# define VG_FAST_CACHE_SET_BITS 7
   // These FCS_{g,h}{0,1,2,3} are the values of
   // offsetof(FastCacheSet,{guest,host}{0,1,2,3}).
 # define FCS_g0 0
-# define FCS_h0 8
-# define FCS_g1 16
-# define FCS_h1 24
-# define FCS_g2 32
-# define FCS_h2 40
-# define FCS_g3 48
-# define FCS_h3 56
+# define FCS_f0 8
+# define FCS_h0 16
+# define FCS_g1 24
+# define FCS_f1 32
+# define FCS_h1 40
+# define FCS_g2 48
+# define FCS_f2 56
+# define FCS_h2 64
+# define FCS_g3 72
+# define FCS_f3 80
+# define FCS_h3 88
 
 #elif defined(VGA_x86) || defined(VGA_arm) || defined(VGA_ppc32) \
       || defined(VGA_mips32) || defined(VGP_nanomips_linux) \
       || (defined(VGA_mips64) && defined(VGABI_N32))
-  // And all other 32-bit hosts
-# define VG_FAST_CACHE_SET_BITS 5
+/* On 32-bit host, FastCacheSet is composed of 4 ways. Each way has a
+   4-byte guest addr, 8-byte bb flag, and 4-byte host addr. The total size
+   is (4 + 8 + 4) * 4 = 64, which can be represented by (1 << 6) * 1. But
+   currently FastCacheSet is 16-byte aligned, the VG_FAST_CACHE_SET_BITS is
+   kept consistent with 64-bit platform.
+*/
+# define VG_FAST_CACHE_SET_BITS 7
 # define FCS_g0 0
-# define FCS_h0 4
-# define FCS_g1 8
-# define FCS_h1 12
-# define FCS_g2 16
-# define FCS_h2 20
-# define FCS_g3 24
-# define FCS_h3 28
+# define FCS_f0 4
+# define FCS_h0 12
+# define FCS_g1 16
+# define FCS_f1 20
+# define FCS_h1 28
+# define FCS_g2 32
+# define FCS_f2 36
+# define FCS_h2 44
+# define FCS_g3 48
+# define FCS_f2 52
+# define FCS_h3 60
 
 #else
 # error "VG_FAST_CACHE_SET_BITS not known"

@@ -44,20 +44,24 @@
    to be a bogus address for all guest code.  See pub_core_transtab_asm.h
    for further description. */
 typedef
-   struct { 
-      Addr guest0;
-      Addr host0;
-      Addr guest1;
-      Addr host1;
-      Addr guest2;
-      Addr host2;
-      Addr guest3;
-      Addr host3;
+   struct __attribute__((aligned(16))) {
+      Addr  guest0;
+      ULong flag0;
+      Addr  host0;
+      Addr  guest1;
+      ULong flag1;
+      Addr  host1;
+      Addr  guest2;
+      ULong flag2;
+      Addr  host2;
+      Addr  guest3;
+      ULong flag3;
+      Addr  host3;
    }
    FastCacheSet;
 
 STATIC_ASSERT(sizeof(Addr) == sizeof(UWord));
-STATIC_ASSERT(sizeof(FastCacheSet) == sizeof(Addr) * 8);
+STATIC_ASSERT(sizeof(FastCacheSet) == 4 * (2 * sizeof(Addr) + sizeof(ULong)));
 
 extern __attribute__((aligned(64)))
        FastCacheSet VG_(tt_fast) [VG_TT_FAST_SETS];
@@ -94,44 +98,60 @@ static inline UWord VG_TT_FAST_HASH ( Addr guest ) {
 #  error "VG_TT_FAST_HASH: unknown platform"
 #endif
 
-static inline Bool VG_(lookupInFastCache)( /*MB_OUT*/Addr* host, Addr guest )
+static inline Bool VG_(lookupInFastCache)( /*MB_OUT*/Addr* host,
+                                          Addr guest,
+                                          ULong flag )
 {
    UWord setNo = (UInt)VG_TT_FAST_HASH(guest);
    FastCacheSet* set = &VG_(tt_fast)[setNo];
-   if (LIKELY(set->guest0 == guest)) {
+
+   if (LIKELY(set->guest0 == guest) &&
+       LIKELY(set->flag0 == flag)) {
       // hit at way 0
       *host = set->host0;
       return True;
    }
-   if (LIKELY(set->guest1 == guest)) {
+   if (LIKELY(set->guest1 == guest) &&
+       LIKELY(set->flag1 == flag)) {
       // hit at way 1; swap upwards
-      Addr tG = guest;
-      Addr tH = set->host1;
+      Addr  tG = guest;
+      ULong tF = flag;
+      Addr  tH = set->host1;
       set->guest1 = set->guest0;
+      set->flag1  = set->flag0;
       set->host1  = set->host0;
       set->guest0 = tG;
+      set->flag0  = tF;
       set->host0  = tH;
       *host = tH;
       return True;
    }
-   if (LIKELY(set->guest2 == guest)) {
+   if (LIKELY(set->guest2 == guest) &&
+       LIKELY(set->flag2 == flag)) {
       // hit at way 2; swap upwards
-      Addr tG = guest;
-      Addr tH = set->host2;
+      Addr  tG = guest;
+      ULong tF = flag;
+      Addr  tH = set->host2;
       set->guest2 = set->guest1;
+      set->flag2  = set->flag1;
       set->host2  = set->host1;
       set->guest1 = tG;
+      set->flag1  = tF;
       set->host1  = tH;
       *host = tH;
       return True;
    }
-   if (LIKELY(set->guest3 == guest)) {
+   if (LIKELY(set->guest3 == guest) &&
+       LIKELY(set->flag3 == flag)) {
       // hit at way 3; swap upwards
-      Addr tG = guest;
-      Addr tH = set->host3;
+      Addr  tG = guest;
+      ULong tF = flag;
+      Addr  tH = set->host3;
       set->guest3 = set->guest2;
+      set->flag3  = set->flag2;
       set->host3  = set->host2;
       set->guest2 = tG;
+      set->flag2  = tF;
       set->host2  = tH;
       *host = tH;
       return True;
@@ -171,6 +191,7 @@ extern void VG_(init_tt_tc)       ( void );
 extern
 void VG_(add_to_transtab)( const VexGuestExtents* vge,
                            Addr             entry,
+                           ULong            flag,
                            Addr             code,
                            UInt             code_len,
                            Bool             is_self_checking,
@@ -194,6 +215,7 @@ extern Bool VG_(search_transtab) ( /*OUT*/Addr*  res_hcode,
                                    /*OUT*/SECno* res_sNo,
                                    /*OUT*/TTEno* res_tteNo,
                                    Addr          guest_addr, 
+                                   ULong         flag,
                                    Bool          upd_cache );
 
 extern void VG_(discard_translations) ( Addr  start, ULong range,
@@ -210,11 +232,13 @@ extern UInt VG_(get_bbs_discarded_or_dumped) ( void );
 extern
 void VG_(add_to_unredir_transtab)( const VexGuestExtents* vge,
                                    Addr             entry,
+                                   ULong            flag,
                                    Addr             code,
                                    UInt             code_len );
 extern 
 Bool VG_(search_unredir_transtab) ( /*OUT*/Addr*  result,
-                                    Addr          guest_addr );
+                                    Addr          guest_addr,
+                                    ULong         flag );
 
 // SB profiling stuff
 

@@ -131,11 +131,11 @@ typedef struct {
    /* 592 */ ULong guest_xthead_fxcr;
 
    /* Vector state. */
+   /* 600 */ ULong guest_vstart;
+   /* 608 */ ULong guest_vl;
+   /* 616 */ ULong guest_vtype;
 #define RV_VLEN_MAX 1024
    ULong guest_vreg[32 * RV_VLEN_MAX / 64];
-   ULong guest_vstart;
-   ULong guest_vl;
-   ULong guest_vtype;
 
    /* Padding to 16 bytes. */
 } VexGuestRISCV64State;
@@ -148,6 +148,104 @@ typedef struct {
 
 /* Initialise all guest riscv64 state. */
 void LibVEX_GuestRISCV64_initialise(/*OUT*/ VexGuestRISCV64State* vex_state);
+
+
+/*------------------------------------------------------------------*/
+/*---              BB flag information encoding                  ---*/
+/*------------------------------------------------------------------*/
+
+/*
+  Some utilities to extract encoded vector CSR info from bb_flag. The bit field
+  definitions are described below:
+
+    Bit:    39          24 23           8  7   6  5   3 2    0
+    Flag:  |--------------|--------------|---|---|-----|-----|
+    Field:       VSTART          VL       VMA VTA  SEW   LMUL
+
+  Use FIELD macro to define a new bit field in bb_flag and use FIELD_EX64 macro
+  to extract encoded field to an ULong value.
+
+  VSTART/VL/SEW/LMUL fields are shared across different RVV spec versions, while
+  VMA/VTA fields are RVV 1.0 featured vtype CSR fields.
+*/
+
+#define MAKE_64BIT_MASK(shift, length) \
+    (((~0ULL) >> (64 - (length))) << (shift))
+
+#define FIELD(reg, field, shift, length)                                  \
+    enum { R_ ## reg ## _ ## field ## _SHIFT = (shift)};                  \
+    enum { R_ ## reg ## _ ## field ## _LENGTH = (length)};                \
+    enum { R_ ## reg ## _ ## field ## _MASK =                             \
+                                        MAKE_64BIT_MASK(shift, length)};
+
+
+static inline ULong extract64(ULong value, Int start, Int length)
+{
+    return (value >> start) & (~0ULL >> (64 - length));
+}
+
+static inline ULong deposit64(ULong value, Int start, Int length,
+                              ULong fieldval)
+{
+    ULong mask;
+    mask = (~0ULL >> (64 - length)) << start;
+    return (value & ~mask) | ((fieldval << start) & mask);
+}
+
+#define FIELD_EX64(storage, reg, field)                                   \
+    extract64((storage), R_ ## reg ## _ ## field ## _SHIFT,               \
+              R_ ## reg ## _ ## field ## _LENGTH)
+
+#define FIELD_DP64(storage, reg, field, val) ({                           \
+    struct {                                                              \
+        UInt v:R_ ## reg ## _ ## field ## _LENGTH;                        \
+    } _v = { .v = val };                                                  \
+    ULong _d;                                                             \
+    _d = deposit64((storage), R_ ## reg ## _ ## field ## _SHIFT,          \
+                  R_ ## reg ## _ ## field ## _LENGTH, _v.v);              \
+    _d; })
+
+FIELD(BB_FLAG, LMUL,   0,  3)
+FIELD(BB_FLAG, SEW,    3,  3)
+FIELD(BB_FLAG, VTA,    6,  1)
+FIELD(BB_FLAG, VMA,    7,  1)
+FIELD(BB_FLAG, VL,     8,  16)
+FIELD(BB_FLAG, VSTART, 24, 16)
+/* vtype: cover all [0:7] bits, accommodating RVV 0.7.1 and 1.0 */
+FIELD(BB_FLAG, VTYPE,  0,  8)
+
+static inline UShort extract_sew(ULong flag) {
+   return (UShort) FIELD_EX64(flag, BB_FLAG, SEW);
+}
+
+static inline UShort extract_lmul(ULong flag) {
+   return (UShort) FIELD_EX64(flag, BB_FLAG, LMUL);
+}
+
+static inline UShort extract_vl(ULong flag) {
+   return (UShort) FIELD_EX64(flag, BB_FLAG, VL);
+}
+
+static inline UShort extract_vstart(ULong flag) {
+   return (UShort) FIELD_EX64(flag, BB_FLAG, VSTART);
+}
+
+/* RVV 1.0 featured fields */
+static inline UShort extract_vta(ULong flag) {
+   return (UShort) FIELD_EX64(flag, BB_FLAG, VTA);
+}
+
+static inline UShort extract_vma(ULong flag) {
+   return (UShort) FIELD_EX64(flag, BB_FLAG, VMA);
+}
+
+static inline ULong get_flag_from_guest_state(VexGuestRISCV64State* vex_state) {
+   ULong flag = 0;
+   flag = FIELD_DP64(flag, BB_FLAG, VTYPE,  extract64(vex_state->guest_vtype, 0, 8));
+   flag = FIELD_DP64(flag, BB_FLAG, VL,     vex_state->guest_vl);
+   flag = FIELD_DP64(flag, BB_FLAG, VSTART, vex_state->guest_vstart);
+   return flag;
+}
 
 #endif /* ndef __LIBVEX_PUB_GUEST_RISCV64_H */
 

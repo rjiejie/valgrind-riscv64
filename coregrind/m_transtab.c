@@ -192,6 +192,12 @@ typedef
          may not be a lie, depending on whether or not we're doing
          redirection. */
       Addr entry;
+   
+      /* This is the encoded flag info computed from VexArchGuestState.
+         Generally, it represents certain CSR states affecting the runtime
+         behavior of some instuctions, meaning that IRSBs translated under
+         different flag are also different. */
+      ULong flag;
 
       /* Address range summary info: these are pointers back to
          eclass[] entries in the containing Sector.  Those entries in
@@ -1501,7 +1507,7 @@ static void invalidateFastCacheEntry ( Addr guest )
    }
 }
 
-static void setFastCacheEntry ( Addr guest, ULong* tcptr )
+static void setFastCacheEntry ( Addr guest, ULong flag, ULong* tcptr )
 {
    /* This shouldn't fail.  It should be assured by m_translate
       which should reject any attempt to make translation of code
@@ -1512,12 +1518,16 @@ static void setFastCacheEntry ( Addr guest, ULong* tcptr )
    UWord setNo = (UInt)VG_TT_FAST_HASH(guest);
    FastCacheSet* set = &VG_(tt_fast)[setNo];
    set->host3  = set->host2;
+   set->flag3  = set->flag2;
    set->guest3 = set->guest2;
    set->host2  = set->host1;
+   set->flag2  = set->flag1;
    set->guest2 = set->guest1;
    set->host1  = set->host0;
+   set->flag1  = set->flag0;
    set->guest1 = set->guest0;
    set->host0  = (Addr)tcptr;
+   set->flag0  = flag;
    set->guest0 = guest;
    n_fast_updates++;
 }
@@ -1731,6 +1741,7 @@ static void initialiseSector ( SECno sno )
 */
 void VG_(add_to_transtab)( const VexGuestExtents* vge,
                            Addr             entry,
+                           ULong            flag,
                            Addr             code,
                            UInt             code_len,
                            Bool             is_self_checking,
@@ -1752,8 +1763,8 @@ void VG_(add_to_transtab)( const VexGuestExtents* vge,
    vg_assert(n_guest_instrs < 200); /* it can be zero, tho */
 
    if (DEBUG_TRANSTAB)
-      VG_(printf)("add_to_transtab(entry = 0x%lx, len = %u) ...\n",
-                  entry, code_len);
+      VG_(printf)("add_to_transtab(entry = 0x%lx, flag = 0x%lx, len = %u) ...\n",
+                  entry, flag, code_len);
 
    n_in_count++;
    n_in_tsize += code_len;
@@ -1842,6 +1853,7 @@ void VG_(add_to_transtab)( const VexGuestExtents* vge,
              (code_len == 0 ? 1 : (code_len / 4));
 
    sectors[y].ttC[tteix].entry  = entry;
+   sectors[y].ttC[tteix].flag   = flag;
    TTEntryH__from_VexGuestExtents( &sectors[y].ttH[tteix], vge );
    sectors[y].ttH[tteix].status = InUse;
 
@@ -1896,7 +1908,7 @@ void VG_(add_to_transtab)( const VexGuestExtents* vge,
    }
 
    /* Update the fast-cache. */
-   setFastCacheEntry( entry, tcptr );
+   setFastCacheEntry( entry, flag, tcptr );
 
    /* Note the eclass numbers for this translation. */
    upd_eclasses_after_add( &sectors[y], tteix );
@@ -1911,6 +1923,7 @@ Bool VG_(search_transtab) ( /*OUT*/Addr*  res_hcode,
                             /*OUT*/SECno* res_sNo,
                             /*OUT*/TTEno* res_tteNo,
                             Addr          guest_addr, 
+                            ULong         flag,
                             Bool          upd_cache )
 {
    SECno i, sno;
@@ -1937,11 +1950,12 @@ Bool VG_(search_transtab) ( /*OUT*/Addr*  res_hcode,
          n_lookup_probes++;
          tti = sectors[sno].htt[k];
          if (tti < N_TTES_PER_SECTOR
-             && sectors[sno].ttC[tti].entry == guest_addr) {
+             && sectors[sno].ttC[tti].entry == guest_addr
+             && sectors[sno].ttC[tti].flag == flag) {
             /* found it */
             if (upd_cache)
                setFastCacheEntry( 
-                  guest_addr, sectors[sno].ttC[tti].tcptr );
+                  guest_addr, flag, sectors[sno].ttC[tti].tcptr );
             if (res_hcode)
                *res_hcode = (Addr)sectors[sno].ttC[tti].tcptr;
             if (res_sNo)
@@ -2278,8 +2292,6 @@ void VG_(discard_translations) ( Addr guest_start, ULong range,
       vg_assert(ga_deleted != TRANSTAB_BOGUS_GUEST_ADDR);
       // Just invalidate the individual VG_(tt_fast) cache entry \o/
       invalidateFastCacheEntry(ga_deleted);
-      Addr fake_host = 0;
-      vg_assert(! VG_(lookupInFastCache)(&fake_host, ga_deleted));
    } else {
       // "ga_deleted was set to something valid"
       vg_assert(ga_deleted != TRANSTAB_BOGUS_GUEST_ADDR);
@@ -2345,6 +2357,7 @@ void VG_(discard_translations_safely) ( Addr  start, SizeT len,
 typedef
    struct {
       VexGuestExtents vge;
+      ULong           flag;
       Addr            hcode;
       Bool            inUse;
    }
@@ -2405,6 +2418,7 @@ static Bool sanity_check_redir_tt_tc ( void )
 */
 void VG_(add_to_unredir_transtab)( const VexGuestExtents* vge,
                                    Addr             entry,
+                                   ULong            flag,
                                    Addr             code,
                                    UInt             code_len )
 {
@@ -2449,6 +2463,7 @@ void VG_(add_to_unredir_transtab)( const VexGuestExtents* vge,
 
    unredir_tt[i].inUse = True;
    unredir_tt[i].vge   = *vge;
+   unredir_tt[i].flag  = flag;
    unredir_tt[i].hcode = (Addr)dstP;
 
    unredir_tc_used += code_szQ;
@@ -2459,13 +2474,15 @@ void VG_(add_to_unredir_transtab)( const VexGuestExtents* vge,
 }
 
 Bool VG_(search_unredir_transtab) ( /*OUT*/Addr*  result,
-                                    Addr          guest_addr )
+                                    Addr          guest_addr,
+                                    ULong         flag )
 {
    Int i;
    for (i = 0; i < N_UNREDIR_TT; i++) {
       if (!unredir_tt[i].inUse)
          continue;
-      if (unredir_tt[i].vge.base[0] == guest_addr) {
+      if (unredir_tt[i].vge.base[0] == guest_addr &&
+          unredir_tt[i].flag == flag) {
          *result = unredir_tt[i].hcode;
          return True;
       }
@@ -2517,7 +2534,7 @@ void VG_(init_tt_tc) ( void )
 
    /* check fast cache entries really are 8 words long */
    vg_assert(sizeof(Addr) == sizeof(void*));
-   vg_assert(sizeof(FastCacheSet) == 8 * sizeof(Addr));
+   vg_assert(sizeof(FastCacheSet) == 4 * (2 * sizeof(Addr) + sizeof(ULong)));
    /* check fast cache entries are packed back-to-back with no spaces */
    vg_assert(sizeof( VG_(tt_fast) ) 
              == VG_TT_FAST_SETS * sizeof(FastCacheSet));
