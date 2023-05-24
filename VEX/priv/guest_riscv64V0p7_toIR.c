@@ -26,6 +26,8 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+#include "guest_riscv64V0p7_helpers.c"
+
 static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
                              /*OUT*/ IRSB*         irsb,
                              UInt                  insn)
@@ -45,6 +47,23 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
                                    /*OUT*/ IRSB*         irsb,
                                    UInt                  insn)
 {
+   IRDirty *d  = NULL;
+   void *fAddr = NULL;
+   const HChar *fName = NULL;
+   IRExpr **args = NULL;
+   UInt temp = 0;
+
+   UInt rd   = GET_RD();
+   UInt rs1  = GET_RS1();
+   UInt rs2  = GET_RS2();
+   Bool mask = GET_VMASK();
+
+   // vadd
+   if (GET_FUNCT6() == 0b000000) {
+      GETC_VBinopOPI(vadd);
+      return True;
+   }
+
    return False;
 }
 

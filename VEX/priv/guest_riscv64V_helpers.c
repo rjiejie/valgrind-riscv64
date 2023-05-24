@@ -26,8 +26,6 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
-#include "guest_riscv64V0p7_helpers.c"
-
 /*--------------------------------------------------------------------*/
 /*--- end                                  guest_riscv64V_helpers.c --*/
 /*--------------------------------------------------------------------*/

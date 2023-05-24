@@ -27,6 +27,9 @@
 */
 
 #define GET_VMASK() INSN(25, 25)
+#define isVOpVV(type) (type == RV64_SOPC_OPIVV || type == RV64_SOPC_OPMVV || type == RV64_SOPC_OPFVV)
+#define isVOpVX(type) (type == RV64_SOPC_OPIVX || type == RV64_SOPC_OPMVX || type == RV64_SOPC_OPFVF)
+#define isVOpVI(type) (type == RV64_SOPC_OPIVI)
 
 /*------------------------------------------------------------*/
 /*--- Globals                                              ---*/
@@ -108,6 +111,19 @@ static Int offsetVReg(UInt regNo)
       case 31: return OFFB_V31;
       default: vassert(0);
    }
+}
+
+/* Obtain ABI name of a register. */
+static const HChar* nameVReg(UInt regNo)
+{
+   vassert(regNo < 32);
+   static const HChar* names[32] = {
+      "v0",  "v1",  "v2",  "v3",  "v4",  "v5",  "v6",  "v7",
+      "v8",  "v9",  "v10", "v11", "v12", "v13", "v14", "v15",
+      "v16", "v17", "v18", "v19", "v20", "v21", "v22", "v23",
+      "v24", "v25", "v26", "v27", "v28", "v29", "v30", "v31",
+   };
+   return names[regNo];
 }
 
 #include "guest_riscv64V0p7_toIR.c"
