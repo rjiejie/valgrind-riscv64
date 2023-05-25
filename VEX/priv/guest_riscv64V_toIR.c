@@ -28,7 +28,7 @@
 
 #define GET_VMASK() INSN(25, 25)
 #define isVOpVV(type) (type == RV64_SOPC_OPIVV || type == RV64_SOPC_OPMVV || type == RV64_SOPC_OPFVV)
-#define isVOpVX(type) (type == RV64_SOPC_OPIVX || type == RV64_SOPC_OPMVX || type == RV64_SOPC_OPFVF)
+#define isVOpVXorVF(type) (type == RV64_SOPC_OPIVX || type == RV64_SOPC_OPMVX || type == RV64_SOPC_OPFVF)
 #define isVOpVI(type) (type == RV64_SOPC_OPIVI)
 
 /*------------------------------------------------------------*/

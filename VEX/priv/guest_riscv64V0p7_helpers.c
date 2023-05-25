@@ -47,7 +47,7 @@
          fName = mask ? GETN_VBinopVV(insn) : GETN_VBinopVV_M(insn);       \
          fAddr = mask ? GETA_VBinopVV(insn) : GETA_VBinopVV_M(insn);       \
          temp  = offsetVReg(rs1);                                          \
-      } else if (isVOpVX(GET_FUNCT3())) {                                  \
+      } else if (isVOpVXorVF(GET_FUNCT3())) {                              \
          fName = mask ? GETN_VBinopVX(insn) : GETN_VBinopVX_M(insn);       \
          fAddr = mask ? GETA_VBinopVX(insn) : GETA_VBinopVX_M(insn);       \
          temp  = offsetIReg64(rs1);                                        \
@@ -60,7 +60,7 @@
                            mkU64(offsetVReg(rd)), mkU64(offsetVReg(rs2)),  \
                            mkU64(temp), mkU64(offsetVReg(0)));             \
       d = unsafeIRDirty_0_N(0, fName, fAddr, args);                        \
-      d = SETD_VBinop(d, rd, rs2, rs1, mask, GET_FUNCT3());                \
+      d = GETD_VBinop(d, rd, rs2, rs1, mask, GET_FUNCT3());                \
       stmt(irsb, IRStmt_Dirty(d));                                         \
                                                                            \
       if (isVOpVI(GET_FUNCT3()))                                           \
@@ -71,7 +71,7 @@
    } while (0)
 
 static IRDirty*
-SETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
+GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
 {
    /* TODO */
    UInt lmul   = 0;
@@ -87,7 +87,7 @@ SETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
       d->fxState[i].repeatLen = host_VLENB;
    }
 
-   if (isVOpVX(sopc)) {
+   if (isVOpVXorVF(sopc)) {
       d->fxState[d->nFxState].fx     = Ifx_Read;
       d->fxState[d->nFxState].offset = sopc == RV64_SOPC_OPFVF ? offsetFReg(vs1) : offsetIReg64(vs1);
       d->fxState[d->nFxState].size   = 8;
