@@ -6179,6 +6179,7 @@ void do_shadow_Dirty ( MCEnv* mce, IRDirty* d )
    IRType    tySrc, tyDst;
    IRTemp    dst;
    IREndness end;
+   IRExpr    *masked_guard;
 
    /* What's the native endianness?  We need to know this. */
 #  if defined(VG_BIGENDIAN)
@@ -6265,51 +6266,60 @@ void do_shadow_Dirty ( MCEnv* mce, IRDirty* d )
          definedness right now.  Post-instrumentation optimisation
          should remove all but this test. */
       IRType tyAddr;
-      tl_assert(d->mAddr);
-      complainIfUndefined(mce, d->mAddr, d->guard);
 
-      tyAddr = typeOfIRExpr(mce->sb->tyenv, d->mAddr);
-      tl_assert(tyAddr == Ity_I32 || tyAddr == Ity_I64);
-      tl_assert(tyAddr == mce->hWordTy); /* not really right */
+      /* If it is a scalable vector memory access, do check per element. 
+         Otherwise, do a normal address check. */
+      /* Check address defineness according to guard *and* mask */
+      for (UInt idx = 0; idx < d->mNAddrs; idx++) {
+         masked_guard = d->mMask ? d->mMask[idx] : d->guard;
+         complainIfUndefined(mce, d->mAddrVec[idx], masked_guard);
+         tyAddr = typeOfIRExpr(mce->sb->tyenv, d->mAddrVec[idx]);
+         tl_assert(tyAddr == Ity_I32 || tyAddr == Ity_I64);
+         tl_assert(tyAddr == mce->hWordTy); /* not really right */
+      }
    }
 
    /* Deal with memory inputs (reads or modifies) */
    if (d->mFx == Ifx_Read || d->mFx == Ifx_Modify) {
-      toDo   = d->mSize;
-      /* chew off 32-bit chunks.  We don't care about the endianness
-         since it's all going to be condensed down to a single bit,
-         but nevertheless choose an endianness which is hopefully
-         native to the platform. */
-      while (toDo >= 4) {
-         here = mkPCastTo( 
-                   mce, Ity_I32,
-                   expr2vbits_Load_guarded_Simple(
-                      mce, end, Ity_I32, d->mAddr, d->mSize - toDo, d->guard )
-                );
-         curr = mkUifU32(mce, here, curr);
-         toDo -= 4;
+      for (UInt idx = 0; idx < d->mNAddrs; idx++) {
+         masked_guard = d->mMask ? d->mMask[idx] : d->guard;
+         toDo   = d->mSize;
+
+         /* chew off 32-bit chunks.  We don't care about the endianness
+            since it's all going to be condensed down to a single bit,
+            but nevertheless choose an endianness which is hopefully
+            native to the platform. */
+         while (toDo >= 4) {
+            here = mkPCastTo( 
+                      mce, Ity_I32,
+                      expr2vbits_Load_guarded_Simple(
+                         mce, end, Ity_I32, d->mAddrVec[idx], d->mSize - toDo, masked_guard )
+                   );
+            curr = mkUifU32(mce, here, curr);
+            toDo -= 4;
+         }
+         /* chew off 16-bit chunks */
+         while (toDo >= 2) {
+            here = mkPCastTo( 
+                      mce, Ity_I32,
+                      expr2vbits_Load_guarded_Simple(
+                         mce, end, Ity_I16, d->mAddrVec[idx], d->mSize - toDo, masked_guard )
+                   );
+            curr = mkUifU32(mce, here, curr);
+            toDo -= 2;
+         }
+         /* chew off the remaining 8-bit chunk, if any */
+         if (toDo == 1) {
+            here = mkPCastTo( 
+                      mce, Ity_I32,
+                      expr2vbits_Load_guarded_Simple(
+                         mce, end, Ity_I8, d->mAddrVec[idx], d->mSize - toDo, masked_guard )
+                   );
+            curr = mkUifU32(mce, here, curr);
+            toDo -= 1;
+         }
+         tl_assert(toDo == 0);
       }
-      /* chew off 16-bit chunks */
-      while (toDo >= 2) {
-         here = mkPCastTo( 
-                   mce, Ity_I32,
-                   expr2vbits_Load_guarded_Simple(
-                      mce, end, Ity_I16, d->mAddr, d->mSize - toDo, d->guard )
-                );
-         curr = mkUifU32(mce, here, curr);
-         toDo -= 2;
-      }
-      /* chew off the remaining 8-bit chunk, if any */
-      if (toDo == 1) {
-         here = mkPCastTo( 
-                   mce, Ity_I32,
-                   expr2vbits_Load_guarded_Simple(
-                      mce, end, Ity_I8, d->mAddr, d->mSize - toDo, d->guard )
-                );
-         curr = mkUifU32(mce, here, curr);
-         toDo -= 1;
-      }
-      tl_assert(toDo == 0);
    }
 
    /* Whew!  So curr is a 32-bit V-value summarising pessimistically
@@ -6360,32 +6370,35 @@ void do_shadow_Dirty ( MCEnv* mce, IRDirty* d )
    /* Outputs: memory that we write or modify.  Same comments about
       endianness as above apply. */
    if (d->mFx == Ifx_Write || d->mFx == Ifx_Modify) {
-      toDo   = d->mSize;
-      /* chew off 32-bit chunks */
-      while (toDo >= 4) {
-         do_shadow_Store( mce, end, d->mAddr, d->mSize - toDo,
-                          NULL, /* original data */
-                          mkPCastTo( mce, Ity_I32, curr ),
-                          d->guard );
-         toDo -= 4;
+      for (UInt idx = 0; idx < d->mNAddrs; idx++) {
+         masked_guard = d->mMask ? d->mMask[idx] : d->guard;
+         toDo   = d->mSize;
+         /* chew off 32-bit chunks */
+         while (toDo >= 4) {
+            do_shadow_Store( mce, end, d->mAddrVec[idx], d->mSize - toDo,
+                             NULL, /* original data */
+                             mkPCastTo( mce, Ity_I32, curr ),
+                             masked_guard );
+            toDo -= 4;
+         }
+         /* chew off 16-bit chunks */
+         while (toDo >= 2) {
+            do_shadow_Store( mce, end, d->mAddrVec[idx], d->mSize - toDo,
+                             NULL, /* original data */
+                             mkPCastTo( mce, Ity_I16, curr ),
+                             masked_guard );
+            toDo -= 2;
+         }
+         /* chew off the remaining 8-bit chunk, if any */
+         if (toDo == 1) {
+            do_shadow_Store( mce, end, d->mAddrVec[idx], d->mSize - toDo,
+                             NULL, /* original data */
+                             mkPCastTo( mce, Ity_I8, curr ),
+                             masked_guard );
+            toDo -= 1;
+         }
+         tl_assert(toDo == 0);
       }
-      /* chew off 16-bit chunks */
-      while (toDo >= 2) {
-         do_shadow_Store( mce, end, d->mAddr, d->mSize - toDo,
-                          NULL, /* original data */
-                          mkPCastTo( mce, Ity_I16, curr ),
-                          d->guard );
-         toDo -= 2;
-      }
-      /* chew off the remaining 8-bit chunk, if any */
-      if (toDo == 1) {
-         do_shadow_Store( mce, end, d->mAddr, d->mSize - toDo,
-                          NULL, /* original data */
-                          mkPCastTo( mce, Ity_I8, curr ),
-                          d->guard );
-         toDo -= 1;
-      }
-      tl_assert(toDo == 0);
    }
 
 }
@@ -7374,6 +7387,7 @@ static void do_origins_Dirty ( MCEnv* mce, IRDirty* d )
    Int       i, k, n, toDo, gSz, gOff;
    IRAtom    *here, *curr;
    IRTemp    dst;
+   IRExpr    *masked_guard;
 
    /* First check the guard. */
    curr = schemeE( mce, d->guard );
@@ -7451,39 +7465,51 @@ static void do_origins_Dirty ( MCEnv* mce, IRDirty* d )
          base address, it's best to do a single test of its
          definedness right now.  Post-instrumentation optimisation
          should remove all but this test. */
-      tl_assert(d->mAddr);
-      here = schemeE( mce, d->mAddr );
-      curr = gen_maxU32( mce, curr, here );
+
+      for (UInt idx = 0; idx < d->mNAddrs; idx++) {
+         here = schemeE( mce, d->mAddrVec[idx] );
+         /* When there is a mask in effect, we propagate a zero to
+            make this origin info replaced by curr. See the basic
+            rule of propagating OTags. Mask bit 0 indicates the
+            corresponding address is masked and not actually accessed. */
+         if (d->mMask)
+            here = IRExpr_ITE( d->mMask[idx], mkU32(0), here );
+
+         curr = gen_maxU32( mce, curr, here );
+      }
    }
 
    /* Deal with memory inputs (reads or modifies) */
    if (d->mFx == Ifx_Read || d->mFx == Ifx_Modify) {
-      toDo   = d->mSize;
-      /* chew off 32-bit chunks.  We don't care about the endianness
-         since it's all going to be condensed down to a single bit,
-         but nevertheless choose an endianness which is hopefully
-         native to the platform. */
-      while (toDo >= 4) {
-         here = gen_guarded_load_b( mce, 4, d->mAddr, d->mSize - toDo,
-                                    d->guard );
-         curr = gen_maxU32( mce, curr, here );
-         toDo -= 4;
+      for (UInt idx = 0; idx < d->mNAddrs; idx++) {
+         masked_guard = d->mMask ? d->mMask[idx] : d->guard;
+         toDo   = d->mSize;
+         /* chew off 32-bit chunks.  We don't care about the endianness
+            since it's all going to be condensed down to a single bit,
+            but nevertheless choose an endianness which is hopefully
+            native to the platform. */
+         while (toDo >= 4) {
+            here = gen_guarded_load_b( mce, 4, d->mAddrVec[idx], d->mSize - toDo,
+                                       masked_guard );
+            curr = gen_maxU32( mce, curr, here );
+            toDo -= 4;
+         }
+         /* handle possible 16-bit excess */
+         while (toDo >= 2) {
+            here = gen_guarded_load_b( mce, 2, d->mAddrVec[idx], d->mSize - toDo,
+                                       masked_guard );
+            curr = gen_maxU32( mce, curr, here );
+            toDo -= 2;
+         }
+         /* chew off the remaining 8-bit chunk, if any */
+         if (toDo == 1) {
+            here = gen_guarded_load_b( mce, 1, d->mAddrVec[idx], d->mSize - toDo,
+                                       masked_guard );
+            curr = gen_maxU32( mce, curr, here );
+            toDo -= 1;
+         }
+         tl_assert(toDo == 0);
       }
-      /* handle possible 16-bit excess */
-      while (toDo >= 2) {
-         here = gen_guarded_load_b( mce, 2, d->mAddr, d->mSize - toDo,
-                                    d->guard );
-         curr = gen_maxU32( mce, curr, here );
-         toDo -= 2;
-      }
-      /* chew off the remaining 8-bit chunk, if any */
-      if (toDo == 1) {
-         here = gen_guarded_load_b( mce, 1, d->mAddr, d->mSize - toDo,
-                                    d->guard );
-         curr = gen_maxU32( mce, curr, here );
-         toDo -= 1;
-      }
-      tl_assert(toDo == 0);
    }
 
    /* Whew!  So curr is a 32-bit B-value which should give an origin
@@ -7549,26 +7575,29 @@ static void do_origins_Dirty ( MCEnv* mce, IRDirty* d )
    /* Outputs: memory that we write or modify.  Same comments about
       endianness as above apply. */
    if (d->mFx == Ifx_Write || d->mFx == Ifx_Modify) {
-      toDo   = d->mSize;
-      /* chew off 32-bit chunks */
-      while (toDo >= 4) {
-         gen_store_b( mce, 4, d->mAddr, d->mSize - toDo, curr,
-                      d->guard );
-         toDo -= 4;
+      for (UInt idx = 0; idx < d->mNAddrs; idx++) {
+         masked_guard = d->mMask ? d->mMask[idx] : d->guard;
+         toDo   = d->mSize;
+         /* chew off 32-bit chunks */
+         while (toDo >= 4) {
+            gen_store_b( mce, 4, d->mAddrVec[idx], d->mSize - toDo, curr,
+                         masked_guard );
+            toDo -= 4;
+         }
+         /* handle possible 16-bit excess */
+         while (toDo >= 2) {
+            gen_store_b( mce, 2, d->mAddrVec[idx], d->mSize - toDo, curr,
+                         masked_guard );
+            toDo -= 2;
+         }
+         /* chew off the remaining 8-bit chunk, if any */
+         if (toDo == 1) {
+            gen_store_b( mce, 1, d->mAddrVec[idx], d->mSize - toDo, curr,
+                         masked_guard );
+            toDo -= 1;
+         }
+         tl_assert(toDo == 0);
       }
-      /* handle possible 16-bit excess */
-      while (toDo >= 2) {
-         gen_store_b( mce, 2, d->mAddr, d->mSize - toDo, curr,
-                      d->guard );
-         toDo -= 2;
-      }
-      /* chew off the remaining 8-bit chunk, if any */
-      if (toDo == 1) {
-         gen_store_b( mce, 1, d->mAddr, d->mSize - toDo, curr,
-                      d->guard );
-         toDo -= 1;
-      }
-      tl_assert(toDo == 0);
    }
 }
 

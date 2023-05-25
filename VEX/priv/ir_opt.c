@@ -3149,8 +3149,13 @@ static void addUses_Stmt ( Bool* set, IRStmt* st )
          return;
       case Ist_Dirty:
          d = st->Ist.Dirty.details;
-         if (d->mFx != Ifx_None)
-            addUses_Expr(set, d->mAddr);
+         if (d->mFx != Ifx_None) {
+            for (i = 0; i < d->mNAddrs; i++) {
+               addUses_Expr(set, d->mAddrVec[i]);
+               if (d->mMask)
+                  addUses_Expr(set, d->mMask[i]);
+            }
+         }
          addUses_Expr(set, d->guard);
          for (i = 0; d->args[i] != NULL; i++) {
             IRExpr* arg = d->args[i];
@@ -4784,8 +4789,13 @@ static void deltaIRExpr ( IRExpr* e, Int delta )
          }
          if (d->tmp != IRTemp_INVALID)
             d->tmp += delta;
-         if (d->mAddr)
-            deltaIRExpr(d->mAddr, delta);
+         if (d->mNAddrs) {
+            for (i = 0; i < d->mNAddrs; i++) {
+               deltaIRExpr(d->mAddrVec[i], delta);
+               if (d->mMask)
+                  deltaIRExpr(d->mMask[i], delta);
+            }
+         }
          break;
       default: 
          vex_printf("\n"); ppIRStmt(st); vex_printf("\n");
@@ -5311,8 +5321,13 @@ static void aoccCount_Stmt ( UShort* uses, IRStmt* st )
          return;
       case Ist_Dirty:
          d = st->Ist.Dirty.details;
-         if (d->mFx != Ifx_None)
-            aoccCount_Expr(uses, d->mAddr);
+         if (d->mFx != Ifx_None) {
+            for (i = 0; i < d->mNAddrs; i++) {
+               aoccCount_Expr(uses, d->mAddrVec[i]);
+               if (d->mMask)
+                  aoccCount_Expr(uses, d->mMask[i]);
+            }
+         }
          aoccCount_Expr(uses, d->guard);
          for (i = 0; d->args[i]; i++) {
             IRExpr* arg = d->args[i];
@@ -6440,7 +6455,8 @@ static Bool do_XOR_TRANSFORM_IRSB ( IRSB* sb )
          case Ist_Dirty: {
             IRDirty* d = st->Ist.Dirty.details;
             if (d->mFx != Ifx_None) {
-               vassert(isIRAtom(d->mAddr));
+               for (Int j = 0; j < d->mNAddrs; j++)
+                  vassert(isIRAtom(d->mAddrVec[j]));
             }
             vassert(isIRAtom(d->guard));
             for (Int j = 0; d->args[j]; j++) {
@@ -6657,8 +6673,13 @@ static void considerExpensives ( /*OUT*/Bool* hasGetIorPutI,
                if (LIKELY(!is_IRExpr_VECRET_or_GSPTR(arg)))
                   vassert(isIRAtom(arg));
             }
-            if (d->mFx != Ifx_None)
-               vassert(isIRAtom(d->mAddr));
+            if (d->mFx != Ifx_None) {
+               for (j = 0; j < d->mNAddrs; j++) {
+                  vassert(isIRAtom(d->mAddrVec[j]));
+                  if (d->mMask)
+                     vassert(isIRAtom(d->mMask[j]));
+               }
+            }
             break;
          case Ist_NoOp:
          case Ist_IMark:

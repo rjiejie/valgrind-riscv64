@@ -1972,7 +1972,11 @@ void ppIRDirty ( const IRDirty* d )
       vex_printf(" ");
       ppIREffect(d->mFx);
       vex_printf("-mem(");
-      ppIRExpr(d->mAddr);
+      if (d->mNAddrs == 1)
+         ppIRExpr(d->mAddr);
+      else
+         /* multi-address, only print the number of addresses */
+         vex_printf("%u Addrs", d->mNAddrs);
       vex_printf(",%d)", d->mSize);
    }
    for (i = 0; i < d->nFxState; i++) {
@@ -2626,6 +2630,9 @@ IRDirty* emptyIRDirty ( void ) {
    d->mAddr    = NULL;
    d->mSize    = 0;
    d->nFxState = 0;
+   d->mAddrVec = NULL;
+   d->mMask    = NULL;
+   d->mNAddrs  = 0;
    return d;
 }
 
@@ -2780,6 +2787,17 @@ IRStmt* IRStmt_Dirty ( IRDirty* d )
    IRStmt* s            = LibVEX_Alloc_inline(sizeof(IRStmt));
    s->tag               = Ist_Dirty;
    s->Ist.Dirty.details = d;
+
+   /* The following conversion put mAddr to mAddrVec array if there is mAddr.
+      This process preassumes that users should always fill dirty info
+      before they add their dirty into statements. Otherwise, it cannot
+      catch critical information in mAddr and may cause instrumentation
+      failures. */
+   if (d->mFx != Ifx_None && d->mAddr) {
+      d->mNAddrs     = 1;
+      d->mAddrVec    = (IRExpr **) LibVEX_Alloc_inline(sizeof(IRExpr *));
+      d->mAddrVec[0] = d->mAddr;
+   }
    return s;
 }
 IRStmt* IRStmt_MBE ( IRMBusEvent event )
@@ -2973,6 +2991,16 @@ IRDirty* deepCopyIRDirty ( const IRDirty* d )
    d2->tmp   = d->tmp;
    d2->mFx   = d->mFx;
    d2->mAddr = d->mAddr==NULL ? NULL : deepCopyIRExpr(d->mAddr);
+   d2->mNAddrs = d->mNAddrs;
+   if (d->mNAddrs)
+      d2->mAddrVec = (IRExpr **) LibVEX_Alloc_inline(d->mNAddrs * sizeof(IRExpr *));
+   if (d->mMask)
+      d2->mMask = (IRExpr **) LibVEX_Alloc_inline(d->mNAddrs * sizeof(IRExpr *));
+   for (i = 0; i < d->mNAddrs; i++) {
+      d2->mAddrVec[i] = deepCopyIRExpr(d->mAddrVec[i]);
+      if (d->mMask)
+         d2->mMask[i] = deepCopyIRExpr(d->mMask[i]);
+   }
    d2->mSize = d->mSize;
    d2->nFxState = d->nFxState;
    for (i = 0; i < d2->nFxState; i++)
@@ -4747,8 +4775,14 @@ void useBeforeDef_Stmt ( const IRSB* bb, const IRStmt* stmt, Int* def_counts )
                useBeforeDef_Expr(bb,stmt,arg,def_counts);
             }
          }
-         if (d->mFx != Ifx_None)
-            useBeforeDef_Expr(bb,stmt,d->mAddr,def_counts);
+         if (d->mFx != Ifx_None) {
+            for (i = 0; i < d->mNAddrs; i++) {
+               useBeforeDef_Expr(bb,stmt,d->mAddrVec[i],def_counts);
+               if (d->mMask) {
+                  useBeforeDef_Expr(bb,stmt,d->mMask[i],def_counts);
+               }
+            }
+         }
          break;
       case Ist_NoOp:
       case Ist_MBE:

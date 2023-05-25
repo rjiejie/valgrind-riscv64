@@ -2619,6 +2619,12 @@ typedef
       IRExpr*   mAddr;  /* of access, or NULL if mFx==Ifx_None */
       Int       mSize;  /* of access, or zero if mFx==Ifx_None */
 
+      IRExpr**  mAddrVec; /* an array of addresses */
+      IRExpr**  mMask;    /* of access, or NULL if mFx==Ifx_None. Besides, if the dirty
+                             accesses memory but does not use any mask, mMask is also
+                             NULL */
+      UInt      mNAddrs;  /* indicates how many places the dirty helper touches */
+
       /* Guest state effects; up to N allowed */
       Int  nFxState; /* must be 0 .. VEX_N_FXSTATE */
       struct {
