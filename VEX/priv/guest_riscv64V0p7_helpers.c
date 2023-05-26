@@ -127,17 +127,19 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
       : "t1", "t2");
 
 #define RVV0p7_VX() \
-   __asm__ __volatile__("ld\tt0,0(t0)\n\t":::"t0");
+   __asm__ __volatile__("ld\tt0,0(%0)\n\t"::"r"(rs1):"t0");
+#define RVV0p7_VI() \
+   __asm__ __volatile__("mv\tt0,%0\n\t"::"r"(rs1):"t0");
 
 // v8-v15, v16-v23, v24-v31
-#define RVV0p7_BinopVV_T(insn, vd, vs2, vs1, minsn, mreg, push, pop)\
+#define RVV0p7_BinopVV_T(insn, vd, vs2, vs1, imask, mreg, ipush, ipop)\
    do {                                                     \
       vd  += (ULong)st;                                     \
       vs2 += (ULong)st;                                     \
       vs1 += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      push                                                  \
+      ipush                                                 \
       __asm__ __volatile__(                                 \
          "vle.v\tv8,(%0)\n\t"                               \
          "vle.v\tv16,(%1)\n\t"                              \
@@ -145,48 +147,47 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
          :                                                  \
          : "r"(vd), "r"(vs2), "r"(vs1)                      \
          :);                                                \
-      pop                                                   \
+      ipop                                                  \
                                                             \
-      minsn                                                 \
+      imask                                                 \
       __asm__ __volatile__(insn "\tv8,v16,v24" mreg);       \
                                                             \
-      push                                                  \
+      ipush                                                 \
       __asm__ __volatile__(                                 \
          "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
          : "r"(vd)                                          \
          : "memory");                                       \
-      pop                                                   \
+      ipop                                                  \
    } while (0)
 
 // v8-v15, v16-v23, t0
-#define RVV0p7_BinopVX_T(insn, vd, vs2, rs1, minsn, mreg, push, pop, isvx)\
+#define RVV0p7_BinopVX_VI_T(insn, vd, vs2, rs1, imask, mreg, ipush, ipop, isopc)\
    do {                                                     \
       vd  += (ULong)st;                                     \
       vs2 += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      push                                                  \
+      ipush                                                 \
       __asm__ __volatile__(                                 \
          "vle.v\tv8,(%0)\n\t"                               \
          "vle.v\tv16,(%1)\n\t"                              \
          :                                                  \
          : "r"(vd), "r"(vs2)                                \
          :);                                                \
-      pop                                                   \
+      ipop                                                  \
                                                             \
-      minsn                                                 \
-      __asm__ __volatile__("mv\tt0,%0\n\t"::"r"(rs1):"t0"); \
-      isvx                                                  \
+      imask                                                 \
+      isopc                                                 \
       __asm__ __volatile__(insn "\tv8,v16,t0" mreg);        \
                                                             \
-      push                                                  \
+      ipush                                                 \
       __asm__ __volatile__(                                 \
          "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
          : "r"(vd)                                          \
          : "memory");                                       \
-      pop                                                   \
+      ipop                                                  \
    } while (0)
 
 #define RVV0p7_BinopVV_FT(insn) \
@@ -203,22 +204,22 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
    static void RVV0p7_Binop_##insn##vx_m(VexGuestRISCV64State *st, \
                                          ULong vd, ULong vs2, ULong rs1, ULong mask) { \
       rs1 += (ULong)st; \
-      RVV0p7_BinopVX_T(#insn".vx", vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",,,RVV0p7_VX()); \
+      RVV0p7_BinopVX_VI_T(#insn".vx", vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",,,RVV0p7_VX()); \
    } \
    static void RVV0p7_Binop_##insn##vx(VexGuestRISCV64State *st, \
                                        ULong vd, ULong vs2, ULong rs1, ULong mask) { \
       rs1 += (ULong)st; \
-      RVV0p7_BinopVX_T(#insn".vx", vd, vs2, rs1,,,,,RVV0p7_VX()); \
+      RVV0p7_BinopVX_VI_T(#insn".vx", vd, vs2, rs1,,,,,RVV0p7_VX()); \
    } \
 
 #define RVV0p7_BinopVI_FT(insn) \
    static void RVV0p7_Binop_##insn##vi_m(VexGuestRISCV64State *st, \
                                          ULong vd, ULong vs2, ULong rs1, ULong mask) { \
-      RVV0p7_BinopVX_T(#insn".vx", vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",,,); \
+      RVV0p7_BinopVX_VI_T(#insn".vx", vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",,,RVV0p7_VI()); \
    } \
    static void RVV0p7_Binop_##insn##vi(VexGuestRISCV64State *st, \
                                        ULong vd, ULong vs2, ULong rs1, ULong mask) { \
-      RVV0p7_BinopVX_T(#insn".vx", vd, vs2, rs1,,,,,); \
+      RVV0p7_BinopVX_VI_T(#insn".vx", vd, vs2, rs1,,,,,RVV0p7_VI()); \
    } \
 
 #define RVV0p7_BinopVV_VX_FT(insn) \
