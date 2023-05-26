@@ -120,12 +120,11 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
       "csrr\tt1,vl\n\t"             \
       "csrr\tt2,vtype\n\t"          \
       "vsetvli\tx0,x0,e8,m1\n\t"    \
-      "mv\tt0,%0\n\t"               \
-      "vle.v\tv0,(t0)\n\t"          \
+      "vle.v\tv0,(%0)\n\t"          \
       "vsetvl\tx0,t1,t2\n\t"        \
       :                             \
       : "r"(mask)                   \
-      : "t0", "t1", "t2");
+      : "t1", "t2");
 
 #define RVV0p7_VX() \
    __asm__ __volatile__("ld\tt0,0(t0)\n\t":::"t0");
@@ -133,21 +132,18 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
 // v8-v15, v16-v23, v24-v31
 #define RVV0p7_BinopVV_T(insn, vd, vs2, vs1, mask, mreg, push, pop)\
    do {                                                     \
-      vd  += (ULong)st;                                       \
-      vs2 += (ULong)st;                                       \
-      vs1 += (ULong)st;                                       \
+      vd  += (ULong)st;                                     \
+      vs2 += (ULong)st;                                     \
+      vs1 += (ULong)st;                                     \
                                                             \
       push                                                  \
       __asm__ __volatile__(                                 \
-         "mv\tt0,%0\n\t"                                    \
-         "vle.v\tv8,(t0)\n\t"                               \
-         "mv\tt0,%1\n\t"                                    \
-         "vle.v\tv16,(t0)\n\t"                              \
-         "mv\tt0,%2\n\t"                                    \
-         "vle.v\tv24,(t0)\n\t"                              \
+         "vle.v\tv8,(%0)\n\t"                               \
+         "vle.v\tv16,(%1)\n\t"                              \
+         "vle.v\tv24,(%2)\n\t"                              \
          :                                                  \
          : "r"(vd), "r"(vs2), "r"(vs1)                      \
-         : "t0");                                           \
+         :);                                                \
       pop                                                   \
                                                             \
       mask                                                  \
@@ -155,29 +151,26 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
                                                             \
       push                                                  \
       __asm__ __volatile__(                                 \
-         "mv\tt0,%0\n\t"                                    \
-         "vse.v\tv8,(t0)\n\t"                               \
+         "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
          : "r"(vd)                                          \
-         : "t0", "memory");                                 \
+         : "memory");                                       \
       pop                                                   \
    } while (0)
 
 // v8-v15, v16-v23, t0
 #define RVV0p7_BinopVX_T(insn, vd, vs2, rs1, mask, mreg, push, pop, isvx)\
    do {                                                     \
-      vd  += (ULong)st;                                       \
-      vs2 += (ULong)st;                                       \
+      vd  += (ULong)st;                                     \
+      vs2 += (ULong)st;                                     \
                                                             \
       push                                                  \
       __asm__ __volatile__(                                 \
-         "mv\tt0,%0\n\t"                                    \
-         "vle.v\tv8,(t0)\n\t"                               \
-         "mv\tt0,%1\n\t"                                    \
-         "vle.v\tv16,(t0)\n\t"                              \
+         "vle.v\tv8,(%0)\n\t"                               \
+         "vle.v\tv16,(%1)\n\t"                              \
          :                                                  \
          : "r"(vd), "r"(vs2)                                \
-         : "t0");                                           \
+         :);                                                \
       pop                                                   \
                                                             \
       mask                                                  \
@@ -187,11 +180,10 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
                                                             \
       push                                                  \
       __asm__ __volatile__(                                 \
-         "mv\tt0,%0\n\t"                                    \
-         "vse.v\tv8,(t0)\n\t"                               \
+         "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
          : "r"(vd)                                          \
-         : "t0", "memory");                                 \
+         : "memory");                                       \
       pop                                                   \
    } while (0)
 
