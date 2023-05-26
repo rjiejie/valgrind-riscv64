@@ -130,11 +130,12 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
    __asm__ __volatile__("ld\tt0,0(t0)\n\t":::"t0");
 
 // v8-v15, v16-v23, v24-v31
-#define RVV0p7_BinopVV_T(insn, vd, vs2, vs1, mask, mreg, push, pop)\
+#define RVV0p7_BinopVV_T(insn, vd, vs2, vs1, minsn, mreg, push, pop)\
    do {                                                     \
       vd  += (ULong)st;                                     \
       vs2 += (ULong)st;                                     \
       vs1 += (ULong)st;                                     \
+      mask += (ULong)st;                                    \
                                                             \
       push                                                  \
       __asm__ __volatile__(                                 \
@@ -146,7 +147,7 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
          :);                                                \
       pop                                                   \
                                                             \
-      mask                                                  \
+      minsn                                                 \
       __asm__ __volatile__(insn "\tv8,v16,v24" mreg);       \
                                                             \
       push                                                  \
@@ -159,10 +160,11 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
    } while (0)
 
 // v8-v15, v16-v23, t0
-#define RVV0p7_BinopVX_T(insn, vd, vs2, rs1, mask, mreg, push, pop, isvx)\
+#define RVV0p7_BinopVX_T(insn, vd, vs2, rs1, minsn, mreg, push, pop, isvx)\
    do {                                                     \
       vd  += (ULong)st;                                     \
       vs2 += (ULong)st;                                     \
+      mask += (ULong)st;                                    \
                                                             \
       push                                                  \
       __asm__ __volatile__(                                 \
@@ -173,7 +175,7 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
          :);                                                \
       pop                                                   \
                                                             \
-      mask                                                  \
+      minsn                                                 \
       __asm__ __volatile__("mv\tt0,%0\n\t"::"r"(rs1):"t0"); \
       isvx                                                  \
       __asm__ __volatile__(insn "\tv8,v16,t0" mreg);        \
