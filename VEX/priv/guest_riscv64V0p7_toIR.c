@@ -78,6 +78,23 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
                                    /*OUT*/ IRSB*         irsb,
                                    UInt                  insn)
 {
+   IRDirty *d  = NULL;
+   void *fAddr = NULL;
+   const HChar *fName = NULL;
+   IRExpr **args = NULL;
+   UInt temp = 0;
+
+   UInt rd   = GET_RD();
+   UInt rs1  = GET_RS1();
+   UInt rs2  = GET_RS2();
+   Bool mask = GET_VMASK();
+
+   // vfadd
+   if (GET_FUNCT6() == 0b000000) {
+      GETC_VBinopOPF(vfadd);
+      return True;
+   }
+
    return False;
 }
 
