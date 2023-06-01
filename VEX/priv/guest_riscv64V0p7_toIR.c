@@ -85,7 +85,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
    IRExpr **args = NULL;
    UInt temp = 0;
    IRTemp ret = newTemp(irsb, Ity_I32);
-   IRTemp rmEncd, rmIR;
+   IRTemp frm = newTemp(irsb, Ity_I32);
 
    UInt rd   = GET_RD();
    UInt rs1  = GET_RS1();
@@ -94,7 +94,6 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
 
    // vfadd
    if (GET_FUNCT6() == 0b000000) {
-      mk_get_rounding_mode(irsb, &rmEncd, &rmIR, 0b111);
       GETC_VBinopOPF(vfadd);
       accumulateFFLAGS(irsb, mkexpr(ret));
       return True;

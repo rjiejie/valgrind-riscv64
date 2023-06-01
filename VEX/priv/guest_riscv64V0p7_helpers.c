@@ -56,7 +56,7 @@
          fAddr = mask ? GETAI(insn) : GETAI##_M(insn);                     \
          temp  = rs1;                                                      \
       }                                                                    \
-      args = ARGS()                                                        \
+      ARGS()                                                               \
       d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);                   \
       d = GETD_VBinop(d, rd, rs2, rs1, mask, GET_FUNCT3());                \
       stmt(irsb, IRStmt_Dirty(d));                                         \
@@ -69,8 +69,9 @@
    } while (0)
 
 #define GETR_VBinopOPI()                                                       \
-   mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),                        \
-                 mkU64(offsetVReg(rs2)), mkU64(temp), mkU64(offsetVReg(0)));
+   args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),                 \
+                        mkU64(offsetVReg(rs2)), mkU64(temp),                   \
+                        mkU64(offsetVReg(0)));
 #define GETC_VBinopOPI(insn)                                                   \
    GETC_VBinopOP_T(insn, GETN_VBinopVX, GETA_VBinopVX, offsetIReg64, nameIReg, \
                    GETN_VBinopVI, GETA_VBinopVI, GETR_VBinopOPI)
@@ -293,9 +294,11 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
 #define GETA_VBinopVF(insn)    RVV0p7_Binop_##insn##vf
 
 #define GETR_VBinopOPF()                                                       \
-   mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),                        \
-                 mkU64(offsetVReg(rs2)), mkU64(temp), mkU64(offsetVReg(0)),    \
-                 mkexpr(rmEncd));
+   assign(irsb, frm,                                                           \
+          binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(5)), mkU32(7)));   \
+   args = mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),                 \
+                        mkU64(offsetVReg(rs2)), mkU64(temp),                   \
+                        mkU64(offsetVReg(0)), mkexpr(frm));
 #define GETC_VBinopOPF(insn)                                                   \
    GETC_VBinopOP_T(insn, GETN_VBinopVF, GETA_VBinopVF, offsetFReg, nameFReg,   \
                    GETN_VBinopVF, GETA_VBinopVF, GETR_VBinopOPF)
