@@ -92,9 +92,21 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
    UInt rs2  = GET_RS2();
    Bool mask = GET_VMASK();
 
-   // vfadd
+   /*
+    * Vector Single-Width Floating-Point Add/Subtract Instructions
+    */
    if (GET_FUNCT6() == 0b000000) {
       GETC_VBinopOPF(vfadd);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b000010) {
+      GETC_VBinopOPF(vfsub);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b100111) {
+      GETC_VBinopOPF_F(vfrsub);
       accumulateFFLAGS(irsb, mkexpr(ret));
       return True;
    }

@@ -41,31 +41,31 @@
 #define GETN_VBinopVI(insn)    "RVV0p7_Binop_"#insn"vi"
 #define GETA_VBinopVI(insn)    RVV0p7_Binop_##insn##vi
 
-#define GETC_VBinopOP_T(insn, GETNX, GETAX, REGO, REGN, GETNI, GETAI, ARGS)\
-   do {                                                                    \
-      if (isVOpVV(GET_FUNCT3())) {                                         \
-         fName = mask ? GETN_VBinopVV(insn) : GETN_VBinopVV_M(insn);       \
-         fAddr = mask ? GETA_VBinopVV(insn) : GETA_VBinopVV_M(insn);       \
-         temp  = offsetVReg(rs1);                                          \
-      } else if (isVOpVXorVF(GET_FUNCT3())) {                              \
-         fName = mask ? GETNX(insn) : GETNX##_M(insn);                     \
-         fAddr = mask ? GETAX(insn) : GETAX##_M(insn);                     \
-         temp  = REGO(rs1);                                                \
-      } else {                                                             \
-         fName = mask ? GETNI(insn) : GETNI##_M(insn);                     \
-         fAddr = mask ? GETAI(insn) : GETAI##_M(insn);                     \
-         temp  = rs1;                                                      \
-      }                                                                    \
-      ARGS()                                                               \
-      d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);                   \
-      d = GETD_VBinop(d, rd, rs2, rs1, mask, GET_FUNCT3());                \
-      stmt(irsb, IRStmt_Dirty(d));                                         \
-                                                                           \
-      if (isVOpVI(GET_FUNCT3()))                                           \
-         DIP("%s(%s, %s, %u)\n", fName, nameVReg(rd), nameVReg(rs2), rs1); \
-      else                                                                 \
-         DIP("%s(%s, %s, %s)\n", fName, nameVReg(rd), nameVReg(rs2),       \
-             isVOpVV(GET_FUNCT3()) ? nameVReg(rs1) : REGN(rs1));           \
+#define GETC_VBinopOP_T(insn, V, X, I, REGO, REGN, ARGS)                       \
+   do {                                                                        \
+      if (isVOpVV(GET_FUNCT3())) {                                             \
+         fName = mask ? GETN_VBinopV##V(insn) : GETN_VBinopV##V##_M(insn);     \
+         fAddr = mask ? GETA_VBinopV##V(insn) : GETA_VBinopV##V##_M(insn);     \
+         temp  = offsetVReg(rs1);                                              \
+      } else if (isVOpVXorVF(GET_FUNCT3())) {                                  \
+         fName = mask ? GETN_VBinopV##X(insn) : GETN_VBinopV##X##_M(insn);     \
+         fAddr = mask ? GETA_VBinopV##X(insn) : GETA_VBinopV##X##_M(insn);     \
+         temp  = REGO(rs1);                                                    \
+      } else {                                                                 \
+         fName = mask ? GETN_VBinopV##I(insn) : GETN_VBinopV##I##_M(insn);     \
+         fAddr = mask ? GETA_VBinopV##I(insn) : GETA_VBinopV##I##_M(insn);     \
+         temp  = rs1;                                                          \
+      }                                                                        \
+      ARGS()                                                                   \
+      d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);                       \
+      d = GETD_VBinop(d, rd, rs2, rs1, mask, GET_FUNCT3());                    \
+      stmt(irsb, IRStmt_Dirty(d));                                             \
+                                                                               \
+      if (isVOpVI(GET_FUNCT3()))                                               \
+         DIP("%s(%s, %s, %u)\n", fName, nameVReg(rd), nameVReg(rs2), rs1);     \
+      else                                                                     \
+         DIP("%s(%s, %s, %s)\n", fName, nameVReg(rd), nameVReg(rs2),           \
+             isVOpVV(GET_FUNCT3()) ? nameVReg(rs1) : REGN(rs1));               \
    } while (0)
 
 #define GETR_VBinopOPI()                                                       \
@@ -73,8 +73,7 @@
                         mkU64(offsetVReg(rs2)), mkU64(temp),                   \
                         mkU64(offsetVReg(0)));
 #define GETC_VBinopOPI(insn)                                                   \
-   GETC_VBinopOP_T(insn, GETN_VBinopVX, GETA_VBinopVX, offsetIReg64, nameIReg, \
-                   GETN_VBinopVI, GETA_VBinopVI, GETR_VBinopOPI)
+   GETC_VBinopOP_T(insn, V, X, I, offsetIReg64, nameIReg, GETR_VBinopOPI)
 
 static IRDirty*
 GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc)
@@ -300,8 +299,9 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
                         mkU64(offsetVReg(rs2)), mkU64(temp),                   \
                         mkU64(offsetVReg(0)), mkexpr(frm));
 #define GETC_VBinopOPF(insn)                                                   \
-   GETC_VBinopOP_T(insn, GETN_VBinopVF, GETA_VBinopVF, offsetFReg, nameFReg,   \
-                   GETN_VBinopVF, GETA_VBinopVF, GETR_VBinopOPF)
+   GETC_VBinopOP_T(insn, V, F, F, offsetFReg, nameFReg, GETR_VBinopOPF)
+#define GETC_VBinopOPF_F(insn)                                                 \
+   GETC_VBinopOP_T(insn, F, F, F, offsetFReg, nameFReg, GETR_VBinopOPF)
 
 #define RVV0p7_BinopOPFVV_FT(insn) \
    static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
@@ -334,6 +334,8 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
    RVV0p7_BinopVF_FT(insn) \
 
 RVV0p7_BinopOPFVV_VF_FT(vfadd)
+RVV0p7_BinopOPFVV_VF_FT(vfsub)
+RVV0p7_BinopVF_FT(vfrsub)
 
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/
