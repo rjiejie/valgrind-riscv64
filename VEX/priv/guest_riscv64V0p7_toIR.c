@@ -111,6 +111,30 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
+   /*
+    * Vector Widening Floating-Point Add/Subtract Instructions
+    */
+   // TODO
+
+   /*
+    * Vector Single-Width Floating-Point Multiply/Divide Instructions
+    */
+   if (GET_FUNCT6() == 0b100100) {
+      GETC_VBinopOPF(vfmul);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b100000) {
+      GETC_VBinopOPF(vfdiv);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b100001) {
+      GETC_VBinopOPF_F(vfrdiv);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+
    return False;
 }
 

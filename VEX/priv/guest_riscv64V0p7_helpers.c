@@ -336,6 +336,9 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
 RVV0p7_BinopOPFVV_VF_FT(vfadd)
 RVV0p7_BinopOPFVV_VF_FT(vfsub)
 RVV0p7_BinopVF_FT(vfrsub)
+RVV0p7_BinopOPFVV_VF_FT(vfmul)
+RVV0p7_BinopOPFVV_VF_FT(vfdiv)
+RVV0p7_BinopVF_FT(vfrdiv)
 
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/
