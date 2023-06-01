@@ -135,6 +135,55 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       return True;
    }
 
+   /*
+    * Vector Widening Floating-Point Multiply
+    */
+   // TODO
+
+   /*
+    * Vector Single-Width Floating-Point Fused Multiply-Add Instructions
+    */
+   if (GET_FUNCT6() == 0b101100) {
+      GETC_VBinopOPF2(vfmacc);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b101101) {
+      GETC_VBinopOPF2(vfnmacc);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b101110) {
+      GETC_VBinopOPF2(vfmsac);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b101111) {
+      GETC_VBinopOPF2(vfnmsac);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b101000) {
+      GETC_VBinopOPF2(vfmadd);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b101001) {
+      GETC_VBinopOPF2(vfnmadd);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b101010) {
+      GETC_VBinopOPF2(vfmsub);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+   if (GET_FUNCT6() == 0b101011) {
+      GETC_VBinopOPF2(vfnmsub);
+      accumulateFFLAGS(irsb, mkexpr(ret));
+      return True;
+   }
+
    return False;
 }
 
