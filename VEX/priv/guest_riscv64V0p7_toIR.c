@@ -98,15 +98,12 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        */
       case 0b000000:
          GETC_VBinopOPF(vfadd);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b000010:
          GETC_VBinopOPF(vfsub);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b100111:
          GETC_VBinopOPF_F(vfrsub);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
 
       /*
@@ -119,15 +116,12 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        */
       case 0b100100:
          GETC_VBinopOPF(vfmul);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b100000:
          GETC_VBinopOPF(vfdiv);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b100001:
          GETC_VBinopOPF_F(vfrdiv);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
 
       /*
@@ -140,35 +134,27 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        */
       case 0b101100:
          GETC_VBinopOPF2(vfmacc);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b101101:
          GETC_VBinopOPF2(vfnmacc);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b101110:
          GETC_VBinopOPF2(vfmsac);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b101111:
          GETC_VBinopOPF2(vfnmsac);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b101000:
          GETC_VBinopOPF2(vfmadd);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b101001:
          GETC_VBinopOPF2(vfnmadd);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b101010:
          GETC_VBinopOPF2(vfmsub);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       case 0b101011:
          GETC_VBinopOPF2(vfnmsub);
-         accumulateFFLAGS(irsb, mkexpr(ret));
          return True;
       default:
          break;

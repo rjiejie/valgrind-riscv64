@@ -337,9 +337,11 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
                         mkU64(offsetVReg(rs2)), mkU64(temp),                   \
                         mkU64(offsetVReg(0)), mkexpr(frm));
 #define GETC_VBinopOPF(insn)                                                   \
-   GETC_VBinopOP_T(insn, V, F, F, offsetFReg, nameFReg, GETR_VBinopOPF)
+   GETC_VBinopOP_T(insn, V, F, F, offsetFReg, nameFReg, GETR_VBinopOPF);       \
+   accumulateFFLAGS(irsb, mkexpr(ret));
 #define GETC_VBinopOPF_F(insn)                                                 \
-   GETC_VBinopOP_T(insn, F, F, F, offsetFReg, nameFReg, GETR_VBinopOPF)
+   GETC_VBinopOP_T(insn, F, F, F, offsetFReg, nameFReg, GETR_VBinopOPF);       \
+   accumulateFFLAGS(irsb, mkexpr(ret));
 #define GETR_VBinopOPF2()                                                      \
    assign(irsb, frm,                                                           \
           binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(5)), mkU32(7)));   \
@@ -347,7 +349,8 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
                         mkU64(temp), mkU64(offsetVReg(rs2)),                   \
                         mkU64(offsetVReg(0)), mkexpr(frm));
 #define GETC_VBinopOPF2(insn)                                                  \
-   GETC_VBinopOP_T(insn, V, F, F, offsetFReg, nameFReg, GETR_VBinopOPF2)
+   GETC_VBinopOP_T(insn, V, F, F, offsetFReg, nameFReg, GETR_VBinopOPF2);      \
+   accumulateFFLAGS(irsb, mkexpr(ret));
 
 #define RVV0p7_BinopOPFVV_FT(insn) \
    static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
