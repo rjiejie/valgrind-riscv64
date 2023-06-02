@@ -532,6 +532,8 @@ RVV0p7_BinopVF_FT(vfrsub)
 RVV0p7_BinopOPFVV_VF_FT(vfmul)
 RVV0p7_BinopOPFVV_VF_FT(vfdiv)
 RVV0p7_BinopVF_FT(vfrdiv)
+RVV0p7_BinopOPFVV_VF_FT(vfmin)
+RVV0p7_BinopOPFVV_VF_FT(vfmax)
 
 RVV0p7_BinopOPFVV_VF_FT2(vfmacc)
 RVV0p7_BinopOPFVV_VF_FT2(vfnmacc)

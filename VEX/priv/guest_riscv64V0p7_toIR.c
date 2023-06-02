@@ -166,6 +166,15 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
             return True;
          }
          break;
+      /*
+       * Vector Floating-Point MIN/MAX Instructions
+       */
+      case 0b000100:
+         GETC_VBinopOPF(vfmin);
+         return True;
+      case 0b000110:
+         GETC_VBinopOPF(vfmax);
+         return True;
       default:
          break;
    }
