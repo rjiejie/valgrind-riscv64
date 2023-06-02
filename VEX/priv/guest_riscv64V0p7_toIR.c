@@ -156,6 +156,16 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b101011:
          GETC_VBinopOPF2(vfnmsub);
          return True;
+      /* VFUnary1 */
+      case 0b100011:
+         /*
+          * Vector Floating-Point Square-Root Instruction
+          */
+         if (rs1 == 0b00000) {
+            GETC_VUnopOPF_V(vfsqrt);
+            return True;
+         }
+         break;
       default:
          break;
    }
