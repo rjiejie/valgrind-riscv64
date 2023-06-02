@@ -332,6 +332,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc)
                                                             \
       return ret;                                           \
    } while (0)
+
 // v8-v15, t0/ft0, v16-v23
 #define RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, imask, mreg, ipush, ipop, isopc, treg, ipre, ipost)\
    do {                                                     \
@@ -366,22 +367,67 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc)
                                                             \
       return ret;                                           \
    } while (0)
+
+// v8-v15, t0/ft0
+#define RVV0p7_UnopX_F_M_PP_T(insn, vd, rs1, imask, mreg, ipush, ipop, isopc, treg, ipre, ipost)\
+   do {                                                     \
+      UInt ret = 0;                                         \
+                                                            \
+      vd  += (ULong)st;                                     \
+      rs1 += (ULong)st;                                     \
+      mask += (ULong)st;                                    \
+                                                            \
+      ipush                                                 \
+      __asm__ __volatile__(                                 \
+         "vle.v\tv8,(%0)\n\t"                               \
+         :                                                  \
+         : "r"(vd)                                          \
+         :);                                                \
+      ipop                                                  \
+                                                            \
+      imask                                                 \
+      ipre                                                  \
+      isopc                                                 \
+      __asm__ __volatile__(insn "\tv8," treg mreg);         \
+      ipost                                                 \
+                                                            \
+      ipush                                                 \
+      __asm__ __volatile__(                                 \
+         "vse.v\tv8,(%0)\n\t"                               \
+         :                                                  \
+         : "r"(vd)                                          \
+         : "memory");                                       \
+      ipop                                                  \
+                                                            \
+      return ret;                                           \
+   } while (0)
+
 #define RVV0p7_BinopVX_M_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VX(), "t0", , )
 #define RVV0p7_BinopVX_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , , , RVV0p7_VX(), "t0", , )
+
 #define RVV0p7_BinopVI_M_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VI(), "t0", , )
 #define RVV0p7_BinopVI_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , , , RVV0p7_VI(), "t0", , )
+
 #define RVV0p7_BinopVF_M_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 #define RVV0p7_BinopVF_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
+#define RVV0p7_BinopVF_M2_T(insn, vd, vs2, rs1)\
+   RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
+
 #define RVV0p7_BinopVF_M_T2(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 #define RVV0p7_BinopVF_T2(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, , , , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
+
+#define RVV0p7_UnopF_M_T(insn, vd, rs1)\
+   RVV0p7_UnopX_F_M_PP_T(insn, vd, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
+#define RVV0p7_UnopF_T(insn, vd, rs1)\
+   RVV0p7_UnopX_F_M_PP_T(insn, vd, rs1, , , , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
 #define RVV0p7_BinopOPIVV_FT(insn) \
    static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
@@ -430,6 +476,11 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
 #define GETN_VBinopVF(insn)    "RVV0p7_Binop_"#insn"vf"
 #define GETA_VBinopVF(insn)    RVV0p7_Binop_##insn##vf
 
+#define GETN_VUnopF_M(insn)    "RVV0p7_Unop_"#insn"f_m"
+#define GETA_VUnopF_M(insn)    RVV0p7_Unop_##insn##f_m
+#define GETN_VUnopF(insn)      "RVV0p7_Unop_"#insn"f"
+#define GETA_VUnopF(insn)      RVV0p7_Unop_##insn##f
+
 #define GETR_VBinopOPF()                                                       \
    assign(irsb, frm,                                                           \
           binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(5)), mkU32(7)));   \
@@ -464,6 +515,10 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
 
 #define GETC_VUnopOPF_V(insn)                                                  \
    GETC_VUnopOP_T(insn, V, V, offsetFReg, nameFReg, GETR_VUnopOPF);            \
+   accumulateFFLAGS(irsb, mkexpr(ret));
+
+#define GETC_VUnopOPF_F(insn)                                                  \
+   GETC_VUnopOP_T(insn, F, F, offsetFReg, nameFReg, GETR_VUnopOPF);            \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
 #define RVV0p7_BinopOPFVV_FT(insn) \
@@ -549,6 +604,20 @@ RVV0p7_BinopOPFVV_VF_FT2(vfnmsub)
 
 RVV0p7_UnopOPFV_FT(vfsqrt)
 RVV0p7_UnopOPFV_FT(vfclass)
+
+static UInt RVV0p7_Binop_vfmergevf_m(VexGuestRISCV64State *st,
+                                     ULong vd, ULong vs2, ULong rs1, ULong mask,
+                                     UInt frm) {
+   rs1 += (ULong)st;
+   RVV0p7_BinopVF_M2_T("vfmerge.vfm", vd, vs2, rs1);
+}
+#define RVV0p7_Binop_vfmergevf   NULL
+#define RVV0p7_Unop_vfmergef_m   NULL
+static UInt RVV0p7_Unop_vfmergef(VexGuestRISCV64State *st,
+                                 ULong vd, ULong rs1, ULong mask,
+                                 UInt frm) {
+   RVV0p7_UnopF_T("vfmv.v.f", vd, rs1);
+}
 
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/

@@ -199,6 +199,17 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        */
       // TODO
 
+      /*
+       * Vector Floating-Point Merge Instruction
+       */
+      case 0b010111:
+         if (!mask) {
+            GETC_VBinopOPF_F(vfmerge);
+         } else {
+            GETC_VUnopOPF_F(vfmerge);
+         }
+         return True;
+
       default:
          break;
    }
