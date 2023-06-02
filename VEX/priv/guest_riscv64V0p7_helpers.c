@@ -548,6 +548,7 @@ RVV0p7_BinopOPFVV_VF_FT2(vfmsub)
 RVV0p7_BinopOPFVV_VF_FT2(vfnmsub)
 
 RVV0p7_UnopOPFV_FT(vfsqrt)
+RVV0p7_UnopOPFV_FT(vfclass)
 
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/

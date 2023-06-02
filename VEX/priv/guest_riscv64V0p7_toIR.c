@@ -164,6 +164,12 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          if (rs1 == 0b00000) {
             GETC_VUnopOPF_V(vfsqrt);
             return True;
+         /*
+          * Vector Floating-Point Classify Instruction
+          */
+         } else if (rs1 == 0b10000) {
+            GETC_VUnopOPF_V(vfclass);
+            return True;
          }
          break;
       /*
@@ -187,6 +193,12 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b001010:
          GETC_VBinopOPF(vfsgnjx);
          return True;
+
+      /*
+       * Vector Floating-Point Compare Instructions
+       */
+      // TODO
+
       default:
          break;
    }
