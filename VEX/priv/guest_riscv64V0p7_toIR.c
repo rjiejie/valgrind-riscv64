@@ -175,6 +175,18 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b000110:
          GETC_VBinopOPF(vfmax);
          return True;
+      /*
+       * Vector Floating-Point Sign-Injection Instructions
+       */
+      case 0b001000:
+         GETC_VBinopOPF(vfsgnj);
+         return True;
+      case 0b001001:
+         GETC_VBinopOPF(vfsgnjn);
+         return True;
+      case 0b001010:
+         GETC_VBinopOPF(vfsgnjx);
+         return True;
       default:
          break;
    }
