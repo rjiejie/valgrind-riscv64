@@ -162,6 +162,21 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b101011:
          GETC_VBinopOPF2(vfnmsub, GETV_VopAccD);
          return True;
+      /*
+       * Vector Widening Floating-Point Fused Multiply-Add Instructions
+       */
+      case 0b111100:
+         GETC_VBinopOPF2(vfwmacc, GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111101:
+         GETC_VBinopOPF2(vfwnmacc, GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111110:
+         GETC_VBinopOPF2(vfwmsac, GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111111:
+         GETC_VBinopOPF2(vfwnmsac, GETV_VopAccD | GETV_VopWidenD);
+         return True;
       /* VFUnary1 */
       case 0b100011:
          /*

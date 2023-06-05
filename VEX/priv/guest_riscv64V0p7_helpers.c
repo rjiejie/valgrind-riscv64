@@ -190,6 +190,14 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc)
       "vsetvl\tx0,t1,t2\n\t"  \
       :::);
 
+#define RVV0p7_PushW()        \
+   __asm__ __volatile__(      \
+      "csrr\tt1,vl\n\t"       \
+      "csrr\tt2,vtype\n\t"    \
+      "addi\tt0,t2,1\n\t"     \
+      "vsetvl\tx0,x0,t0\n\t"  \
+      ::: "t0", "t1", "t2");
+
 #define RVV0p7_Mask()               \
    __asm__ __volatile__(            \
       "csrr\tt1,vl\n\t"             \
@@ -303,6 +311,14 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc)
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 #define RVV0p7_BinopOPFVV_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , , , RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
+
+#define RVV0p7_BinopOPFWVV_M_T(insn, vd, vs2, vs1)                             \
+   RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t",           \
+                         RVV0p7_PushW(), RVV0p7_Pop(), RVV0p7_PushFCSR(),      \
+                         RVV0p7_PopFCSR())
+#define RVV0p7_BinopOPFWVV_T(insn, vd, vs2, vs1)                               \
+   RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , RVV0p7_PushW(), RVV0p7_Pop(), \
+                         RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
 #define RVV0p7_UnopOPFV_M_T(insn, vd, vs2)\
    RVV0p7_UnopV_M_PP_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", , , RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
@@ -434,6 +450,15 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc)
    RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 #define RVV0p7_BinopVF_T2(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, , , , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
+
+#define RVV0p7_BinopWVF_M_T2(insn, vd, vs2, rs1)                               \
+   RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",    \
+                                RVV0p7_PushW(), RVV0p7_Pop(), RVV0p7_VF(),     \
+                                "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
+#define RVV0p7_BinopWVF_T2(insn, vd, vs2, rs1)                                 \
+   RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, , , RVV0p7_PushW(),        \
+                                RVV0p7_Pop(), RVV0p7_VF(), "ft0",              \
+                                RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
 #define RVV0p7_UnopF_M_T(insn, vd, rs1)\
    RVV0p7_UnopX_F_M_PP_T(insn, vd, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
@@ -580,6 +605,32 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
       RVV0p7_BinopVF_T2(#insn".vf", vd, vs2, rs1); \
    } \
 
+#define RVV0p7_BinopOPFWVV_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                         UInt frm) { \
+      RVV0p7_BinopOPFWVV_M_T(#insn".vv", vd, vs2, vs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vv(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                       UInt frm) { \
+      RVV0p7_BinopOPFWVV_T(#insn".vv", vd, vs2, vs1); \
+   } \
+
+#define RVV0p7_BinopWVF_FT2(insn) \
+   static UInt RVV0p7_Binop_##insn##vf_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong rs1, ULong vs2, ULong mask, \
+                                         UInt frm) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopWVF_M_T2(#insn".vf", vd, vs2, rs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vf(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong rs1, ULong vs2, ULong mask, \
+                                       UInt frm) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopWVF_T2(#insn".vf", vd, vs2, rs1); \
+   } \
+
 #define RVV0p7_UnopOPFV_FT(name, insn) \
    static UInt RVV0p7_Unop_##name##v_m(VexGuestRISCV64State *st, \
                                        ULong vd, ULong vs2, ULong mask, \
@@ -599,6 +650,10 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
 #define RVV0p7_BinopOPFVV_VF_FT2(insn) \
    RVV0p7_BinopOPFVV_FT(insn) \
    RVV0p7_BinopVF_FT2(insn) \
+
+#define RVV0p7_BinopOPFWVV_WVF_FT2(insn) \
+   RVV0p7_BinopOPFWVV_FT(insn) \
+   RVV0p7_BinopWVF_FT2(insn) \
 
 RVV0p7_BinopOPFVV_VF_FT(vfadd)
 RVV0p7_BinopOPFVV_VF_FT(vfsub)
@@ -624,6 +679,10 @@ RVV0p7_BinopOPFVV_VF_FT2(vfmadd)
 RVV0p7_BinopOPFVV_VF_FT2(vfnmadd)
 RVV0p7_BinopOPFVV_VF_FT2(vfmsub)
 RVV0p7_BinopOPFVV_VF_FT2(vfnmsub)
+RVV0p7_BinopOPFWVV_WVF_FT2(vfwmacc)
+RVV0p7_BinopOPFWVV_WVF_FT2(vfwnmacc)
+RVV0p7_BinopOPFWVV_WVF_FT2(vfwmsac)
+RVV0p7_BinopOPFWVV_WVF_FT2(vfwnmsac)
 
 RVV0p7_UnopOPFV_FT(vfsqrt, vfsqrt)
 RVV0p7_UnopOPFV_FT(vfclass, vfclass)
