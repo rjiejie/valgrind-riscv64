@@ -210,6 +210,34 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          }
          return True;
 
+      /* VFUnary0 */
+      case 0b100010:
+         /*
+          * Single-Width Floating-Point/Integer Type-Convert Instructions
+          */
+         if (rs1 == 0b00000) {
+            GETC_VUnopOPF_V(vfcvt_xu_f);
+            return True;
+         } else if (rs1 == 0b00001) {
+            GETC_VUnopOPF_V(vfcvt_x_f);
+            return True;
+         } else if (rs1 == 0b00010) {
+            GETC_VUnopOPF_V(vfcvt_f_xu);
+            return True;
+         } else if (rs1 == 0b00011) {
+            GETC_VUnopOPF_V(vfcvt_f_x);
+            return True;
+         }
+         /*
+          * Widening Floating-Point/Integer Type-Convert Instructions
+          */
+         // TODO
+
+         /*
+          * Narrowing Floating-Point/Integer Type-Convert Instructions
+          */
+         // TODO
+
       default:
          break;
    }
