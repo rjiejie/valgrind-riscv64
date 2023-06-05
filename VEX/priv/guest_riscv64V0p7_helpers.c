@@ -603,7 +603,7 @@ RVV0p7_BinopOPFVV_VF_FT2(vfmsub)
 RVV0p7_BinopOPFVV_VF_FT2(vfnmsub)
 
 RVV0p7_UnopOPFV_FT(vfsqrt, vfsqrt)
-RVV0p7_UnopOPFV_FT(vfclass, vfsqrt)
+RVV0p7_UnopOPFV_FT(vfclass, vfclass)
 
 RVV0p7_UnopOPFV_FT(vfcvt_xu_f, vfcvt.xu.f)
 RVV0p7_UnopOPFV_FT(vfcvt_x_f, vfcvt.x.f)
