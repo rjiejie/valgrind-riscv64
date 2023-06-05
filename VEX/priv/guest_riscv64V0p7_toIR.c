@@ -129,12 +129,12 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b100001:
          GETC_VBinopOPF_F(vfrdiv);
          return True;
-
       /*
-         * Vector Widening Floating-Point Multiply
-         */
-      // TODO
-
+       * Vector Widening Floating-Point Multiply
+       */
+      case 0b111000:
+         GETC_VWBinopOPF(vfwmul, GETV_VopWidenD);
+         return True;
       /*
        * Vector Single-Width Floating-Point Fused Multiply-Add Instructions
        */

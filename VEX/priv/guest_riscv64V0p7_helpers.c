@@ -612,6 +612,7 @@ RVV0p7_BinopOPFVV_VF_FT(vfsgnjx)
 
 RVV0p7_BinopOPFVV_VF_FT(vfwadd)
 RVV0p7_BinopOPFVV_VF_FT(vfwsub)
+RVV0p7_BinopOPFVV_VF_FT(vfwmul)
 
 RVV0p7_BinopOPFVV_VF_FT2(vfmacc)
 RVV0p7_BinopOPFVV_VF_FT2(vfnmacc)
