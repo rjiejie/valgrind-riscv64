@@ -139,28 +139,28 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        * Vector Single-Width Floating-Point Fused Multiply-Add Instructions
        */
       case 0b101100:
-         GETC_VBinopOPF2(vfmacc);
+         GETC_VBinopOPF2(vfmacc, GETV_VopAccD);
          return True;
       case 0b101101:
-         GETC_VBinopOPF2(vfnmacc);
+         GETC_VBinopOPF2(vfnmacc, GETV_VopAccD);
          return True;
       case 0b101110:
-         GETC_VBinopOPF2(vfmsac);
+         GETC_VBinopOPF2(vfmsac, GETV_VopAccD);
          return True;
       case 0b101111:
-         GETC_VBinopOPF2(vfnmsac);
+         GETC_VBinopOPF2(vfnmsac, GETV_VopAccD);
          return True;
       case 0b101000:
-         GETC_VBinopOPF2(vfmadd);
+         GETC_VBinopOPF2(vfmadd, GETV_VopAccD);
          return True;
       case 0b101001:
-         GETC_VBinopOPF2(vfnmadd);
+         GETC_VBinopOPF2(vfnmadd, GETV_VopAccD);
          return True;
       case 0b101010:
-         GETC_VBinopOPF2(vfmsub);
+         GETC_VBinopOPF2(vfmsub, GETV_VopAccD);
          return True;
       case 0b101011:
-         GETC_VBinopOPF2(vfnmsub);
+         GETC_VBinopOPF2(vfnmsub, GETV_VopAccD);
          return True;
       /* VFUnary1 */
       case 0b100011:

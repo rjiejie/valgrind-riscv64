@@ -47,8 +47,9 @@
 #define GETA_VUnopV(insn)     RVV0p7_Unop_##insn##v
 
 #define GETV_VopUnknow  0
-#define GETV_VopWidenD  (1 << 0)
-#define GETV_VopWidenS2 (1 << 1)
+#define GETV_VopAccD    (1 << 0)
+#define GETV_VopWidenD  (1 << 1)
+#define GETV_VopWidenS2 (1 << 2)
 
 #define GETC_VBinopOP_T(insn, V, X, I, REGO, REGN, ARGS, VARIANT)              \
    do {                                                                        \
@@ -120,7 +121,8 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
       lmul};
    UInt regNos[3] = {vd, vs2, vs1};
    for (int i = 0; i < d->nFxState; i++) {
-      d->fxState[i].fx     = i == 0 ? Ifx_Write : Ifx_Read;
+      d->fxState[i].fx =
+         i == 0 ? (vtype & GETV_VopAccD ? Ifx_Modify : Ifx_Write) : Ifx_Read;
       d->fxState[i].offset = offsetVReg(regNos[i]);
       d->fxState[i].size   = host_VLENB;
       d->fxState[i].nRepeats  = lmuls[i];
@@ -514,9 +516,9 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
                         mkU64(temp), mkU64(offsetVReg(rs2)),                   \
                         mkU64(offsetVReg(0)), mkexpr(frm));
 
-#define GETC_VBinopOPF2(insn)                                                  \
+#define GETC_VBinopOPF2(insn, vtype)                                           \
    GETC_VBinopOP_T(insn, V, F, F, offsetFReg, nameFReg, GETR_VBinopOPF2,       \
-                   GETV_VopUnknow);                                            \
+                   vtype);                                                     \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
 #define GETC_VWBinopOPF(insn, vtype)                                           \
