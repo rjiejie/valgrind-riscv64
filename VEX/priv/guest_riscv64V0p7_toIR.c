@@ -115,8 +115,12 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b110010:
          GETC_VWBinopOPF(vfwsub, GETV_VopWidenD);
          return True;
-      // TODO
-
+      case 0b110100:
+         GETC_VWBinopOPF(vfwaddw, GETV_VopWidenD | GETV_VopWidenS2);
+         return True;
+      case 0b110110:
+         GETC_VWBinopOPF(vfwsubw, GETV_VopWidenD | GETV_VopWidenS2);
+         return True;
       /*
        * Vector Single-Width Floating-Point Multiply/Divide Instructions
        */
