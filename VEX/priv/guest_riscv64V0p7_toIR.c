@@ -107,8 +107,14 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          return True;
 
       /*
-         * Vector Widening Floating-Point Add/Subtract Instructions
-         */
+       * Vector Widening Floating-Point Add/Subtract Instructions
+       */
+      case 0b110000:
+         GETC_VWBinopOPF(vfwadd, GETV_VopWidenD);
+         return True;
+      case 0b110010:
+         GETC_VWBinopOPF(vfwsub, GETV_VopWidenD);
+         return True;
       // TODO
 
       /*

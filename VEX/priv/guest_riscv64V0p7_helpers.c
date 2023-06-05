@@ -47,8 +47,8 @@
 #define GETA_VUnopV(insn)     RVV0p7_Unop_##insn##v
 
 #define GETV_VopUnknow  0
-#define GETV_VopWidenD  1
-#define GETV_VopWidenDS 2
+#define GETV_VopWidenD  (1 << 0)
+#define GETV_VopWidenS2 (1 << 1)
 
 #define GETC_VBinopOP_T(insn, V, X, I, REGO, REGN, ARGS, VARIANT)              \
    do {                                                                        \
@@ -114,12 +114,16 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
    d->nFxState = isVOpVV(sopc) ? 3 : 2;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
+   UInt lmuls[3] = {
+      vtype & GETV_VopWidenD  ? lmul * 2 : lmul,
+      vtype & GETV_VopWidenS2 ? lmul * 2 : lmul,
+      lmul};
    UInt regNos[3] = {vd, vs2, vs1};
    for (int i = 0; i < d->nFxState; i++) {
       d->fxState[i].fx     = i == 0 ? Ifx_Write : Ifx_Read;
       d->fxState[i].offset = offsetVReg(regNos[i]);
       d->fxState[i].size   = host_VLENB;
-      d->fxState[i].nRepeats = lmul;
+      d->fxState[i].nRepeats  = lmuls[i];
       d->fxState[i].repeatLen = host_VLENB;
    }
 
@@ -515,6 +519,11 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
                    GETV_VopUnknow);                                            \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
+#define GETC_VWBinopOPF(insn, vtype)                                           \
+   GETC_VBinopOP_T(insn, V, F, F, offsetFReg, nameFReg, GETR_VBinopOPF,        \
+                   vtype);                                                     \
+   accumulateFFLAGS(irsb, mkexpr(ret));
+
 #define GETR_VUnopOPF()                                                        \
    assign(irsb, frm,                                                           \
           binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(5)), mkU32(7)));   \
@@ -600,6 +609,9 @@ RVV0p7_BinopOPFVV_VF_FT(vfmax)
 RVV0p7_BinopOPFVV_VF_FT(vfsgnj)
 RVV0p7_BinopOPFVV_VF_FT(vfsgnjn)
 RVV0p7_BinopOPFVV_VF_FT(vfsgnjx)
+
+RVV0p7_BinopOPFVV_VF_FT(vfwadd)
+RVV0p7_BinopOPFVV_VF_FT(vfwsub)
 
 RVV0p7_BinopOPFVV_VF_FT2(vfmacc)
 RVV0p7_BinopOPFVV_VF_FT2(vfnmacc)
