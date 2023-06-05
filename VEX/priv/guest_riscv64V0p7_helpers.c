@@ -719,15 +719,23 @@ RVV0p7_UnopOPFV_FT(vfcvt_x_f, vfcvt.x.f)
 RVV0p7_UnopOPFV_FT(vfcvt_f_xu, vfcvt.f.xu)
 RVV0p7_UnopOPFV_FT(vfcvt_f_x, vfcvt.f.x)
 
-static UInt RVV0p7_Binop_vfmergevf_m(VexGuestRISCV64State *st,
+static UInt GETA_VBinopVF_M(vfmerge)(VexGuestRISCV64State *st,
                                      ULong vd, ULong vs2, ULong rs1, ULong mask,
                                      UInt frm) {
    rs1 += (ULong)st;
    RVV0p7_BinopVF_M2_T("vfmerge.vfm", vd, vs2, rs1);
 }
-#define RVV0p7_Binop_vfmergevf   NULL
-#define RVV0p7_Unop_vfmergef_m   NULL
-static UInt RVV0p7_Unop_vfmergef(VexGuestRISCV64State *st,
+static UInt GETA_VBinopVF(vfmerge)(VexGuestRISCV64State *st,
+                                   ULong vd, ULong vs2, ULong rs1, ULong mask,
+                                   UInt frm) {
+   return 0;
+}
+static UInt GETA_VUnopF_M(vfmerge)(VexGuestRISCV64State *st,
+                                   ULong vd, ULong rs1, ULong mask,
+                                   UInt frm) {
+   return 0;
+}
+static UInt GETA_VUnopF(vfmerge)(VexGuestRISCV64State *st,
                                  ULong vd, ULong rs1, ULong mask,
                                  UInt frm) {
    RVV0p7_UnopF_T("vfmv.v.f", vd, rs1);
