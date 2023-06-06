@@ -78,7 +78,7 @@
              isVOpVV(GET_FUNCT3()) ? nameVReg(rs1) : REGN(rs1));               \
    } while (0)
 
-#define GETC_VUnopOP_T(insn, V, X, REGO, REGN, ARGS)                           \
+#define GETC_VUnopOP_T(insn, V, X, REGO, REGN, ARGS, VARIANT)                  \
    do {                                                                        \
       if (isVOpVV(GET_FUNCT3())) {                                             \
          fName = mask ? GETN_VUnop##V(insn) : GETN_VUnop##V##_M(insn);         \
@@ -91,8 +91,8 @@
       }                                                                        \
       ARGS()                                                                   \
       d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);                       \
-      d = GETD_VUnop(d, rd,                                                    \
-                     isVOpVV(GET_FUNCT3()) ? rs2 : rs1, mask, GET_FUNCT3());   \
+      d = GETD_VUnop(d, rd, isVOpVV(GET_FUNCT3()) ? rs2 : rs1, mask,           \
+                     GET_FUNCT3(), VARIANT);                                   \
       stmt(irsb, IRStmt_Dirty(d));                                             \
                                                                                \
       DIP("%s(%s, %s)\n", fName, nameVReg(rd),                                 \
@@ -146,19 +146,20 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
 }
 
 static IRDirty*
-GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc)
+GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 {
    /* TODO */
    UInt lmul   = 0;
    d->nFxState = isVOpVV(sopc) ? 2 : 1;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
+   UInt lmuls[2]  = {vtype & GETV_VopWidenD ? lmul * 2 : lmul, lmul};
    UInt regNos[2] = {vd, src};
    for (int i = 0; i < d->nFxState; i++) {
       d->fxState[i].fx     = i == 0 ? Ifx_Write : Ifx_Read;
       d->fxState[i].offset = offsetVReg(regNos[i]);
       d->fxState[i].size   = host_VLENB;
-      d->fxState[i].nRepeats = lmul;
+      d->fxState[i].nRepeats  = lmuls[i];
       d->fxState[i].repeatLen = host_VLENB;
    }
 
@@ -567,11 +568,17 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
                         mkU64(offsetVReg(0)), mkexpr(frm));
 
 #define GETC_VUnopOPF_V(insn)                                                  \
-   GETC_VUnopOP_T(insn, V, V, offsetFReg, nameFReg, GETR_VUnopOPF);            \
+   GETC_VUnopOP_T(insn, V, V, offsetFReg, nameFReg, GETR_VUnopOPF,             \
+                  GETV_VopUnknow);                                             \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
 #define GETC_VUnopOPF_F(insn)                                                  \
-   GETC_VUnopOP_T(insn, F, F, offsetFReg, nameFReg, GETR_VUnopOPF);            \
+   GETC_VUnopOP_T(insn, F, F, offsetFReg, nameFReg, GETR_VUnopOPF,             \
+                  GETV_VopUnknow);                                             \
+   accumulateFFLAGS(irsb, mkexpr(ret));
+
+#define GETC_VWUnopOPF_V(insn, vtype)                                          \
+   GETC_VUnopOP_T(insn, V, V, offsetFReg, nameFReg, GETR_VUnopOPF, vtype);     \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
 #define RVV0p7_BinopOPFVV_FT(insn) \
@@ -714,10 +721,15 @@ RVV0p7_BinopOPFWVV_WVF_FT2(vfwnmsac, vfwnmsac.vv)
 RVV0p7_UnopOPFV_FT(vfsqrt, vfsqrt)
 RVV0p7_UnopOPFV_FT(vfclass, vfclass)
 
-RVV0p7_UnopOPFV_FT(vfcvt_xu_f, vfcvt.xu.f)
-RVV0p7_UnopOPFV_FT(vfcvt_x_f, vfcvt.x.f)
-RVV0p7_UnopOPFV_FT(vfcvt_f_xu, vfcvt.f.xu)
-RVV0p7_UnopOPFV_FT(vfcvt_f_x, vfcvt.f.x)
+RVV0p7_UnopOPFV_FT(vfcvt_xu_f,  vfcvt.xu.f)
+RVV0p7_UnopOPFV_FT(vfcvt_x_f,   vfcvt.x.f)
+RVV0p7_UnopOPFV_FT(vfcvt_f_xu,  vfcvt.f.xu)
+RVV0p7_UnopOPFV_FT(vfcvt_f_x,   vfcvt.f.x)
+RVV0p7_UnopOPFV_FT(vfwcvt_xu_f, vfwcvt.xu.f)
+RVV0p7_UnopOPFV_FT(vfwcvt_x_f,  vfwcvt.x.f)
+RVV0p7_UnopOPFV_FT(vfwcvt_f_xu, vfwcvt.f.xu)
+RVV0p7_UnopOPFV_FT(vfwcvt_f_x,  vfwcvt.f.x)
+RVV0p7_UnopOPFV_FT(vfwcvt_f_f,  vfwcvt.f.f)
 
 static UInt GETA_VBinopVF_M(vfmerge)(VexGuestRISCV64State *st,
                                      ULong vd, ULong vs2, ULong rs1, ULong mask,
