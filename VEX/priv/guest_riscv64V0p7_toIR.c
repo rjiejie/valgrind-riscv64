@@ -110,16 +110,16 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        * Vector Widening Floating-Point Add/Subtract Instructions
        */
       case 0b110000:
-         GETC_VWBinopOPF(vfwadd, GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwadd, GETV_VopWidenD);
          return True;
       case 0b110010:
-         GETC_VWBinopOPF(vfwsub, GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwsub, GETV_VopWidenD);
          return True;
       case 0b110100:
-         GETC_VWBinopOPF(vfwaddw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPF_VAR(vfwaddw, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       case 0b110110:
-         GETC_VWBinopOPF(vfwsubw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPF_VAR(vfwsubw, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       /*
        * Vector Single-Width Floating-Point Multiply/Divide Instructions
@@ -137,7 +137,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        * Vector Widening Floating-Point Multiply
        */
       case 0b111000:
-         GETC_VWBinopOPF(vfwmul, GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwmul, GETV_VopWidenD);
          return True;
       /*
        * Vector Single-Width Floating-Point Fused Multiply-Add Instructions
@@ -218,12 +218,30 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b001010:
          GETC_VBinopOPF(vfsgnjx);
          return True;
-
       /*
        * Vector Floating-Point Compare Instructions
        */
-      // TODO
-
+      case 0b011000:
+         GETC_VBinopOPF_VAR(vmfeq, GETV_VopMaskD);
+         return True;
+      case 0b011100:
+         GETC_VBinopOPF_VAR(vmfne, GETV_VopMaskD);
+         return True;
+      case 0b011011:
+         GETC_VBinopOPF_VAR(vmflt, GETV_VopMaskD);
+         return True;
+      case 0b011001:
+         GETC_VBinopOPF_VAR(vmfle, GETV_VopMaskD);
+         return True;
+      case 0b011010:
+         GETC_VBinopOPF_VAR(vmford, GETV_VopMaskD);
+         return True;
+      case 0b011101:
+         GETC_VBinopOPF_F_VAR(vmfgt, GETV_VopMaskD);
+         return True;
+      case 0b011111:
+         GETC_VBinopOPF_F_VAR(vmfge, GETV_VopMaskD);
+         return True;
       /*
        * Vector Floating-Point Merge Instruction
        */
