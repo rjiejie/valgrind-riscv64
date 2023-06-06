@@ -72,6 +72,51 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
                                    /*OUT*/ IRSB*         irsb,
                                    UInt                  insn)
 {
+   IRDirty *d  = NULL;
+   void *fAddr = NULL;
+   const HChar *fName = NULL;
+   IRExpr **args = NULL;
+   UInt temp = 0;
+   IRTemp ret = newTemp(irsb, Ity_I64);
+
+   UInt rd   = GET_RD();
+   UInt rs1  = GET_RS1();
+   UInt rs2  = GET_RS2();
+   Bool mask = GET_VMASK();
+
+   switch (GET_FUNCT6()) {
+      /*
+       * Integer Extract Instruction
+       */
+      case 0b001100:
+         fName = GETN_VBinopVX(vext);
+         fAddr = GETA_VBinopVX(vext);
+
+         args = mkIRExprVec_3(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(offsetIReg64(rs1)));
+         d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);
+
+         d->nFxState = 2;
+         d->fxState[0].fx        = Ifx_Read;
+         d->fxState[0].offset    = offsetVReg(rs2);
+         d->fxState[0].size      = host_VLENB;
+         d->fxState[1].fx        = Ifx_Read;
+         d->fxState[1].offset    = offsetIReg64(rs1);
+         d->fxState[1].size      = 8;
+         stmt(irsb, IRStmt_Dirty(d));
+
+         // TODO get sew
+         UInt sew = 0;
+         putIReg64(irsb, rd,
+                   sew == 8    ? unop(Iop_8Uto64,  mkexpr(ret))
+                   : sew == 16 ? unop(Iop_16Uto64, mkexpr(ret))
+                   : sew == 32 ? unop(Iop_32Uto64, mkexpr(ret))
+                               : mkexpr(ret));
+         DIP("%s(%s, %s, %s)\n", fName, nameIReg(rd), nameVReg(rs2), nameIReg(rs1));
+         return True;
+      default:
+         break;
+   }
+
    return False;
 }
 

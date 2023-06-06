@@ -535,6 +535,31 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       return ret;                                           \
    } while (0)
 
+// ret, v16, t0/ft0
+#define RVV0p7_BinopRVX_VF_T(insn, vs2, rs1, isopc, treg, ipre, ipost)\
+   do {                                                     \
+      vs2 += (ULong)st;                                     \
+      rs1 += (ULong)st;                                     \
+                                                            \
+      __asm__ __volatile__(                                 \
+         "csrr\tt1,vl\n\t"                                  \
+         "csrr\tt2,vtype\n\t"                               \
+         "vsetvli\tx0,x0,e8,m1\n\t"                         \
+         "vle.v\tv16,(%0)\n\t"                              \
+         "vsetvl\tx0,t1,t2\n\t"                             \
+         :                                                  \
+         : "r"(vs2)                                         \
+         : "t1", "t2");                                     \
+                                                            \
+      ipre                                                  \
+      isopc                                                 \
+      __asm__ __volatile__(insn "\t%0,v16," treg            \
+                           :"=r"(ret)::);                   \
+      ipost                                                 \
+                                                            \
+      return ret;                                           \
+   } while (0)
+
 // v8-v15, t0/ft0
 #define RVV0p7_UnopX_F_M_PP_T(insn, vd, rs1, imask, mreg, ipush, ipop, isopc, treg, ipre, ipost)\
    do {                                                     \
@@ -660,6 +685,12 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_BinopVI_FT(insn) \
 
 RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
+
+static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
+                                 ULong vs2, ULong rs1) {
+   ULong ret = 0;
+   RVV0p7_BinopRVX_VF_T("vext.x.v", vs2, rs1, RVV0p7_VX(), "t0", , );
+}
 
 #define GETN_VBinopVF_M(insn)  "RVV0p7_Binop_"#insn"vf_m"
 #define GETA_VBinopVF_M(insn)  RVV0p7_Binop_##insn##vf_m
