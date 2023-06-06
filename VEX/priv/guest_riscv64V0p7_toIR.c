@@ -271,13 +271,27 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
             case 0b01100:
                GETC_VWUnopOPF_V(vfwcvt_f_f, GETV_VopWidenD);
                return True;
+            /*
+             * Narrowing Floating-Point/Integer Type-Convert Instructions
+             */
+            case 0b10000:
+               GETC_VWUnopOPF_V(vfncvt_xu_f, GETV_VopNarrowD);
+               return True;
+            case 0b10001:
+               GETC_VWUnopOPF_V(vfncvt_x_f, GETV_VopNarrowD);
+               return True;
+            case 0b10010:
+               GETC_VWUnopOPF_V(vfncvt_f_xu, GETV_VopNarrowD);
+               return True;
+            case 0b10011:
+               GETC_VWUnopOPF_V(vfncvt_f_x, GETV_VopNarrowD);
+               return True;
+            case 0b10100:
+               GETC_VWUnopOPF_V(vfncvt_f_f, GETV_VopNarrowD);
+               return True;
             default:
                break;
          }
-         /*
-          * Narrowing Floating-Point/Integer Type-Convert Instructions
-          */
-         // TODO
 
       default:
          break;
