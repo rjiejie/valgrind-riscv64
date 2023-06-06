@@ -113,6 +113,12 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
                                : mkexpr(ret));
          DIP("%s(%s, %s, %s)\n", fName, nameIReg(rd), nameVReg(rs2), nameIReg(rs1));
          return True;
+      /*
+       * Integer Scalar Move Instruction
+       */
+      case 0b001101:
+         GETC_VUnopOPI_X_VAR(vmvs, GETV_VopM1D);
+         return True;
       default:
          break;
    }
@@ -267,25 +273,25 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        * Vector Floating-Point Compare Instructions
        */
       case 0b011000:
-         GETC_VBinopOPF_VAR(vmfeq, GETV_VopMaskD);
+         GETC_VBinopOPF_VAR(vmfeq, GETV_VopM1D);
          return True;
       case 0b011100:
-         GETC_VBinopOPF_VAR(vmfne, GETV_VopMaskD);
+         GETC_VBinopOPF_VAR(vmfne, GETV_VopM1D);
          return True;
       case 0b011011:
-         GETC_VBinopOPF_VAR(vmflt, GETV_VopMaskD);
+         GETC_VBinopOPF_VAR(vmflt, GETV_VopM1D);
          return True;
       case 0b011001:
-         GETC_VBinopOPF_VAR(vmfle, GETV_VopMaskD);
+         GETC_VBinopOPF_VAR(vmfle, GETV_VopM1D);
          return True;
       case 0b011010:
-         GETC_VBinopOPF_VAR(vmford, GETV_VopMaskD);
+         GETC_VBinopOPF_VAR(vmford, GETV_VopM1D);
          return True;
       case 0b011101:
-         GETC_VBinopOPF_F_VAR(vmfgt, GETV_VopMaskD);
+         GETC_VBinopOPF_F_VAR(vmfgt, GETV_VopM1D);
          return True;
       case 0b011111:
-         GETC_VBinopOPF_F_VAR(vmfge, GETV_VopMaskD);
+         GETC_VBinopOPF_F_VAR(vmfge, GETV_VopM1D);
          return True;
       /*
        * Vector Floating-Point Merge Instruction
