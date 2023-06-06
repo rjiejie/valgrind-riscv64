@@ -280,13 +280,11 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       vs2 += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      ipush                                                 \
       __asm__ __volatile__(                                 \
          "vle.v\tv16,(%0)\n\t"                              \
          :                                                  \
          : "r"(vs2)                                         \
          :);                                                \
-      ipop                                                  \
                                                             \
       imask                                                 \
       ipre                                                  \
