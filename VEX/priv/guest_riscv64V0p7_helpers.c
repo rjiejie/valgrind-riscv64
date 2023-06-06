@@ -726,7 +726,7 @@ RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
                   GETV_VopUnknow);                                             \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
-#define GETC_VWUnopOPF_V(insn, vtype)                                          \
+#define GETC_VUnopOPF_V_VAR(insn, vtype)                                       \
    GETC_VUnopOP_T(insn, V, V, offsetFReg, nameFReg, GETR_VUnopOPF, vtype);     \
    accumulateFFLAGS(irsb, mkexpr(ret));
 

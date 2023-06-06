@@ -275,37 +275,37 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
              * Widening Floating-Point/Integer Type-Convert Instructions
              */
             case 0b01000:
-               GETC_VWUnopOPF_V(vfwcvt_xu_f, GETV_VopWidenD);
+               GETC_VUnopOPF_V_VAR(vfwcvt_xu_f, GETV_VopWidenD);
                return True;
             case 0b01001:
-               GETC_VWUnopOPF_V(vfwcvt_x_f, GETV_VopWidenD);
+               GETC_VUnopOPF_V_VAR(vfwcvt_x_f, GETV_VopWidenD);
                return True;
             case 0b01010:
-               GETC_VWUnopOPF_V(vfwcvt_f_xu, GETV_VopWidenD);
+               GETC_VUnopOPF_V_VAR(vfwcvt_f_xu, GETV_VopWidenD);
                return True;
             case 0b01011:
-               GETC_VWUnopOPF_V(vfwcvt_f_x, GETV_VopWidenD);
+               GETC_VUnopOPF_V_VAR(vfwcvt_f_x, GETV_VopWidenD);
                return True;
             case 0b01100:
-               GETC_VWUnopOPF_V(vfwcvt_f_f, GETV_VopWidenD);
+               GETC_VUnopOPF_V_VAR(vfwcvt_f_f, GETV_VopWidenD);
                return True;
             /*
              * Narrowing Floating-Point/Integer Type-Convert Instructions
              */
             case 0b10000:
-               GETC_VWUnopOPF_V(vfncvt_xu_f, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_xu_f, GETV_VopNarrowD);
                return True;
             case 0b10001:
-               GETC_VWUnopOPF_V(vfncvt_x_f, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_x_f, GETV_VopNarrowD);
                return True;
             case 0b10010:
-               GETC_VWUnopOPF_V(vfncvt_f_xu, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_f_xu, GETV_VopNarrowD);
                return True;
             case 0b10011:
-               GETC_VWUnopOPF_V(vfncvt_f_x, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_f_x, GETV_VopNarrowD);
                return True;
             case 0b10100:
-               GETC_VWUnopOPF_V(vfncvt_f_f, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_f_f, GETV_VopNarrowD);
                return True;
             default:
                break;
