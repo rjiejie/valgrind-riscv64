@@ -52,17 +52,31 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
    const HChar *fName = NULL;
    IRExpr **args = NULL;
    UInt temp = 0;
-   IRTemp ret = newTemp(irsb, Ity_I32);
+   IRTemp ret = newTemp(irsb, Ity_I64);
 
    UInt rd   = GET_RD();
    UInt rs1  = GET_RS1();
    UInt rs2  = GET_RS2();
    Bool mask = GET_VMASK();
 
-   // vadd
-   if (GET_FUNCT6() == 0b000000) {
-      GETC_VBinopOPI(vadd);
-      return True;
+   switch (GET_FUNCT6()) {
+      case 0b000000:
+         GETC_VBinopOPI(vadd);
+         return True;
+      /*
+       * Vector Slideup Instructions
+       */
+      case 0b001110:
+         GETC_VBinopOPI_XI(vslideup);
+         return True;
+      /*
+       * Vector Slidedown Instructions
+       */
+      case 0b001111:
+         GETC_VBinopOPI_XI(vslidedown);
+         return True;
+      default:
+         break;
    }
 
    return False;

@@ -114,6 +114,10 @@
    GETC_VBinopOP_T(insn, V, X, I, offsetIReg64, nameIReg, GETR_VBinopOPI,      \
                    GETV_VopUnknow)
 
+#define GETC_VBinopOPI_XI(insn)                                                \
+   GETC_VBinopOP_T(insn, X, X, I, offsetIReg64, nameIReg, GETR_VBinopOPI,      \
+                   GETV_VopUnknow)
+
 #define GETR_VUnopOPI()                                                        \
    args = mkIRExprVec_4(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(temp),    \
                         mkU64(offsetVReg(0)));
@@ -624,6 +628,16 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 #define RVV0p7_BinopVI_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , , , RVV0p7_VI(), "t0", , )
 
+#define RVV0p7_BinopVX_M_P_T(insn, vd, vs2, rs1)\
+   RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", RVV0p7_Push(), RVV0p7_Pop(), RVV0p7_VX(), "t0", , )
+#define RVV0p7_BinopVX_P_T(insn, vd, vs2, rs1)\
+   RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , RVV0p7_Push(), RVV0p7_Pop(), RVV0p7_VX(), "t0", , )
+
+#define RVV0p7_BinopVI_M_P_T(insn, vd, vs2, rs1)\
+   RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", RVV0p7_Push(), RVV0p7_Pop(), RVV0p7_VI(), "t0", , )
+#define RVV0p7_BinopVI_P_T(insn, vd, vs2, rs1)\
+   RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , RVV0p7_Push(), RVV0p7_Pop(), RVV0p7_VI(), "t0", , )
+
 #define RVV0p7_BinopVF_M_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 #define RVV0p7_BinopVF_T(insn, vd, vs2, rs1)\
@@ -696,6 +710,28 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       RVV0p7_BinopVI_T(#insn".vx", vd, vs2, rs1); \
    } \
 
+#define RVV0p7_BinopVX_P_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vx_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong rs1, ULong mask) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopVX_M_P_T(#insn".vx", vd, vs2, rs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vx(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong rs1, ULong mask) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopVX_P_T(#insn".vx", vd, vs2, rs1); \
+   } \
+
+#define RVV0p7_BinopVI_P_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vi_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong rs1, ULong mask) { \
+      RVV0p7_BinopVI_M_P_T(#insn".vx", vd, vs2, rs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vi(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong rs1, ULong mask) { \
+      RVV0p7_BinopVI_P_T(#insn".vx", vd, vs2, rs1); \
+   } \
+
 #define RVV0p7_BinopOPIVV_VX_FT(insn) \
    RVV0p7_BinopOPIVV_FT(insn) \
    RVV0p7_BinopVX_FT(insn) \
@@ -704,7 +740,13 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_BinopOPIVV_VX_FT(insn) \
    RVV0p7_BinopVI_FT(insn) \
 
+#define RVV0p7_BinopVX_VI_P_FT(insn) \
+   RVV0p7_BinopVX_P_FT(insn) \
+   RVV0p7_BinopVI_P_FT(insn) \
+
 RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
+RVV0p7_BinopVX_VI_P_FT(vslideup)
+RVV0p7_BinopVX_VI_P_FT(vslidedown)
 
 static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
                                  ULong vs2, ULong rs1) {
