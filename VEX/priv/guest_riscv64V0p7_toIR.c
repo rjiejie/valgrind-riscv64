@@ -75,6 +75,12 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
       case 0b001111:
          GETC_VBinopOPI_XI(vslidedown);
          return True;
+      /*
+       * Vector Register Gather Instruction
+       */
+      case 0b001100:
+         GETC_VBinopOPI(vrgather);
+         return True;
       default:
          break;
    }

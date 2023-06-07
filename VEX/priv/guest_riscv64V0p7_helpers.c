@@ -414,6 +414,11 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 #define RVV0p7_BinopOPIVV_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , , , , )
 
+#define RVV0p7_BinopOPIVV_M_P_T(insn, vd, vs2, vs1)\
+   RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t", RVV0p7_Push(), RVV0p7_Pop(), , )
+#define RVV0p7_BinopOPIVV_P_T(insn, vd, vs2, vs1)\
+   RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , RVV0p7_Push(), RVV0p7_Pop(), , )
+
 #define RVV0p7_BinopOPFVV_M_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 #define RVV0p7_BinopOPFVV_T(insn, vd, vs2, vs1)\
@@ -714,6 +719,16 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       RVV0p7_BinopVI_T(#insn".vx", vd, vs2, rs1); \
    } \
 
+#define RVV0p7_BinopOPIVV_P_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong vs1, ULong mask) { \
+      RVV0p7_BinopOPIVV_M_P_T(#insn".vv", vd, vs2, vs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vv(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong vs1, ULong mask) { \
+      RVV0p7_BinopOPIVV_P_T(#insn".vv", vd, vs2, vs1); \
+   } \
+
 #define RVV0p7_BinopVX_P_FT(insn) \
    static UInt RVV0p7_Binop_##insn##vx_m(VexGuestRISCV64State *st, \
                                          ULong vd, ULong vs2, ULong rs1, ULong mask) { \
@@ -748,11 +763,16 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_BinopVX_P_FT(insn) \
    RVV0p7_BinopVI_P_FT(insn) \
 
+#define RVV0p7_BinopOPIVV_VX_VI_P_FT(insn) \
+   RVV0p7_BinopOPIVV_P_FT(insn) \
+   RVV0p7_BinopVX_VI_P_FT(insn) \
+
 RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
 RVV0p7_BinopVX_VI_P_FT(vslideup)
 RVV0p7_BinopVX_VI_P_FT(vslidedown)
 RVV0p7_BinopVX_P_FT(vslide1up)
 RVV0p7_BinopVX_P_FT(vslide1down)
+RVV0p7_BinopOPIVV_VX_VI_P_FT(vrgather)
 
 static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
                                  ULong vs2, ULong rs1) {
