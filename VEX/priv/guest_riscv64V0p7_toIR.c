@@ -361,7 +361,34 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
             default:
                break;
          }
+         break;
+      /*
+       * Floating-Point Scalar Move Instructions
+       */
+      case 0b001100: {
+         IRTemp dret = newTemp(irsb, Ity_F64);
+         fName = GETN_VUnopV(vfmv);
+         fAddr = GETA_VUnopV(vfmv);
 
+         args = mkIRExprVec_3(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(0));
+         d = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
+
+         d->nFxState = 1;
+         d->fxState[0].fx        = Ifx_Read;
+         d->fxState[0].offset    = offsetVReg(rs2);
+         d->fxState[0].size      = host_VLENB;
+         stmt(irsb, IRStmt_Dirty(d));
+
+         // TODO get sew
+         UInt sew = 0;
+         putFReg64(irsb, rd,
+                   sew == 8    ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFUL))
+                   : sew == 16 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFUL))
+                   : sew == 32 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFFFFFUL))
+                               : mkexpr(dret));
+         DIP("%s(%s, %s)\n", fName, nameFReg(rd), nameVReg(rs2));
+         return True;
+      }
       default:
          break;
    }
