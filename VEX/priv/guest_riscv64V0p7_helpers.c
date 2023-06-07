@@ -118,6 +118,10 @@
    GETC_VBinopOP_T(insn, X, X, I, offsetIReg64, nameIReg, GETR_VBinopOPI,      \
                    GETV_VopUnknow)
 
+#define GETC_VBinopOPI_X(insn)                                                 \
+   GETC_VBinopOP_T(insn, X, X, X, offsetIReg64, nameIReg, GETR_VBinopOPI,      \
+                   GETV_VopUnknow)
+
 #define GETR_VUnopOPI()                                                        \
    args = mkIRExprVec_4(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(temp),    \
                         mkU64(offsetVReg(0)));
@@ -747,6 +751,8 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 RVV0p7_BinopOPIVV_VX_VI_FT(vadd)
 RVV0p7_BinopVX_VI_P_FT(vslideup)
 RVV0p7_BinopVX_VI_P_FT(vslidedown)
+RVV0p7_BinopVX_P_FT(vslide1up)
+RVV0p7_BinopVX_P_FT(vslide1down)
 
 static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
                                  ULong vs2, ULong rs1) {

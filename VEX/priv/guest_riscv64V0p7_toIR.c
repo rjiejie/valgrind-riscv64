@@ -133,6 +133,18 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
       case 0b001101:
          GETC_VUnopOPI_X_VAR(vmvs, GETV_VopM1D);
          return True;
+      /*
+       * Vector Slide1up Instructions
+       */
+      case 0b001110:
+         GETC_VBinopOPI_X(vslide1up);
+         return True;
+      /*
+       * Vector Slide1down Instructions
+       */
+      case 0b001111:
+         GETC_VBinopOPI_X(vslide1down);
+         return True;
       default:
          break;
    }
