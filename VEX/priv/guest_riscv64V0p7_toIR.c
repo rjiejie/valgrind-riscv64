@@ -151,6 +151,12 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
       case 0b001111:
          GETC_VBinopOPI_X(vslide1down);
          return True;
+      /*
+       * Vector Compress Instruction
+       */
+      case 0b010111:
+         GETC_VBinopOPI_V(vcompress);
+         return True;
       default:
          break;
    }

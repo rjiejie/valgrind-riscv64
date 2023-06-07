@@ -114,6 +114,10 @@
    GETC_VBinopOP_T(insn, V, X, I, offsetIReg64, nameIReg, GETR_VBinopOPI,      \
                    GETV_VopUnknow)
 
+#define GETC_VBinopOPI_V(insn)                                                 \
+   GETC_VBinopOP_T(insn, V, V, V, offsetIReg64, nameIReg, GETR_VBinopOPI,      \
+                   GETV_VopUnknow)
+
 #define GETC_VBinopOPI_XI(insn)                                                \
    GETC_VBinopOP_T(insn, X, X, I, offsetIReg64, nameIReg, GETR_VBinopOPI,      \
                    GETV_VopUnknow)
@@ -787,6 +791,15 @@ static UInt GETA_VUnopX_M(vmvs)(VexGuestRISCV64State *st,
 static UInt GETA_VUnopX(vmvs)(VexGuestRISCV64State *st,
                               ULong vd, ULong rs1, ULong mask) {
    RVV0p7_UnopX_F_M_PP_T("vmv.s.x", vd, rs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), RVV0p7_VX(), "t0", , );
+}
+
+static ULong GETA_VBinopVV_M(vcompress)(VexGuestRISCV64State *st,
+                                        ULong vd, ULong vs2, ULong vs1, ULong mask) {
+   return 0;
+}
+static ULong GETA_VBinopVV(vcompress)(VexGuestRISCV64State *st,
+                                      ULong vd, ULong vs2, ULong vs1, ULong mask) {
+   RVV0p7_BinopOPIVV_T("vcompress.vm", vd, vs2, vs1);
 }
 
 #define GETN_VBinopVF_M(insn)  "RVV0p7_Binop_"#insn"vf_m"
