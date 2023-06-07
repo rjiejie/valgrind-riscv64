@@ -389,6 +389,10 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          DIP("%s(%s, %s)\n", fName, nameFReg(rd), nameVReg(rs2));
          return True;
       }
+      case 0b001101:
+         GETC_VUnopOPF_F_VAR(vfmvs, GETV_VopM1D);
+         return True;
+
       default:
          break;
    }

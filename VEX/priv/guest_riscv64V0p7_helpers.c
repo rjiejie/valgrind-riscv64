@@ -168,7 +168,9 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    d->nFxState = isVOpVV(sopc) ? 2 : 1;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
-   UInt lmuls[2] = {vtype & GETV_VopWidenD  ? lmul * 2 : lmul,
+   UInt lmuls[2] = {vtype & GETV_VopWidenD ? lmul * 2
+                    : vtype & GETV_VopM1D  ? 1
+                                           : lmul,
                     vtype & GETV_VopNarrowD ? lmul * 2 : lmul};
    UInt regNos[2] = {vd, src};
    for (int i = 0; i < d->nFxState; i++) {
@@ -788,6 +790,10 @@ static UInt GETA_VUnopX(vmvs)(VexGuestRISCV64State *st,
    GETC_VUnopOP_T(insn, V, V, offsetFReg, nameFReg, GETR_VUnopOPF, vtype);     \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
+#define GETC_VUnopOPF_F_VAR(insn, vtype)                                       \
+   GETC_VUnopOP_T(insn, F, F, offsetFReg, nameFReg, GETR_VUnopOPF, vtype);     \
+   accumulateFFLAGS(irsb, mkexpr(ret));
+
 #define RVV0p7_BinopOPFVV_FT(insn) \
    static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
                                          ULong vd, ULong vs2, ULong vs1, ULong mask, \
@@ -1033,6 +1039,17 @@ static Double GETA_VUnopV(vfmv)(VexGuestRISCV64State *st,
                                 ULong vs2, ULong rs1) {
    Double ret = 0;
    RVV0p7_BinopRVX_VF_T("vfmv.f.s", vs2, rs1, , , "f");
+}
+
+static UInt GETA_VUnopF_M(vfmvs)(VexGuestRISCV64State *st,
+                                 ULong vd, ULong rs1, ULong mask,
+                                 UInt frm) {
+   return 0;
+}
+static UInt GETA_VUnopF(vfmvs)(VexGuestRISCV64State *st,
+                               ULong vd, ULong rs1, ULong mask,
+                               UInt frm) {
+   RVV0p7_UnopX_F_M_PP_T("vfmv.s.f", vd, rs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), RVV0p7_VF(), "ft0", , );
 }
 
 /*--------------------------------------------------------------------*/
