@@ -446,19 +446,19 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
              * Narrowing Floating-Point/Integer Type-Convert Instructions
              */
             case 0b10000:
-               GETC_VUnopOPF_V_VAR(vfncvt_xu_f, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_xu_f, GETV_VopWidenS2);
                return True;
             case 0b10001:
-               GETC_VUnopOPF_V_VAR(vfncvt_x_f, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_x_f, GETV_VopWidenS2);
                return True;
             case 0b10010:
-               GETC_VUnopOPF_V_VAR(vfncvt_f_xu, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_f_xu, GETV_VopWidenS2);
                return True;
             case 0b10011:
-               GETC_VUnopOPF_V_VAR(vfncvt_f_x, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_f_x, GETV_VopWidenS2);
                return True;
             case 0b10100:
-               GETC_VUnopOPF_V_VAR(vfncvt_f_f, GETV_VopNarrowD);
+               GETC_VUnopOPF_V_VAR(vfncvt_f_f, GETV_VopWidenS2);
                return True;
             default:
                break;

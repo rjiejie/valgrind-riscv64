@@ -74,9 +74,8 @@
 #define GETV_VopUnknow  0
 #define GETV_VopAccD    (1 << 0) /* Indicate VD  is readed   by OP, e.g. VFMACC  */
 #define GETV_VopWidenD  (1 << 1) /* Indicate VD  is widened  by OP, e.g. VFWADD  */
-#define GETV_VopWidenS2 (1 << 2) /* Indicate VS2 is widened  by OP, e.g. VFWADDW */
-#define GETV_VopNarrowD (1 << 3) /* Indicate VD  is Narrowed by OP, e.g. VFNCVT  */
-#define GETV_VopM1D     (1 << 4) /* Indicate VD  is 1 LMUL   by OP, e.g. VMFEQ   */
+#define GETV_VopWidenS2 (1 << 2) /* Indicate VS2 is widened  by OP, e.g. VFWADDW/VFNCVT */
+#define GETV_VopM1D     (1 << 3) /* Indicate VD  is 1 LMUL   by OP, e.g. VMFEQ   */
 
 /*---------------------------------------------------------------*/
 /*--- Get call of helper functions                            ---*/
@@ -325,7 +324,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    UInt lmuls[2] = {vtype & GETV_VopWidenD ? lmul * 2
                     : vtype & GETV_VopM1D  ? 1
                                            : lmul,
-                    vtype & GETV_VopNarrowD ? lmul * 2 : lmul};
+                    vtype & GETV_VopWidenS2 ? lmul * 2 : lmul};
    UInt regNos[2] = {vd, src};
    for (int i = 0; i < d->nFxState; i++) {
       d->fxState[i].fx     = i == 0 ? Ifx_Write : Ifx_Read;
