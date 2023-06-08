@@ -80,6 +80,15 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
          GETC_VBinopOPI_VX_SAT(vssub);
          return True;
       /*
+       * Vector Single-Width Averaging Add and Subtract
+       */
+      case 0b100100:
+         GETC_VBinopOPI_SAT(vaadd);
+         return True;
+      case 0b100110:
+         GETC_VBinopOPI_VX_SAT(vasub);
+         return True;
+      /*
        * Vector Slideup Instructions
        */
       case 0b001110:
