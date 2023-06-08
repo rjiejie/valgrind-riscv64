@@ -52,7 +52,8 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
    const HChar *fName = NULL;
    IRExpr **args = NULL;
    UInt temp = 0;
-   IRTemp ret = newTemp(irsb, Ity_I64);
+   IRTemp ret = newTemp(irsb, Ity_I32);
+   IRTemp xrm = newTemp(irsb, Ity_I32);
 
    UInt rd   = GET_RD();
    UInt rs1  = GET_RS1();
@@ -62,6 +63,21 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
    switch (GET_FUNCT6()) {
       case 0b000000:
          GETC_VBinopOPI(vadd);
+         return True;
+      /*
+       * Vector Single-Width Saturating Add and Subtract
+       */
+      case 0b100000:
+         GETC_VBinopOPI_SAT(vsaddu);
+         return True;
+      case 0b100001:
+         GETC_VBinopOPI_SAT(vsadd);
+         return True;
+      case 0b100010:
+         GETC_VBinopOPI_VX_SAT(vssubu);
+         return True;
+      case 0b100011:
+         GETC_VBinopOPI_VX_SAT(vssub);
          return True;
       /*
        * Vector Slideup Instructions

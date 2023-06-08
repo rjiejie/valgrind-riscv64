@@ -608,6 +608,14 @@ static void accumulateFFLAGS(/*OUT*/ IRSB* irsb, /*IN*/ IRExpr* e)
    putFCSR(irsb, binop(Iop_Or32, getFCSR(), binop(Iop_And32, e, mkU32(0x1f))));
 }
 
+/* Accumulate saturation flags in fcsr. */
+static void accumulateXSAT(/*OUT*/ IRSB* irsb, /*IN*/ IRExpr* e)
+{
+   vassert(typeOfIRExpr(irsb->tyenv, e) == Ity_I32);
+   putFCSR(irsb, binop(Iop_Or32, getFCSR(),
+                       binop(Iop_Shl32, binop(Iop_And32, e, mkU32(0x1)), mkU8(8))));
+}
+
 /* Generate IR to get hold of the rounding mode in both RISC-V and IR
    formats. A floating-point operation can use either a static rounding mode
    encoded in the instruction, or a dynamic rounding mode held in fcsr. Bind the
