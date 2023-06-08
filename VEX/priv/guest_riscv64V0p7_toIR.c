@@ -68,31 +68,31 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
        * Vector Single-Width Saturating Add and Subtract
        */
       case 0b100000:
-         GETC_VBinopOPI_SAT(vsaddu);
+         GETC_VBinopSAT(vsaddu);
          return True;
       case 0b100001:
-         GETC_VBinopOPI_SAT(vsadd);
+         GETC_VBinopSAT(vsadd);
          return True;
       case 0b100010:
-         GETC_VBinopOPI_VX_SAT(vssubu);
+         GETC_VBinopSAT_VX(vssubu);
          return True;
       case 0b100011:
-         GETC_VBinopOPI_VX_SAT(vssub);
+         GETC_VBinopSAT_VX(vssub);
          return True;
       /*
        * Vector Single-Width Averaging Add and Subtract
        */
       case 0b100100:
-         GETC_VBinopOPI_SAT(vaadd);
+         GETC_VBinopSAT(vaadd);
          return True;
       case 0b100110:
-         GETC_VBinopOPI_VX_SAT(vasub);
+         GETC_VBinopSAT_VX(vasub);
          return True;
       /*
        * Vector Single-Width Fractional Multiply with Rounding and Saturation
        */
       case 0b100111:
-         GETC_VBinopOPI_VX_SAT(vsmul);
+         GETC_VBinopSAT_VX(vsmul);
          return True;
       /*
        * Vector Slideup Instructions
