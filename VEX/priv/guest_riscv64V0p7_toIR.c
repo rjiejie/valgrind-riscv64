@@ -119,6 +119,15 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
          GETC_VBinopSAT(vssra);
          return True;
       /*
+       * Vector Narrowing Fixed-Point Clip Instructions
+       */
+      case 0b101110:
+         GETC_VBinopSAT_VAR(vnclipu, GETV_VopWidenS2);
+         return True;
+      case 0b101111:
+         GETC_VBinopSAT_VAR(vnclip, GETV_VopWidenS2);
+         return True;
+      /*
        * Vector Slideup Instructions
        */
       case 0b001110:

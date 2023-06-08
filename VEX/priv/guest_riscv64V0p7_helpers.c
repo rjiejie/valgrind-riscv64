@@ -145,6 +145,11 @@
                    GETV_VopUnknow);                                            \
    accumulateXSAT(irsb, mkexpr(ret));
 
+#define GETC_VBinopSAT_VAR(insn, vtype)                                        \
+   GETC_VBinopOP_T(insn, V, X, I, offsetIReg64, nameIReg, GETR_VBinopSAT,      \
+                   vtype);                                                     \
+   accumulateXSAT(irsb, mkexpr(ret));
+
 #define GETC_VBinopSAT_VX(insn)                                                \
    GETC_VBinopOP_T(insn, V, X, X, offsetIReg64, nameIReg, GETR_VBinopSAT,      \
                    GETV_VopUnknow);                                            \
@@ -484,6 +489,44 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       return ret;                                           \
    } while (0)
 
+// v8-v15, v16-v23, v24-v31 # used for Narrowing
+#define RVV0p7_BinopVV_M_PP_TN(insn, vd, vs2, vs1, imask, mreg, ipush, ipop, ipre, ipost)\
+   do {                                                     \
+      UInt ret = 0;                                         \
+                                                            \
+      vd  += (ULong)st;                                     \
+      vs2 += (ULong)st;                                     \
+      vs1 += (ULong)st;                                     \
+      mask += (ULong)st;                                    \
+                                                            \
+      ipush                                                 \
+      __asm__ __volatile__(                                 \
+         "vle.v\tv16,(%0)\n\t"                              \
+         :                                                  \
+         : "r"(vs2)                                         \
+         :);                                                \
+      ipop                                                  \
+                                                            \
+      __asm__ __volatile__(                                 \
+         "vle.v\tv24,(%0)\n\t"                              \
+         :                                                  \
+         : "r"(vs1)                                         \
+         :);                                                \
+                                                            \
+      imask                                                 \
+      ipre                                                  \
+      __asm__ __volatile__(insn "\tv8,v16,v24" mreg);       \
+      ipost                                                 \
+                                                            \
+      __asm__ __volatile__(                                 \
+         "vse.v\tv8,(%0)\n\t"                               \
+         :                                                  \
+         : "r"(vd)                                          \
+         : "memory");                                       \
+                                                            \
+      return ret;                                           \
+   } while (0)
+
 // v8, v16-v23, v24-v31 # used for compared
 #define RVV0p7_BinopVV_M_CMP_T(insn, vd, vs2, vs1, imask, mreg, ipre, ipost)\
    do {                                                     \
@@ -621,6 +664,14 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , RVV0p7_PushW(), RVV0p7_Pop(), \
                          RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
 
+#define RVV0p7_BinopSATNVV_M_T(insn, vd, vs2, vs1)                             \
+   RVV0p7_BinopVV_M_PP_TN(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t",           \
+                          RVV0p7_PushW(), RVV0p7_Pop(), RVV0p7_PushXSAT(),      \
+                          RVV0p7_PopXSAT())
+#define RVV0p7_BinopSATNVV_T(insn, vd, vs2, vs1)                               \
+   RVV0p7_BinopVV_M_PP_TN(insn, vd, vs2, vs1, , , RVV0p7_PushW(), RVV0p7_Pop(), \
+                          RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+
 // OPF
 #define RVV0p7_BinopOPFVV_M_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
@@ -731,6 +782,38 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
          : "r"(vd)                                          \
          : "memory");                                       \
       ipop                                                  \
+                                                            \
+      return ret;                                           \
+   } while (0)
+
+// v8-v15, v16-v23, t0/ft0 # used for Narrowing
+#define RVV0p7_BinopVX_VI_VF_M_PP_TN(insn, vd, vs2, rs1, imask, mreg, ipush, ipop, isopc, treg, ipre, ipost)\
+   do {                                                     \
+      UInt ret = 0;                                         \
+                                                            \
+      vd  += (ULong)st;                                     \
+      vs2 += (ULong)st;                                     \
+      mask += (ULong)st;                                    \
+                                                            \
+      ipush                                                 \
+      __asm__ __volatile__(                                 \
+         "vle.v\tv16,(%0)\n\t"                              \
+         :                                                  \
+         : "r"(vs2)                                         \
+         :);                                                \
+      ipop                                                  \
+                                                            \
+      imask                                                 \
+      ipre                                                  \
+      isopc                                                 \
+      __asm__ __volatile__(insn "\tv8,v16," treg mreg);     \
+      ipost                                                 \
+                                                            \
+      __asm__ __volatile__(                                 \
+         "vse.v\tv8,(%0)\n\t"                               \
+         :                                                  \
+         : "r"(vd)                                          \
+         : "memory");                                       \
                                                             \
       return ret;                                           \
    } while (0)
@@ -880,6 +963,24 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 #define RVV0p7_BinopSATWVX_T2(insn, vd, vs2, rs1)                              \
    RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, , , RVV0p7_PushW(),        \
                                 RVV0p7_Pop(), RVV0p7_VX(), "t0",               \
+                                RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+
+#define RVV0p7_BinopSATNVX_M_T(insn, vd, vs2, rs1)                             \
+   RVV0p7_BinopVX_VI_VF_M_PP_TN(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",    \
+                                RVV0p7_PushW(), RVV0p7_Pop(), RVV0p7_VX(),     \
+                                "t0", RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+#define RVV0p7_BinopSATNVX_T(insn, vd, vs2, rs1)                               \
+   RVV0p7_BinopVX_VI_VF_M_PP_TN(insn, vd, vs2, rs1, , , RVV0p7_PushW(),        \
+                                RVV0p7_Pop(), RVV0p7_VX(), "t0",               \
+                                RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+
+#define RVV0p7_BinopSATNVI_M_T(insn, vd, vs2, rs1)                             \
+   RVV0p7_BinopVX_VI_VF_M_PP_TN(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",    \
+                                RVV0p7_PushW(), RVV0p7_Pop(), RVV0p7_VI(),     \
+                                "t0", RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+#define RVV0p7_BinopSATNVI_T(insn, vd, vs2, rs1)                               \
+   RVV0p7_BinopVX_VI_VF_M_PP_TN(insn, vd, vs2, rs1, , , RVV0p7_PushW(),        \
+                                RVV0p7_Pop(), RVV0p7_VI(), "t0",               \
                                 RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
 
 // OPF
@@ -1058,6 +1159,44 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       RVV0p7_BinopSATWVX_T2(#insn".vx", vd, vs2, rs1); \
    } \
 
+#define RVV0p7_BinopSATNVV_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                         UInt xrm) { \
+      RVV0p7_BinopSATNVV_M_T(#insn".vv", vd, vs2, vs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vv(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                       UInt xrm) { \
+      RVV0p7_BinopSATNVV_T(#insn".vv", vd, vs2, vs1); \
+   } \
+
+#define RVV0p7_BinopSATNVX_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vx_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong rs1, ULong mask, \
+                                         UInt xrm) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopSATNVX_M_T(#insn".vx", vd, vs2, rs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vx(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong rs1, ULong mask, \
+                                       UInt xrm) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopSATNVX_T(#insn".vx", vd, vs2, rs1); \
+   } \
+
+#define RVV0p7_BinopSATNVI_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vi_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong rs1, ULong mask, \
+                                         UInt xrm) { \
+      RVV0p7_BinopSATNVI_M_T(#insn".vx", vd, vs2, rs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vi(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong rs1, ULong mask, \
+                                       UInt xrm) { \
+      RVV0p7_BinopSATNVI_T(#insn".vx", vd, vs2, rs1); \
+   } \
+
 /*---------------------------------------------------------------*/
 /*--- OPI function templates helper                           ---*/
 /*---------------------------------------------------------------*/
@@ -1091,6 +1230,11 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_BinopSATWVV_FT(insn) \
    RVV0p7_BinopSATWVX_FT2(insn) \
 
+#define RVV0p7_BinopSATNVV_VX_VI_FT(insn) \
+   RVV0p7_BinopSATNVV_FT(insn) \
+   RVV0p7_BinopSATNVX_FT(insn) \
+   RVV0p7_BinopSATNVI_FT(insn) \
+
 /*---------------------------------------------------------------*/
 /*--- OPI function definitions                                ---*/
 /*---------------------------------------------------------------*/
@@ -1116,6 +1260,8 @@ RVV0p7_BinopSATWVV_WVX_FT2(vwsmaccsu)
 RVV0p7_BinopSATWVX_FT2(vwsmaccus)
 RVV0p7_BinopSATVV_VX_VI_FT(vssrl)
 RVV0p7_BinopSATVV_VX_VI_FT(vssra)
+RVV0p7_BinopSATNVV_VX_VI_FT(vnclipu)
+RVV0p7_BinopSATNVV_VX_VI_FT(vnclip)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/
