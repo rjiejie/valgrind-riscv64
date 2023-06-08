@@ -603,7 +603,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    } while (0)
 
 // v8-v15, v16-v23 # used for Narrowing
-#define RVV0p7_UnopV_M_PP_T2(insn, vd, vs2, imask, mreg, ipush, ipop, ipre, ipost)\
+#define RVV0p7_UnopV_M_PP_TN(insn, vd, vs2, imask, mreg, ipush, ipop, ipre, ipost)\
    do {                                                     \
       UInt ret = 0;                                         \
                                                             \
@@ -705,10 +705,10 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
                        RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
 #define RVV0p7_UnopOPFNV_M_T(insn, vd, vs2)                                    \
-   RVV0p7_UnopV_M_PP_T2(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushW(),  \
+   RVV0p7_UnopV_M_PP_TN(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushW(),  \
                        RVV0p7_Pop(), RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 #define RVV0p7_UnopOPFNV_T(insn, vd, vs2)                                      \
-   RVV0p7_UnopV_M_PP_T2(insn, vd, vs2, , , RVV0p7_PushW(), RVV0p7_Pop(),        \
+   RVV0p7_UnopV_M_PP_TN(insn, vd, vs2, , , RVV0p7_PushW(), RVV0p7_Pop(),        \
                        RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
 /*---------------------------------------------------------------*/
