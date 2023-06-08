@@ -150,6 +150,24 @@
                    GETV_VopUnknow);                                            \
    accumulateXSAT(irsb, mkexpr(ret));
 
+// SAT2 - used for args format: rd, rs1/imm, rs2
+#define GETR_VBinopSAT2()                                                      \
+   assign(irsb, xrm,                                                           \
+          binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(9)), mkU32(3)));   \
+   args = mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),                 \
+                        mkU64(offsetVReg(temp)), mkU64(rs2),                   \
+                        mkU64(offsetVReg(0)), mkexpr(xrm));
+
+#define GETC_VBinopSAT2_VX_VAR(insn, vtype)                                    \
+   GETC_VBinopOP_T(insn, V, X, X, offsetIReg64, nameIReg, GETR_VBinopSAT2,     \
+                   vtype);                                                     \
+   accumulateXSAT(irsb, mkexpr(ret));
+
+#define GETC_VBinopSAT2_X_VAR(insn, vtype)                                     \
+   GETC_VBinopOP_T(insn, X, X, X, offsetIReg64, nameIReg, GETR_VBinopSAT2,     \
+                   vtype);                                                     \
+   accumulateXSAT(irsb, mkexpr(ret));
+
 // OPF - used for args format: rd, rs2, rs1/imm
 #define GETR_VBinopOPF()                                                       \
    assign(irsb, frm,                                                           \
@@ -595,6 +613,14 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 #define RVV0p7_BinopSATVV_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , , , RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
 
+#define RVV0p7_BinopSATWVV_M_T(insn, vd, vs2, vs1)                             \
+   RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t",           \
+                         RVV0p7_PushW(), RVV0p7_Pop(), RVV0p7_PushXSAT(),      \
+                         RVV0p7_PopXSAT())
+#define RVV0p7_BinopSATWVV_T(insn, vd, vs2, vs1)                               \
+   RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , RVV0p7_PushW(), RVV0p7_Pop(), \
+                         RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+
 // OPF
 #define RVV0p7_BinopOPFVV_M_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
@@ -847,6 +873,15 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 #define RVV0p7_BinopSATVI_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , , , RVV0p7_VI(), "t0", RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
 
+#define RVV0p7_BinopSATWVX_M_T2(insn, vd, vs2, rs1)                            \
+   RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t",    \
+                                RVV0p7_PushW(), RVV0p7_Pop(), RVV0p7_VX(),     \
+                                "t0", RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+#define RVV0p7_BinopSATWVX_T2(insn, vd, vs2, rs1)                              \
+   RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, , , RVV0p7_PushW(),        \
+                                RVV0p7_Pop(), RVV0p7_VX(), "t0",               \
+                                RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+
 // OPF
 #define RVV0p7_BinopVF_M_T(insn, vd, vs2, rs1)\
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
@@ -997,6 +1032,32 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       RVV0p7_BinopSATVI_T(#insn".vx", vd, vs2, rs1); \
    } \
 
+#define RVV0p7_BinopSATWVV_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                         UInt xrm) { \
+      RVV0p7_BinopSATWVV_M_T(#insn".vv", vd, vs2, vs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vv(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                       UInt xrm) { \
+      RVV0p7_BinopSATWVV_T(#insn".vv", vd, vs2, vs1); \
+   } \
+
+#define RVV0p7_BinopSATWVX_FT2(insn) \
+   static UInt RVV0p7_Binop_##insn##vx_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong rs1, ULong vs2, ULong mask, \
+                                         UInt xrm) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopSATWVX_M_T2(#insn".vx", vd, vs2, rs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vx(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong rs1, ULong vs2, ULong mask, \
+                                       UInt xrm) { \
+      rs1 += (ULong)st; \
+      RVV0p7_BinopSATWVX_T2(#insn".vx", vd, vs2, rs1); \
+   } \
+
 /*---------------------------------------------------------------*/
 /*--- OPI function templates helper                           ---*/
 /*---------------------------------------------------------------*/
@@ -1026,6 +1087,10 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_BinopSATVV_VX_FT(insn) \
    RVV0p7_BinopSATVI_FT(insn) \
 
+#define RVV0p7_BinopSATWVV_WVX_FT2(insn) \
+   RVV0p7_BinopSATWVV_FT(insn) \
+   RVV0p7_BinopSATWVX_FT2(insn) \
+
 /*---------------------------------------------------------------*/
 /*--- OPI function definitions                                ---*/
 /*---------------------------------------------------------------*/
@@ -1045,6 +1110,10 @@ RVV0p7_BinopSATVV_VX_FT(vssub)
 RVV0p7_BinopSATVV_VX_VI_FT(vaadd)
 RVV0p7_BinopSATVV_VX_FT(vasub)
 RVV0p7_BinopSATVV_VX_FT(vsmul)
+RVV0p7_BinopSATWVV_WVX_FT2(vwsmaccu)
+RVV0p7_BinopSATWVV_WVX_FT2(vwsmacc)
+RVV0p7_BinopSATWVV_WVX_FT2(vwsmaccsu)
+RVV0p7_BinopSATWVX_FT2(vwsmaccus)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/

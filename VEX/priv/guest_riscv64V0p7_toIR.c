@@ -95,6 +95,21 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
          GETC_VBinopSAT_VX(vsmul);
          return True;
       /*
+       * Vector Widening Saturating Scaled Multiply-Add
+       */
+      case 0b111100:
+         GETC_VBinopSAT2_VX_VAR(vwsmaccu,  GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111101:
+         GETC_VBinopSAT2_VX_VAR(vwsmacc,   GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111110:
+         GETC_VBinopSAT2_VX_VAR(vwsmaccsu, GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111111:
+         GETC_VBinopSAT2_X_VAR(vwsmaccus,  GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      /*
        * Vector Slideup Instructions
        */
       case 0b001110:
