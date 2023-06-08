@@ -1044,6 +1044,7 @@ RVV0p7_BinopOPIVV_VX_FT_SAT(vssubu)
 RVV0p7_BinopOPIVV_VX_FT_SAT(vssub)
 RVV0p7_BinopOPIVV_VX_VI_FT_SAT(vaadd)
 RVV0p7_BinopOPIVV_VX_FT_SAT(vasub)
+RVV0p7_BinopOPIVV_VX_FT_SAT(vsmul)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/

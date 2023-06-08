@@ -89,6 +89,12 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
          GETC_VBinopOPI_VX_SAT(vasub);
          return True;
       /*
+       * Vector Single-Width Fractional Multiply with Rounding and Saturation
+       */
+      case 0b100111:
+         GETC_VBinopOPI_VX_SAT(vsmul);
+         return True;
+      /*
        * Vector Slideup Instructions
        */
       case 0b001110:
