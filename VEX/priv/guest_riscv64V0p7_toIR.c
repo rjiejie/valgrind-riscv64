@@ -110,6 +110,15 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
          GETC_VBinopSAT2_X_VAR(vwsmaccus,  GETV_VopAccD | GETV_VopWidenD);
          return True;
       /*
+       * Vector Single-Width Scaling Shift Instructions
+       */
+      case 0b101010:
+         GETC_VBinopSAT(vssrl);
+         return True;
+      case 0b101011:
+         GETC_VBinopSAT(vssra);
+         return True;
+      /*
        * Vector Slideup Instructions
        */
       case 0b001110:

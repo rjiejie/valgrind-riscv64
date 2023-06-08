@@ -1114,6 +1114,8 @@ RVV0p7_BinopSATWVV_WVX_FT2(vwsmaccu)
 RVV0p7_BinopSATWVV_WVX_FT2(vwsmacc)
 RVV0p7_BinopSATWVV_WVX_FT2(vwsmaccsu)
 RVV0p7_BinopSATWVX_FT2(vwsmaccus)
+RVV0p7_BinopSATVV_VX_VI_FT(vssrl)
+RVV0p7_BinopSATVV_VX_VI_FT(vssra)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/
