@@ -221,6 +221,33 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
       case 0b010111:
          GETC_VBinopOPI_V(vcompress);
          return True;
+      /*
+       * Vector Single-Width Integer Reduction Instructions
+       */
+      case 0b000000:
+         GETC_VBinopOPI_V_VAR(vredsum, GETV_VopM1D);
+         return True;
+      case 0b000110:
+         GETC_VBinopOPI_V_VAR(vredmaxu, GETV_VopM1D);
+         return True;
+      case 0b000111:
+         GETC_VBinopOPI_V_VAR(vredmax, GETV_VopM1D);
+         return True;
+      case 0b000100:
+         GETC_VBinopOPI_V_VAR(vredminu, GETV_VopM1D);
+         return True;
+      case 0b000101:
+         GETC_VBinopOPI_V_VAR(vredmin, GETV_VopM1D);
+         return True;
+      case 0b000001:
+         GETC_VBinopOPI_V_VAR(vredand, GETV_VopM1D);
+         return True;
+      case 0b000010:
+         GETC_VBinopOPI_V_VAR(vredor, GETV_VopM1D);
+         return True;
+      case 0b000011:
+         GETC_VBinopOPI_V_VAR(vredxor, GETV_VopM1D);
+         return True;
       default:
          break;
    }
