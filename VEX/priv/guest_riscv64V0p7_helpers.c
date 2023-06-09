@@ -97,6 +97,7 @@
          fAddr = mask ? GETA_VBinopV##I(insn) : GETA_VBinopV##I##_M(insn);     \
          temp  = rs1;                                                          \
       }                                                                        \
+      vassert(fAddr != NULL);                                                  \
       ARGS()                                                                   \
       d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);                       \
       d = GETD_VBinop(d, rd, rs2, rs1, mask, GET_FUNCT3(), VARIANT);           \
@@ -225,6 +226,7 @@
          fAddr = mask ? GETA_VUnop##X(insn) : GETA_VUnop##X##_M(insn);         \
          temp  = REGO(rs1);                                                    \
       }                                                                        \
+      vassert(fAddr != NULL);                                                  \
       ARGS()                                                                   \
       d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);                       \
       d = GETD_VUnop(d, rd, isVOpVV(GET_FUNCT3()) ? rs2 : rs1, mask,           \
@@ -1272,21 +1274,11 @@ static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
    RVV0p7_BinopRVX_VF_T("vext.x.v", vs2, rs1, RVV0p7_VX(), ",t0", "r");
 }
 
-static UInt GETA_VUnopX_M(vmvs)(VexGuestRISCV64State *st,
-                                ULong vd, ULong rs1, ULong mask) {
-   vassert(0);
-   return 0;
-}
 static UInt GETA_VUnopX(vmvs)(VexGuestRISCV64State *st,
                               ULong vd, ULong rs1, ULong mask) {
    RVV0p7_UnopX_F_M_PP_T("vmv.s.x", vd, rs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), RVV0p7_VX(), "t0", , );
 }
 
-static ULong GETA_VBinopVV_M(vcompress)(VexGuestRISCV64State *st,
-                                        ULong vd, ULong vs2, ULong vs1, ULong mask) {
-   vassert(0);
-   return 0;
-}
 static ULong GETA_VBinopVV(vcompress)(VexGuestRISCV64State *st,
                                       ULong vd, ULong vs2, ULong vs1, ULong mask) {
    RVV0p7_BinopOPIVV_T("vcompress.vm", vd, vs2, vs1);
@@ -1533,18 +1525,6 @@ static UInt GETA_VBinopVF_M(vfmerge)(VexGuestRISCV64State *st,
    rs1 += (ULong)st;
    RVV0p7_BinopVF_M2_T("vfmerge.vfm", vd, vs2, rs1);
 }
-static UInt GETA_VBinopVF(vfmerge)(VexGuestRISCV64State *st,
-                                   ULong vd, ULong vs2, ULong rs1, ULong mask,
-                                   UInt frm) {
-   vassert(0);
-   return 0;
-}
-static UInt GETA_VUnopF_M(vfmerge)(VexGuestRISCV64State *st,
-                                   ULong vd, ULong rs1, ULong mask,
-                                   UInt frm) {
-   vassert(0);
-   return 0;
-}
 static UInt GETA_VUnopF(vfmerge)(VexGuestRISCV64State *st,
                                  ULong vd, ULong rs1, ULong mask,
                                  UInt frm) {
@@ -1557,17 +1537,23 @@ static Double GETA_VUnopV(vfmv)(VexGuestRISCV64State *st,
    RVV0p7_BinopRVX_VF_T("vfmv.f.s", vs2, rs1, , , "f");
 }
 
-static UInt GETA_VUnopF_M(vfmvs)(VexGuestRISCV64State *st,
-                                 ULong vd, ULong rs1, ULong mask,
-                                 UInt frm) {
-   vassert(0);
-   return 0;
-}
 static UInt GETA_VUnopF(vfmvs)(VexGuestRISCV64State *st,
                                ULong vd, ULong rs1, ULong mask,
                                UInt frm) {
    RVV0p7_UnopX_F_M_PP_T("vfmv.s.f", vd, rs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), RVV0p7_VF(), "ft0", , );
 }
+
+/*---------------------------------------------------------------*/
+/*--- Vector unsupported function definitions                 ---*/
+/*---------------------------------------------------------------*/
+
+typedef enum {
+   GETA_VUnopX_M(vmvs)        = (Addr)NULL,
+   GETA_VUnopF_M(vfmvs)       = (Addr)NULL,
+   GETA_VBinopVV_M(vcompress) = (Addr)NULL,
+   GETA_VBinopVF(vfmerge)     = (Addr)NULL,
+   GETA_VUnopF_M(vfmerge)     = (Addr)NULL,
+} GETA_NULL;
 
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/
