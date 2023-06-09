@@ -1768,6 +1768,483 @@ typedef enum {
    GETA_VBinopVV_M(vmxnor)    = (Addr)NULL,
 } GETA_NULL;
 
+/* Load/store dirty helpers
+
+   Vector load/store instructions are categorized into 4 types where
+   segment load/store is a rvv extension supporting array-of-structures
+   load/store with unit-stride/strided/indexed variants:
+
+      1. Unit-stride normal load/store
+         1.1 Vector load
+         1.2 Vector store
+      2. Strided load/store
+         2.1 Strided load
+         2.2 Strided store
+      3. Indexed load/store
+         3.1 Indexed load
+         3.2 Indexed store
+      4. Segment load/store
+         4.1 Segment load
+            4.1.1 Segment unit-stride load
+            4.1.2 Segment stride load
+            4.1.3 Segment indexed load
+         4.2 Segment store
+            4.2.1 Segment unit-stride store
+            4.2.2 Segment stride store
+            4.2.3 Segment indexed store
+
+   The dirty helpers fulfill load by:
+             vload1                  vstore1
+      Memory -----> Host vector regs ------> GuestState vector regs
+   vload1 gets its address from vCPU gpr and possible indexes from
+   vCPU vector regs. Other info such as LMUL, SEW, nfield, stride are also
+   obtained from vCPU. As elements loaded from memory are casted to SEW,
+   vstore1 is a direct vse.v.
+
+   vstore1 puts host vector reg contents to vCPU and the reg number is
+   encoded in the disassembled instruction.
+
+   The dirty helpers fulfill store by:
+                             vload2                  vstore2
+      GuestState vector regs -----> Host vector regs ------> Memory
+
+   The following macros are annotated by different memory accessing phases
+   and these phases are described above as vload{1,2} and vstore{1,2}.
+*/
+
+/*----------------------------------------------------------*/
+/*---  Some utilities for all load/store                 ---*/
+/*----------------------------------------------------------*/
+
+/* Distinguish different load/store types */
+typedef enum {
+   UnitStride,
+   Strided,
+   Indexed,
+} VLdstT;
+
+/* Use following macros to get *name* and *address* of a specific dirty helper */
+#define GETA_VLdst_M(insn)  RVV0p7_VLdst_##insn##_vm
+#define GETN_VLdst_M(insn)  "RVV0p7_VLdst_"#insn"_vm"
+#define GETA_VLdst(insn)    RVV0p7_VLdst_##insn
+#define GETN_VLdst(insn)    "RVV0p7_VLdst_"#insn
+
+/* Generic template for all vector loads */
+#define RVV0p7_Load_Tpl(insn, vm,            \
+                        loadMask,            \
+                        loadMemory,          \
+                        storeGuestState)     \
+do {                                         \
+      /* Get rs1/vd absolute offset */       \
+      ULong rs1_offs = (ULong) st + rs1;     \
+      ULong vd_offs  = (ULong) st + v;       \
+      mask           = (ULong) st + mask;    \
+                                             \
+      loadMask                               \
+                                             \
+      /* vload1: Load from memory */         \
+      loadMemory                             \
+                                             \
+      /* vstore1: Store to GuestState */     \
+      storeGuestState                        \
+} while (0)
+
+/* Generic template for all vector stores */
+#define RVV0p7_Store_Tpl(insn, vm,           \
+                         loadMask,           \
+                         loadGuestState,     \
+                         storeMemory)        \
+do {                                         \
+      /* Get rd/vs absolute offset */        \
+      ULong rs1_offs = (ULong) st + rs1;     \
+      ULong vs_offs  = (ULong) st + v;       \
+      mask           = (ULong) st + mask;    \
+                                             \
+      loadMask                               \
+                                             \
+      /* vload2: Load from GuestState */     \
+      loadGuestState                         \
+                                             \
+      /* vstore2: Store to memory */         \
+      storeMemory                            \
+} while (0)
+
+/* Dirty helper for converting v0 to a real mask */
+/* This is the tricky part about converting a v0 mask to multiple segments.
+   Here is the outline:
+      As each mask element in v0 has a width of LMUL/SEW, we need to convert masks to
+      SEW width for better addressing them. We zero out v8 and then add 1 to v8
+      with vm on. Therefore, all masked elements keep 0 while others are 1,
+      meaning that v8 has all masks represented in SEW width. The next step is
+      sliding down N elements to get the required mask. Finally, we store these
+      masks in SEW width down to res (64-bit).
+
+   By doing this, we get an ULong result where each 8-bit segment is a mask in v0.
+   Totally, it contains 5 + 9 = 14 lines of inline assembly code. */
+static ULong dirty_get_mask(VexGuestRISCV64State *st,
+                            ULong mask, UInt n_slidedown) {
+   ULong res      = 0;
+   ULong res_addr = (ULong) &res; 
+
+   mask += (ULong) st;
+   RVV0p7_Mask();
+
+   __asm__ __volatile__ (
+      "vmv.v.i\tv8,0\n\t"            /* create a full-zero v8 */
+      "vadd.vi\tv8,v8,1,v0.t\n\t"    /* elements are incremented by 1 in unmasked places */
+      "vslidedown.vx\tv8,v8,%0\n\t"  /* slide down v8 to what we want in the lowest lane */
+      "csrr\tt0,vl\n\t"
+      "csrr\tt1,vtype\n\t"
+      "addi\tt2,x0,8\n\t"
+      "vsetvl\tx0,t2,t1\n\t"         /* set a safe vl before storing v8 down to res */
+      "vsb.v\tv8,(%1)\n\t"           /* 8-bit mask elements are stored to res */
+      "vsetvl\tx0,t0,t1\n\t"         /* restore previous vl */
+      ::"r"(n_slidedown), "r"(res_addr)
+      : "t0", "t1", "t2", "memory"
+   );
+   return res;
+}
+
+/* Fill mMask array */
+static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
+                                            Bool mask,
+                                            UInt vl,
+                                            UInt vstart,
+                                            UInt nf) {
+   IRExpr** maskV = NULL;
+   UInt n_addrs   = vl - vstart;
+   if (mask)
+      return maskV;
+   else
+      maskV = LibVEX_Alloc_inline(n_addrs * nf * sizeof(IRExpr*));
+
+   UInt idx = 0;
+   while (idx < n_addrs) {
+      /* Each iteration handles 8 mask elements until all elements consumed. */
+      IRTemp   mask_segs = newTemp(irsb, Ity_I64);
+      IRExpr** args = mkIRExprVec_3(IRExpr_GSPTR(), mkU64(offsetVReg(0)),
+                                    mkU32(vstart + idx));
+      IRDirty *m_d = unsafeIRDirty_1_N(mask_segs, 0, "dirty_get_mask",
+                                       dirty_get_mask, args);
+      UInt n_mask = n_addrs - idx < 8 ? n_addrs - idx : 8;
+      for (UInt i = 0; i < n_mask; i++) {
+         IRExpr* mask_64 = binop(Iop_And64, binop(Iop_Shr64, mkexpr(mask_segs),
+                                                  mkU64(i)), mkU64(1));
+         for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
+            maskV[idx] = unop(Iop_64to1, mask_64);
+      }
+      stmt(irsb, IRStmt_Dirty(m_d));
+   }
+   return maskV;
+}
+
+/* Dirty helper for obtaining addr info in an index register.
+   As the index register is also vector register such that it is 
+   beyond 2048 range from guest state pointer, we get its content
+   using a helper instead of IRs. */
+static ULong dirty_get_indexed_addr(VexGuestRISCV64State *st,
+                                    ULong base, UInt idx, UInt sew, ULong vs) {
+   ULong vs_off   = (ULong) st + vs + idx * (1 << sew);
+   ULong base_off = (ULong) st + base;
+   Long  offset;
+
+   switch (sew) {
+      case 0:
+         offset = *((Char *) vs_off);
+         break;
+      case 1:
+         offset = *((Short *) vs_off);
+         break;
+      case 2:
+         offset = *((Int *) vs_off);
+         break;
+      case 3:
+         offset = *((Long *) vs_off);
+      default:
+         break;
+   }
+   return *((ULong *) base_off) + offset;
+}
+
+/* Prepare Vload/Vstore dirty helper info */
+static IRDirty*
+GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
+                  IRDirty* d,                /* OUT */
+                  UInt v, UInt r, UInt s2,   /* Inst oprd */
+                  Bool mask, Bool isLD,
+                  UInt nf,
+                  ULong flag, ULong width,
+                  VLdstT ldst_ty)
+{
+   UInt lmul   = extract_lmul(flag);
+   UInt vstart = extract_vstart(flag);
+   UInt vl     = extract_vl(flag);
+   d->nFxState = 2;
+   vex_bzero(&d->fxState, sizeof(d->fxState));
+
+   /* Mark memory effect: address and mask */
+   d->mNAddrs     = (vl - vstart) * nf;
+   d->mFx         = isLD ? Ifx_Read : Ifx_Write;
+   d->mSize       = width;
+   IRExpr** addrV = LibVEX_Alloc_inline((vl - vstart) * nf * sizeof(IRExpr*));
+
+   /* Address info */
+   UInt idx = 0;
+   switch (ldst_ty) {
+      case UnitStride:
+         for (UInt i = vstart; i < vl; i++)
+            for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
+               addrV[idx] = binop(Iop_Add64, getIReg64(r),
+                                  mkU64((i * nf + field_idx) * width));
+         break;
+      case Strided: {
+         for (UInt i = vstart; i < vl; i++) {
+            IRExpr* base = binop(Iop_Add64, getIReg64(r),
+                                 binop(Iop_Mul64, mkU64(i), getIReg64(s2)));
+            for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
+               addrV[idx] = binop(Iop_Add64, base, mkU64(field_idx * width));
+         }
+         break;
+      }
+      case Indexed: {
+         UInt sew = extract_sew(flag);
+         for (UInt i = vstart; i < vl; i++) {
+            IRTemp   addr = newTemp(irsb, Ity_I64);
+            IRExpr** args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetIReg64(r)),
+                                          mkU32(i), mkU32(sew), mkU64(offsetVReg(s2)));
+            IRDirty *a_d = unsafeIRDirty_1_N(addr, 0, "dirty_get_indexed_addr",
+                                             dirty_get_indexed_addr, args);
+            /* Record addresses per element in a segment */
+            for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
+               addrV[idx] = binop(Iop_Add64, mkexpr(addr), mkU64(field_idx * width));
+            stmt(irsb, IRStmt_Dirty(a_d));
+         }
+         break;
+      }
+      default:
+         vassert(0);
+   }
+   d->mAddrVec = addrV;
+
+   /* Mask info */
+   d->mMask = calculate_dirty_mask(irsb, mask, vl, vstart, nf);
+
+   /* Mark vector register modified */
+   d->fxState[0].fx        = isLD ? Ifx_Write : Ifx_Read;
+   d->fxState[0].offset    = offsetVReg(v);
+   d->fxState[0].size      = host_VLENB;
+   d->fxState[0].nRepeats  = lmul;
+   d->fxState[0].repeatLen = host_VLENB;
+
+   /* Mark gpr state modified */
+   d->fxState[1].fx        = Ifx_Read;
+   d->fxState[1].offset    = offsetIReg64(r);
+   d->fxState[1].size      = 8;
+
+   switch (ldst_ty) {
+      case Strided:
+         d->fxState[2].fx     = Ifx_Read;
+         d->fxState[2].offset = offsetIReg64(s2);
+         d->fxState[2].size   = 8;
+         d->nFxState += 1;
+         break;
+      case Indexed:
+         d->fxState[2].fx     = Ifx_Read;
+         d->fxState[2].offset = offsetVReg(s2);
+         d->fxState[2].size   = host_VLENB;
+         d->nFxState += 1;
+         break;
+      default:
+         break;
+   }
+
+   /* Mark v0 register is read if mask == 0 */
+   if (!mask) {
+      d->fxState[d->nFxState].fx     = Ifx_Read;
+      d->fxState[d->nFxState].offset = offsetVReg(0);
+      d->fxState[d->nFxState].size   = host_VLENB;
+      d->nFxState += 1;
+   }
+   return d;
+}
+
+/* Prepare dirty helper arguments */
+#define UNIT_STRIDE_C_ARGS                                           \
+args = mkIRExprVec_4(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
+                     mkU64(offsetVReg(v)),     /* arg1: vector reg*/ \
+                     mkU64(offsetIReg64(rs)),  /* arg2: gpr */       \
+                     mkU64(offsetVReg(0)));    /* arg3: mask v0 */
+
+#define STRIDED_C_ARGS                                               \
+args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
+                     mkU64(offsetVReg(v)),     /* arg1: vector reg*/ \
+                     mkU64(offsetIReg64(rs)),  /* arg2: gpr */       \
+                     mkU64(offsetIReg64(rs2)), /* arg3: rs2 */       \
+                     mkU64(offsetVReg(0)));    /* arg4: mask v0 */
+
+#define INDEXED_C_ARGS                                               \
+args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
+                     mkU64(offsetVReg(v)),     /* arg1: vector reg*/ \
+                     mkU64(offsetIReg64(rs)),  /* arg2: gpr */       \
+                     mkU64(offsetVReg(vs2)),   /* arg3: vs2 */       \
+                     mkU64(offsetVReg(0)));    /* arg4: mask v0 */
+
+/* Macros for creating a proper dirty helper according to insn types */
+#define MK_GETD(s2, nf, ldst_ty) \
+   GETD_Common_VLdSt(irsb, d, v, rs, s2, mask, isLD, nf, flag, width, ldst_ty);
+
+#define UNIT_STRIDE_GETD        MK_GETD(0,   1,  UnitStride)
+#define STRIDED_GETD            MK_GETD(rs2, 1,  Strided)
+#define INDEXED_GETD            MK_GETD(vs2, 1,  Indexed)
+#define SEG_UNIT_STRIDE_GETD    MK_GETD(0,   nf, UnitStride)
+#define SEG_STRIDED_GETD        MK_GETD(rs2, nf, Strided)
+#define SEG_INDEXED_GETD        MK_GETD(vs2, nf, Indexed)
+
+/* Macros for debug printing according to insn types */
+#define UNIT_STRIDE_DIP \
+   DIP("%s(%s, %s)\n", fName, nameVReg(v), nameIReg(rs));
+#define STRIDED_DIP \
+   DIP("%s(%s, %s, %s)\n", fName, nameVReg(v), nameIReg(rs), nameIReg(rs2));
+#define INDEXED_DIP \
+   DIP("%s(%s, %s, %s)\n", fName, nameVReg(v), nameIReg(rs), nameVReg(vs2));
+
+/* Setup required dirty call with args and info */
+#define GETC_VLdSt(insn, mk_c_args, mk_getd, mk_dip)         \
+   do {                                                      \
+      fName = mask ? GETN_VLdst(insn) : GETN_VLdst_M(insn);  \
+      fAddr = mask ? GETA_VLdst(insn) : GETA_VLdst_M(insn);  \
+      mk_c_args                                              \
+      d = unsafeIRDirty_0_N(0, fName, fAddr, args);          \
+      d = mk_getd                                            \
+      stmt(irsb, IRStmt_Dirty(d));                           \
+                                                             \
+      mk_dip                                                 \
+   } while (0)
+
+/* Factory for all load/stores, vertically list macro parameters for better readability */
+#define RVV0p7_Load_Memory(insn, vm)
+#define RVV0p7_Store_GuestState(nf, vm)
+#define RVV0p7_Load_GuestState(nf, vm)
+#define RVV0p7_Store_Memory(insn, vm)
+
+#define DIRTY_VLOAD_BODY_VM(insn, nf)                                        \
+   RVV0p7_Load_Tpl(insn, ",v0.t",                         /* insn info */    \
+                   RVV0p7_Mask(),                         /* load mask*/     \
+                   RVV0p7_Load_Memory(insn, ",v0.t"),     /* load memory */  \
+                   RVV0p7_Store_GuestState(nf, ",v0.t")); /* store GS */     \
+
+#define DIRTY_VLOAD_BODY(insn, nf)                                           \
+   RVV0p7_Load_Tpl(insn, ,                                /* insn info */    \
+                   ,                                      /* load mask*/     \
+                   RVV0p7_Load_Memory(insn, ),            /* load memory */  \
+                   RVV0p7_Store_GuestState(nf, ));        /* store GS */     \
+
+#define DIRTY_VSTORE_BODY_VM(insn, nf)                                  \
+   RVV0p7_Store_Tpl(insn, ",v0.t",                                      \
+                    RVV0p7_Mask(),                                      \
+                    RVV0p7_Load_GuestState(nf, ",v0.t"),                \
+                    RVV0p7_Store_Memory(insn, ",v0.t"));
+
+#define DIRTY_VSTORE_BODY(insn, nf)                                     \
+   RVV0p7_Store_Tpl(insn, ,                                             \
+                    ,                                                   \
+                    RVV0p7_Load_GuestState(nf,),                        \
+                    RVV0p7_Store_Memory(insn, ));
+
+#define RVV0p7_VLdst_Generic(insn, body, nf)                             \
+   static void RVV0p7_VLdst_##insn##_vm(VexGuestRISCV64State *st,        \
+                               UInt v, UInt rs1, ULong mask) {           \
+      body##_VM(insn, nf)                                                \
+   }                                                                     \
+   static void RVV0p7_VLdst_##insn(VexGuestRISCV64State *st,             \
+                               UInt v, UInt rs1, ULong mask) {           \
+      body(insn, nf)                                                     \
+   }
+
+#define RVV0p7_VSXLdst_Generic(insn, body, nf)                           \
+   static void RVV0p7_VLdst_##insn##_vm(VexGuestRISCV64State *st,        \
+                               UInt v, UInt rs1, UInt s2, ULong mask) {  \
+      body##_VM(insn, nf)                                                \
+   }                                                                     \
+   static void RVV0p7_VLdst_##insn(VexGuestRISCV64State *st,             \
+                               UInt v, UInt rs1, UInt s2, ULong mask) {  \
+      body(insn, nf)                                                     \
+   }
+
+#define RVV0p7_VLdst(insn, body)           RVV0p7_VLdst_Generic(insn, body, )
+#define RVV0p7_VSXLdst(insn, body)         RVV0p7_VSXLdst_Generic(insn, body, )
+#define RVV0p7_VSEGLdst(insn, body, nf)    RVV0p7_VLdst_Generic(insn, body, nf)
+#define RVV0p7_VSEGSXLdst(insn, body, nf)  RVV0p7_VSXLdst_Generic(insn, body, nf)
+
+/* The following macros are directly used in toIR stage */
+#define GETC_VLDST(insn) \
+   GETC_VLdSt(insn, UNIT_STRIDE_C_ARGS, UNIT_STRIDE_GETD, UNIT_STRIDE_DIP)
+#define GETC_VSLDST(insn) \
+   GETC_VLdSt(insn, STRIDED_C_ARGS, STRIDED_GETD, STRIDED_DIP)
+#define GETC_VXLDST(insn) \
+   GETC_VLdSt(insn, INDEXED_C_ARGS, INDEXED_GETD, INDEXED_DIP)
+#define GETC_VSEGLDST(insn) \
+   GETC_VLdSt(insn, UNIT_STRIDE_C_ARGS, SEG_UNIT_STRIDE_GETD, UNIT_STRIDE_DIP)
+#define GETC_VSSEGLDST(insn) \
+   GETC_VLdSt(insn, STRIDED_C_ARGS, SEG_STRIDED_GETD, STRIDED_DIP)
+#define GETC_VXSEGLDST(insn) \
+   GETC_VLdSt(insn, INDEXED_C_ARGS, SEG_INDEXED_GETD, INDEXED_DIP)
+
+/*----------------------------------------------------------*/
+/*---   1.1 Unit-stride vector load dirty helpers        ---*/
+/*----------------------------------------------------------*/
+
+#define RVV0p7_Unit_Stride_Load_Store_Memory(insn, vm) \
+   /* vload1: Load from memory */                      \
+   __asm__ __volatile__ (                              \
+      #insn ".v\tv8,(%0)\t" vm "\n\t"                  \
+      ::"r" (rs1_offs)                                 \
+      :                                                \
+   );
+
+/* Store to guest state for unit-stride(U), strided(S), and indexed(X) */
+#define RVV0p7_USX_Store_GuestState(nf, vm)  \
+   /* vstore1: Store to GuestState */        \
+   __asm__ __volatile__ (                    \
+      "vse.v\tv8,(%0)\t" vm "\n\t"           \
+      ::"r" (vd_offs)                        \
+      :                                      \
+   );
+
+#undef  RVV0p7_Load_Memory
+#undef  RVV0p7_Store_GuestState
+#define RVV0p7_Load_Memory       RVV0p7_Unit_Stride_Load_Store_Memory
+#define RVV0p7_Store_GuestState  RVV0p7_USX_Store_GuestState
+
+RVV0p7_VLdst(vlb,  DIRTY_VLOAD_BODY)
+RVV0p7_VLdst(vlh,  DIRTY_VLOAD_BODY)
+RVV0p7_VLdst(vlw,  DIRTY_VLOAD_BODY)
+RVV0p7_VLdst(vle,  DIRTY_VLOAD_BODY)
+RVV0p7_VLdst(vlbu, DIRTY_VLOAD_BODY)
+RVV0p7_VLdst(vlhu, DIRTY_VLOAD_BODY)
+RVV0p7_VLdst(vlwu, DIRTY_VLOAD_BODY)
+
+/*----------------------------------------------------------*/
+/*---   1.2 Unit-stride vector store dirty helpers       ---*/
+/*----------------------------------------------------------*/
+
+#define RVV0p7_USX_Load_GuestState(nf, vm)     \
+   __asm__ __volatile__ (                      \
+      "vle.v\tv8,(%0)\t" vm "\n\t"             \
+      ::"r" (vs_offs)                          \
+      :                                        \
+   );
+
+#undef  RVV0p7_Load_GuestState
+#undef  RVV0p7_Store_Memory
+#define RVV0p7_Load_GuestState  RVV0p7_USX_Load_GuestState
+#define RVV0p7_Store_Memory     RVV0p7_Unit_Stride_Load_Store_Memory
+
+RVV0p7_VLdst(vsb, DIRTY_VSTORE_BODY)
+RVV0p7_VLdst(vsh, DIRTY_VSTORE_BODY)
+RVV0p7_VLdst(vsw, DIRTY_VSTORE_BODY)
+RVV0p7_VLdst(vse, DIRTY_VSTORE_BODY)
+
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/
 /*--------------------------------------------------------------------*/

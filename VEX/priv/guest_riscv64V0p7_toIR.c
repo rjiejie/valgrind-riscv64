@@ -37,9 +37,91 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
 
 static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                               /*OUT*/ IRSB*         irsb,
-                              UInt                  insn)
+                              UInt                  insn,
+                              ULong                 flag)
 {
-   Bool isLD = GET_OPCODE() == OPC_LOAD_FP;
+   Bool isLD          = GET_OPCODE() == OPC_LOAD_FP;
+   IRDirty *d         = NULL;
+   void *fAddr        = NULL;
+   const HChar *fName = NULL;
+   IRExpr **args      = NULL;
+   ULong width;
+
+   UInt v    = GET_RD();     /* vd for load *or* vs3 for store */
+   UInt rs   = GET_RS1();    /* base address register rs1 */
+   UInt nf   = GET_NF();     /* nf field */
+   Bool mask = GET_VMASK();  /* if mask is enabled? */
+
+   /* unit stride */
+   if (((GET_MOP() == 0b000 || GET_MOP() == 0b100) && isLD) /* unit-stride load  */
+       || (GET_MOP() == 0b000 && !isLD)) {                  /* unit-stride store */
+      /* unit-stride normal load */
+      if (isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VLDST(vlbu);
+               } else {                   /* signed-extended */
+                  GETC_VLDST(vlb);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VLDST(vlhu);
+               } else {                   /* signed-extended */
+                  GETC_VLDST(vlh);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VLDST(vlwu);
+               } else {                   /* signed-extended */
+                  GETC_VLDST(vlw);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(flag));
+               GETC_VLDST(vle);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+      /* unit-stride normal store */
+      if (!isLD && nf == 0){
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               GETC_VLDST(vsb);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               GETC_VLDST(vsh);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               GETC_VLDST(vsw);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(flag));
+               GETC_VLDST(vse);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+   }
    return False;
 }
 
@@ -689,7 +771,8 @@ static Bool dis_RV64V0p7_arith(/*MB_OUT*/ DisResult* dres,
 
 static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
                          /*OUT*/ IRSB*         irsb,
-                         UInt                  insn)
+                         UInt                  insn,
+                         ULong                 flag)
 {
    Bool ok = False;
 
@@ -701,7 +784,7 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
          break;
       case OPC_LOAD_FP:
       case OPC_STORE_FP:
-         ok = dis_RV64V0p7_ldst(dres, irsb, insn);
+         ok = dis_RV64V0p7_ldst(dres, irsb, insn, flag);
          break;
       default:
          break;

@@ -27,6 +27,8 @@
 */
 
 #define GET_VMASK() INSN(25, 25)
+#define GET_MOP()   INSN(28, 26)
+#define GET_NF()    INSN(31, 29)
 #define isVOpVV(type) (type == RV64_SOPC_OPIVV || type == RV64_SOPC_OPMVV || type == RV64_SOPC_OPFVV)
 #define isVOpVXorVF(type) (type == RV64_SOPC_OPIVX || type == RV64_SOPC_OPMVX || type == RV64_SOPC_OPFVF)
 #define isVOpVI(type) (type == RV64_SOPC_OPIVI)
@@ -130,9 +132,10 @@ static const HChar* nameVReg(UInt regNo)
 
 static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
                       /*OUT*/ IRSB*         irsb,
-                      UInt                  insn)
+                      UInt                  insn,
+                      ULong                 flag)
 {
-   if (dis_RV64V0p7(dres, irsb, insn))
+   if (dis_RV64V0p7(dres, irsb, insn, flag))
       return True;
    return False;
 }
