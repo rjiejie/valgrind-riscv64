@@ -1274,6 +1274,7 @@ static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
 
 static UInt GETA_VUnopX_M(vmvs)(VexGuestRISCV64State *st,
                                 ULong vd, ULong rs1, ULong mask) {
+   vassert(0);
    return 0;
 }
 static UInt GETA_VUnopX(vmvs)(VexGuestRISCV64State *st,
@@ -1283,6 +1284,7 @@ static UInt GETA_VUnopX(vmvs)(VexGuestRISCV64State *st,
 
 static ULong GETA_VBinopVV_M(vcompress)(VexGuestRISCV64State *st,
                                         ULong vd, ULong vs2, ULong vs1, ULong mask) {
+   vassert(0);
    return 0;
 }
 static ULong GETA_VBinopVV(vcompress)(VexGuestRISCV64State *st,
@@ -1534,11 +1536,13 @@ static UInt GETA_VBinopVF_M(vfmerge)(VexGuestRISCV64State *st,
 static UInt GETA_VBinopVF(vfmerge)(VexGuestRISCV64State *st,
                                    ULong vd, ULong vs2, ULong rs1, ULong mask,
                                    UInt frm) {
+   vassert(0);
    return 0;
 }
 static UInt GETA_VUnopF_M(vfmerge)(VexGuestRISCV64State *st,
                                    ULong vd, ULong rs1, ULong mask,
                                    UInt frm) {
+   vassert(0);
    return 0;
 }
 static UInt GETA_VUnopF(vfmerge)(VexGuestRISCV64State *st,
@@ -1556,6 +1560,7 @@ static Double GETA_VUnopV(vfmv)(VexGuestRISCV64State *st,
 static UInt GETA_VUnopF_M(vfmvs)(VexGuestRISCV64State *st,
                                  ULong vd, ULong rs1, ULong mask,
                                  UInt frm) {
+   vassert(0);
    return 0;
 }
 static UInt GETA_VUnopF(vfmvs)(VexGuestRISCV64State *st,
