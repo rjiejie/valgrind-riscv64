@@ -545,6 +545,15 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b000101:
          GETC_VBinopOPF_V_VAR(vfredmin, GETV_VopM1D);
          return True;
+      /*
+       * Vector Widening Floating-Point Reduction Instructions
+       */
+      case 0b110011:
+         GETC_VBinopOPF_V_VAR(vfwredosum, GETV_VopM1D);
+         return True;
+      case 0b110001:
+         GETC_VBinopOPF_V_VAR(vfwredsum, GETV_VopM1D);
+         return True;
       default:
          break;
    }
