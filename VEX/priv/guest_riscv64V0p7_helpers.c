@@ -195,6 +195,11 @@
                    vtype);                                                     \
    accumulateFFLAGS(irsb, mkexpr(ret));
 
+#define GETC_VBinopOPF_V_VAR(insn, vtype)                                      \
+   GETC_VBinopOP_T(insn, V, V, V, offsetFReg, nameFReg, GETR_VBinopOPF,        \
+                   vtype);                                                     \
+   accumulateFFLAGS(irsb, mkexpr(ret));
+
 #define GETC_VBinopOPF_F(insn)                                                 \
    GETC_VBinopOP_T(insn, F, F, F, offsetFReg, nameFReg, GETR_VBinopOPF,        \
                    GETV_VopUnknow);                                            \
@@ -1472,6 +1477,18 @@ static ULong GETA_VBinopVV(vcompress)(VexGuestRISCV64State *st,
       RVV0p7_UnopOPFNV_T(#insn".v", vd, vs2); \
    } \
 
+#define RVV0p7_BinopOPFVS_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                         UInt frm) { \
+      RVV0p7_BinopOPFVV_M_T(#insn".vs", vd, vs2, vs1); \
+   } \
+   static UInt RVV0p7_Binop_##insn##vv(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong vs1, ULong mask, \
+                                       UInt frm) { \
+      RVV0p7_BinopOPFVV_T(#insn".vs", vd, vs2, vs1); \
+   } \
+
 /*---------------------------------------------------------------*/
 /*--- OPF function templates helper                           ---*/
 /*---------------------------------------------------------------*/
@@ -1556,6 +1573,11 @@ RVV0p7_BinopOPFVV_VF_FCMP(vmfle)
 RVV0p7_BinopOPFVV_VF_FCMP(vmford)
 RVV0p7_BinopVF_FCMP(vmfgt)
 RVV0p7_BinopVF_FCMP(vmfge)
+
+RVV0p7_BinopOPFVS_FT(vfredosum)
+RVV0p7_BinopOPFVS_FT(vfredsum)
+RVV0p7_BinopOPFVS_FT(vfredmax)
+RVV0p7_BinopOPFVS_FT(vfredmin)
 
 /*---------------------------------------------------------------*/
 /*--- OPF special function definitions                        ---*/

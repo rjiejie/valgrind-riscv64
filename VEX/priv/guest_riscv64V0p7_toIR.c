@@ -530,7 +530,21 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b001101:
          GETC_VUnopOPF_F_VAR(vfmvs, GETV_VopM1D);
          return True;
-
+      /*
+       * Vector Single-Width Floating-Point Reduction Instructions
+       */
+      case 0b000011:
+         GETC_VBinopOPF_V_VAR(vfredosum, GETV_VopM1D);
+         return True;
+      case 0b000001:
+         GETC_VBinopOPF_V_VAR(vfredsum, GETV_VopM1D);
+         return True;
+      case 0b000111:
+         GETC_VBinopOPF_V_VAR(vfredmax, GETV_VopM1D);
+         return True;
+      case 0b000101:
+         GETC_VBinopOPF_V_VAR(vfredmin, GETV_VopM1D);
+         return True;
       default:
          break;
    }
