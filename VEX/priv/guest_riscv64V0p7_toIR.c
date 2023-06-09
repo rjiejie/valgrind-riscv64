@@ -145,6 +145,15 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
       case 0b001100:
          GETC_VBinopOPI(vrgather);
          return True;
+      /*
+       * Vector Widening Integer Reduction Instructions
+       */
+      case 0b110000:
+         GETC_VBinopOPI_V_VAR(vwredsumu, GETV_VopM1D);
+         return True;
+      case 0b110001:
+         GETC_VBinopOPI_V_VAR(vwredsum, GETV_VopM1D);
+         return True;
       default:
          break;
    }
@@ -247,15 +256,6 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
          return True;
       case 0b000011:
          GETC_VBinopOPI_V_VAR(vredxor, GETV_VopM1D);
-         return True;
-      /*
-       * Vector Widening Integer Reduction Instructions
-       */
-      case 0b110000:
-         GETC_VBinopOPI_V_VAR(vwredsumu, GETV_VopM1D);
-         return True;
-      case 0b110001:
-         GETC_VBinopOPI_V_VAR(vwredsum, GETV_VopM1D);
          return True;
       default:
          break;
