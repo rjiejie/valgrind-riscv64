@@ -705,9 +705,13 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 
 #define RVV0p7_UnopOPIM_M_T(insn, vd, vs2)\
    RVV0p7_UnopV_M_PP_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushM1(), RVV0p7_Pop(), , )
+#define RVV0p7_UnopOPIM_T(insn, vd, vs2)\
+   RVV0p7_UnopV_M_PP_T(insn, vd, vs2, , , RVV0p7_PushM1(), RVV0p7_Pop(), , )
 
 #define RVV0p7_UnopOPIM_M_M1S_T(insn, vd, vs2)\
    RVV0p7_UnopV_M_PPS_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushM1(), RVV0p7_Pop(), , )
+#define RVV0p7_UnopOPIM_M1S_T(insn, vd, vs2)\
+   RVV0p7_UnopV_M_PPS_T(insn, vd, vs2, , , RVV0p7_PushM1(), RVV0p7_Pop(), , )
 
 // OPF
 #define RVV0p7_BinopOPFVV_M_T(insn, vd, vs2, vs1)\
@@ -1271,11 +1275,19 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
                                        ULong vd, ULong vs2, ULong mask) { \
       RVV0p7_UnopOPIM_M_T(#insn".m", vd, vs2); \
    } \
+   static UInt RVV0p7_Unop_##insn##v(VexGuestRISCV64State *st, \
+                                     ULong vd, ULong vs2, ULong mask) { \
+      RVV0p7_UnopOPIM_T(#insn".m", vd, vs2); \
+   } \
 
 #define RVV0p7_UnopOPIM_M1S_FT(insn) \
    static UInt RVV0p7_Unop_##insn##v_m(VexGuestRISCV64State *st, \
                                        ULong vd, ULong vs2, ULong mask) { \
       RVV0p7_UnopOPIM_M_M1S_T(#insn".m", vd, vs2); \
+   } \
+   static UInt RVV0p7_Unop_##insn##v(VexGuestRISCV64State *st, \
+                                     ULong vd, ULong vs2, ULong mask) { \
+      RVV0p7_UnopOPIM_M1S_T(#insn".m", vd, vs2); \
    } \
 
 /*---------------------------------------------------------------*/
@@ -1698,10 +1710,6 @@ typedef enum {
    GETA_VBinopVV_M(vmnor)     = (Addr)NULL,
    GETA_VBinopVV_M(vmornot)   = (Addr)NULL,
    GETA_VBinopVV_M(vmxnor)    = (Addr)NULL,
-   GETA_VUnopV(vmsbf)         = (Addr)NULL,
-   GETA_VUnopV(vmsif)         = (Addr)NULL,
-   GETA_VUnopV(vmsof)         = (Addr)NULL,
-   GETA_VUnopV(viota)         = (Addr)NULL,
 } GETA_NULL;
 
 /*--------------------------------------------------------------------*/
