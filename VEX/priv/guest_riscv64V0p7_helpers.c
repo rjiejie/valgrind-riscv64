@@ -76,6 +76,7 @@
 #define GETV_VopWidenD  (1 << 1) /* Indicate VD  is widened  by OP, e.g. VFWADD  */
 #define GETV_VopWidenS2 (1 << 2) /* Indicate VS2 is widened  by OP, e.g. VFWADDW/VFNCVT */
 #define GETV_VopM1D     (1 << 3) /* Indicate VD  is 1 LMUL   by OP, e.g. VMFEQ   */
+#define GETV_VopM1S     (1 << 4) /* Indicate VS* is 1 LMUL   by OP, e.g. VMAND   */
 
 /*---------------------------------------------------------------*/
 /*--- Get call of helper functions                            ---*/
@@ -296,7 +297,10 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
    UInt lmuls[3] = {vtype & GETV_VopWidenD ? lmul * 2
                     : vtype & GETV_VopM1D  ? 1
                                            : lmul,
-                    vtype & GETV_VopWidenS2 ? lmul * 2 : lmul, lmul};
+                    vtype & GETV_VopWidenS2 ? lmul * 2
+                    : vtype & GETV_VopM1S   ? 1
+                                            : lmul,
+                    vtype & GETV_VopM1S ? 1 : lmul};
    UInt regNos[3] = {vd, vs2, vs1};
    for (int i = 0; i < d->nFxState; i++) {
       d->fxState[i].fx =
@@ -688,6 +692,10 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 #define RVV0p7_BinopSATNVV_T(insn, vd, vs2, vs1)                               \
    RVV0p7_BinopVV_M_PP_TN(insn, vd, vs2, vs1, , , RVV0p7_PushW(), RVV0p7_Pop(), \
                           RVV0p7_PushXSAT(), RVV0p7_PopXSAT())
+
+// MASK
+#define RVV0p7_BinopOPIMM_T(insn, vd, vs2, vs1)\
+   RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), , )
 
 // OPF
 #define RVV0p7_BinopOPFVV_M_T(insn, vd, vs2, vs1)\
@@ -1239,6 +1247,13 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       RVV0p7_BinopSATNVI_T(#insn".vx", vd, vs2, rs1); \
    } \
 
+// MASK
+#define RVV0p7_BinopOPIMM_FT(insn) \
+   static UInt RVV0p7_Binop_##insn##vv(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong vs1, ULong mask) { \
+      RVV0p7_BinopOPIMM_T(#insn".mm", vd, vs2, vs1); \
+   } \
+
 /*---------------------------------------------------------------*/
 /*--- OPI function templates helper                           ---*/
 /*---------------------------------------------------------------*/
@@ -1315,6 +1330,16 @@ RVV0p7_BinopSATVV_VX_VI_FT(vssrl)
 RVV0p7_BinopSATVV_VX_VI_FT(vssra)
 RVV0p7_BinopSATNVV_VX_VI_FT(vnclipu)
 RVV0p7_BinopSATNVV_VX_VI_FT(vnclip)
+
+/* MASK */
+RVV0p7_BinopOPIMM_FT(vmand)
+RVV0p7_BinopOPIMM_FT(vmnand)
+RVV0p7_BinopOPIMM_FT(vmandnot)
+RVV0p7_BinopOPIMM_FT(vmxor)
+RVV0p7_BinopOPIMM_FT(vmor)
+RVV0p7_BinopOPIMM_FT(vmnor)
+RVV0p7_BinopOPIMM_FT(vmornot)
+RVV0p7_BinopOPIMM_FT(vmxnor)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/
@@ -1636,6 +1661,15 @@ typedef enum {
    GETA_VBinopVV_M(vcompress) = (Addr)NULL,
    GETA_VBinopVF(vfmerge)     = (Addr)NULL,
    GETA_VUnopF_M(vfmerge)     = (Addr)NULL,
+
+   GETA_VBinopVV_M(vmand)     = (Addr)NULL,
+   GETA_VBinopVV_M(vmnand)    = (Addr)NULL,
+   GETA_VBinopVV_M(vmandnot)  = (Addr)NULL,
+   GETA_VBinopVV_M(vmxor)     = (Addr)NULL,
+   GETA_VBinopVV_M(vmor)      = (Addr)NULL,
+   GETA_VBinopVV_M(vmnor)     = (Addr)NULL,
+   GETA_VBinopVV_M(vmornot)   = (Addr)NULL,
+   GETA_VBinopVV_M(vmxnor)    = (Addr)NULL,
 } GETA_NULL;
 
 /*--------------------------------------------------------------------*/

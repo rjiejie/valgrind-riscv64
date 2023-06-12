@@ -257,6 +257,33 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
       case 0b000011:
          GETC_VBinopOPI_V_VAR(vredxor, GETV_VopM1D);
          return True;
+      /*
+       * Vector Mask-Register Logical Instructions
+       */
+      case 0b011001:
+         GETC_VBinopOPI_V_VAR(vmand, GETV_VopM1D | GETV_VopM1S);
+         return True;
+      case 0b011101:
+         GETC_VBinopOPI_V_VAR(vmnand, GETV_VopM1D | GETV_VopM1S);
+         return True;
+      case 0b011000:
+         GETC_VBinopOPI_V_VAR(vmandnot, GETV_VopM1D | GETV_VopM1S);
+         return True;
+      case 0b011011:
+         GETC_VBinopOPI_V_VAR(vmxor, GETV_VopM1D | GETV_VopM1S);
+         return True;
+      case 0b011010:
+         GETC_VBinopOPI_V_VAR(vmor, GETV_VopM1D | GETV_VopM1S);
+         return True;
+      case 0b011110:
+         GETC_VBinopOPI_V_VAR(vmnor, GETV_VopM1D | GETV_VopM1S);
+         return True;
+      case 0b011100:
+         GETC_VBinopOPI_V_VAR(vmornot, GETV_VopM1D | GETV_VopM1S);
+         return True;
+      case 0b011111:
+         GETC_VBinopOPI_V_VAR(vmxnor, GETV_VopM1D | GETV_VopM1S);
+         return True;
       default:
          break;
    }
