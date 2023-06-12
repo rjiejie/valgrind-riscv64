@@ -1356,6 +1356,8 @@ RVV0p7_BinopOPIMM_FT(vmnor)
 RVV0p7_BinopOPIMM_FT(vmornot)
 RVV0p7_BinopOPIMM_FT(vmxnor)
 RVV0p7_UnopOPIM_FT(vmsbf)
+RVV0p7_UnopOPIM_FT(vmsif)
+RVV0p7_UnopOPIM_FT(vmsof)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/
@@ -1687,6 +1689,8 @@ typedef enum {
    GETA_VBinopVV_M(vmornot)   = (Addr)NULL,
    GETA_VBinopVV_M(vmxnor)    = (Addr)NULL,
    GETA_VUnopV(vmsbf)         = (Addr)NULL,
+   GETA_VUnopV(vmsif)         = (Addr)NULL,
+   GETA_VUnopV(vmsof)         = (Addr)NULL,
 } GETA_NULL;
 
 /*--------------------------------------------------------------------*/

@@ -305,6 +305,18 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
             case 0b00001:
                GETC_VUnopOPI_V_VAR(vmsbf, GETV_VopM1D | GETV_VopM1S);
                return True;
+            /*
+             * vmsif.m set-including-first mask bit
+             */
+            case 0b00011:
+               GETC_VUnopOPI_V_VAR(vmsif, GETV_VopM1D | GETV_VopM1S);
+               return True;
+            /*
+             * vmsof.m set-only-first mask bit
+             */
+            case 0b00010:
+               GETC_VUnopOPI_V_VAR(vmsof, GETV_VopM1D | GETV_VopM1S);
+               return True;
             default:
                break;
          }
