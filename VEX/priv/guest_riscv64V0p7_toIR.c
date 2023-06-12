@@ -284,6 +284,31 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
       case 0b011111:
          GETC_VBinopOPI_V_VAR(vmxnor, GETV_VopM1D | GETV_VopM1S);
          return True;
+      /*
+       * Vector mask population count vmpopc
+       */
+      // TODO
+
+      /*
+       * vmfirst find-first-set mask bit
+       */
+      // TODO
+
+      /*
+       * VMUNARY0
+       */
+      case 0b010110:
+         switch (rs1) {
+            /*
+             * vmsbf.m set-before-first mask bit
+             */
+            case 0b00001:
+               GETC_VUnopOPI_V_VAR(vmsbf, GETV_VopM1D | GETV_VopM1S);
+               return True;
+            default:
+               break;
+         }
+         break;
       default:
          break;
    }

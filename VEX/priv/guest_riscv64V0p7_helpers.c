@@ -252,6 +252,10 @@
    args = mkIRExprVec_4(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(temp),    \
                         mkU64(offsetVReg(0)));
 
+#define GETC_VUnopOPI_V_VAR(insn, vtype)                                       \
+   GETC_VUnopOP_T(insn, V, V, offsetIReg64, nameIReg, GETR_VUnopOPI,           \
+                  vtype);
+
 #define GETC_VUnopOPI_X_VAR(insn, vtype)                                       \
    GETC_VUnopOP_T(insn, X, X, offsetIReg64, nameIReg, GETR_VUnopOPI,           \
                   vtype);
@@ -339,7 +343,9 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    UInt lmuls[2] = {vtype & GETV_VopWidenD ? lmul * 2
                     : vtype & GETV_VopM1D  ? 1
                                            : lmul,
-                    vtype & GETV_VopWidenS2 ? lmul * 2 : lmul};
+                    vtype & GETV_VopWidenS2 ? lmul * 2
+                    : vtype & GETV_VopM1S   ? 1
+                                            : lmul};
    UInt regNos[2] = {vd, src};
    for (int i = 0; i < d->nFxState; i++) {
       d->fxState[i].fx     = i == 0 ? Ifx_Write : Ifx_Read;
@@ -696,6 +702,9 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // MASK
 #define RVV0p7_BinopOPIMM_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), , )
+
+#define RVV0p7_UnopOPIM_M_T(insn, vd, vs2)\
+   RVV0p7_UnopV_M_PP_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushM1(), RVV0p7_Pop(), , )
 
 // OPF
 #define RVV0p7_BinopOPFVV_M_T(insn, vd, vs2, vs1)\
@@ -1254,6 +1263,12 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       RVV0p7_BinopOPIMM_T(#insn".mm", vd, vs2, vs1); \
    } \
 
+#define RVV0p7_UnopOPIM_FT(insn) \
+   static UInt RVV0p7_Unop_##insn##v_m(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong mask) { \
+      RVV0p7_UnopOPIM_M_T(#insn".m", vd, vs2); \
+   } \
+
 /*---------------------------------------------------------------*/
 /*--- OPI function templates helper                           ---*/
 /*---------------------------------------------------------------*/
@@ -1340,6 +1355,7 @@ RVV0p7_BinopOPIMM_FT(vmor)
 RVV0p7_BinopOPIMM_FT(vmnor)
 RVV0p7_BinopOPIMM_FT(vmornot)
 RVV0p7_BinopOPIMM_FT(vmxnor)
+RVV0p7_UnopOPIM_FT(vmsbf)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/
@@ -1670,6 +1686,7 @@ typedef enum {
    GETA_VBinopVV_M(vmnor)     = (Addr)NULL,
    GETA_VBinopVV_M(vmornot)   = (Addr)NULL,
    GETA_VBinopVV_M(vmxnor)    = (Addr)NULL,
+   GETA_VUnopV(vmsbf)         = (Addr)NULL,
 } GETA_NULL;
 
 /*--------------------------------------------------------------------*/
