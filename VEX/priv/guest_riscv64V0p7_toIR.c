@@ -317,6 +317,12 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
             case 0b00010:
                GETC_VUnopOPI_V_VAR(vmsof, GETV_VopM1D | GETV_VopM1S);
                return True;
+            /*
+             * Vector Iota Instruction
+             */
+            case 0b10000:
+               GETC_VUnopOPI_V_VAR(viota, GETV_VopM1S);
+               return True;
             default:
                break;
          }

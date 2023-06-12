@@ -626,7 +626,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    } while (0)
 
 // v8-v15, v16-v23 # used for Narrowing
-#define RVV0p7_UnopV_M_PP_TN(insn, vd, vs2, imask, mreg, ipush, ipop, ipre, ipost)\
+#define RVV0p7_UnopV_M_PPS_T(insn, vd, vs2, imask, mreg, ipush, ipop, ipre, ipost)\
    do {                                                     \
       UInt ret = 0;                                         \
                                                             \
@@ -706,6 +706,9 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 #define RVV0p7_UnopOPIM_M_T(insn, vd, vs2)\
    RVV0p7_UnopV_M_PP_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushM1(), RVV0p7_Pop(), , )
 
+#define RVV0p7_UnopOPIM_M_M1S_T(insn, vd, vs2)\
+   RVV0p7_UnopV_M_PPS_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushM1(), RVV0p7_Pop(), , )
+
 // OPF
 #define RVV0p7_BinopOPFVV_M_T(insn, vd, vs2, vs1)\
    RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
@@ -744,11 +747,11 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_UnopV_M_PP_T(insn, vd, vs2, , , RVV0p7_PushW(), RVV0p7_Pop(),        \
                        RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
-#define RVV0p7_UnopOPFNV_M_T(insn, vd, vs2)                                    \
-   RVV0p7_UnopV_M_PP_TN(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushW(),  \
+#define RVV0p7_UnopOPFNV_M_T(insn, vd, vs2)                                     \
+   RVV0p7_UnopV_M_PPS_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_PushW(),  \
                        RVV0p7_Pop(), RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
-#define RVV0p7_UnopOPFNV_T(insn, vd, vs2)                                      \
-   RVV0p7_UnopV_M_PP_TN(insn, vd, vs2, , , RVV0p7_PushW(), RVV0p7_Pop(),        \
+#define RVV0p7_UnopOPFNV_T(insn, vd, vs2)                                       \
+   RVV0p7_UnopV_M_PPS_T(insn, vd, vs2, , , RVV0p7_PushW(), RVV0p7_Pop(),        \
                        RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
 /*---------------------------------------------------------------*/
@@ -1269,6 +1272,12 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       RVV0p7_UnopOPIM_M_T(#insn".m", vd, vs2); \
    } \
 
+#define RVV0p7_UnopOPIM_M1S_FT(insn) \
+   static UInt RVV0p7_Unop_##insn##v_m(VexGuestRISCV64State *st, \
+                                       ULong vd, ULong vs2, ULong mask) { \
+      RVV0p7_UnopOPIM_M_M1S_T(#insn".m", vd, vs2); \
+   } \
+
 /*---------------------------------------------------------------*/
 /*--- OPI function templates helper                           ---*/
 /*---------------------------------------------------------------*/
@@ -1358,6 +1367,7 @@ RVV0p7_BinopOPIMM_FT(vmxnor)
 RVV0p7_UnopOPIM_FT(vmsbf)
 RVV0p7_UnopOPIM_FT(vmsif)
 RVV0p7_UnopOPIM_FT(vmsof)
+RVV0p7_UnopOPIM_M1S_FT(viota)
 
 /*---------------------------------------------------------------*/
 /*--- OPI special function definitions                        ---*/
@@ -1691,6 +1701,7 @@ typedef enum {
    GETA_VUnopV(vmsbf)         = (Addr)NULL,
    GETA_VUnopV(vmsif)         = (Addr)NULL,
    GETA_VUnopV(vmsof)         = (Addr)NULL,
+   GETA_VUnopV(viota)         = (Addr)NULL,
 } GETA_NULL;
 
 /*--------------------------------------------------------------------*/
