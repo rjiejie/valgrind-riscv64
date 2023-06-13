@@ -287,10 +287,19 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
       /*
        * Vector mask population count vmpopc
        */
-      case 0b010100: {
+      case 0b010100:
+      /*
+       * vmfirst find-first-set mask bit
+       */
+      case 0b010101: {
          IRTemp dret = newTemp(irsb, Ity_I64);
-         fName       = mask ? GETN_VUnopV(vmpopc) : GETN_VUnopV_M(vmpopc);
-         fAddr       = mask ? GETA_VUnopV(vmpopc) : GETA_VUnopV_M(vmpopc);
+         if (GET_FUNCT6() == 0b010100) {
+            fName = mask ? GETN_VUnopV(vmpopc)  : GETN_VUnopV_M(vmpopc);
+            fAddr = mask ? GETA_VUnopV(vmpopc)  : GETA_VUnopV_M(vmpopc);
+         } else {
+            fName = mask ? GETN_VUnopV(vmfirst) : GETN_VUnopV_M(vmfirst);
+            fAddr = mask ? GETA_VUnopV(vmfirst) : GETA_VUnopV_M(vmfirst);
+         }
 
          args = mkIRExprVec_4(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(0),
                               mkU64(offsetVReg(0)));
@@ -309,11 +318,6 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
          DIP("%s(%s, %s)\n", fName, nameIReg(rd), nameVReg(rs2));
          return True;
       }
-      /*
-       * vmfirst find-first-set mask bit
-       */
-      // TODO
-
       /*
        * VMUNARY0
        */
