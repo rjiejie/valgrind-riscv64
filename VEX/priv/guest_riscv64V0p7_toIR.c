@@ -287,8 +287,28 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
       /*
        * Vector mask population count vmpopc
        */
-      // TODO
+      case 0b010100: {
+         IRTemp dret = newTemp(irsb, Ity_I64);
+         fName       = mask ? GETN_VUnopV(vmpopc) : GETN_VUnopV_M(vmpopc);
+         fAddr       = mask ? GETA_VUnopV(vmpopc) : GETA_VUnopV_M(vmpopc);
 
+         args = mkIRExprVec_4(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(0),
+                              mkU64(offsetVReg(0)));
+         d    = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
+
+         d->nFxState          = mask ? 1 : 2;
+         d->fxState[0].fx     = Ifx_Read;
+         d->fxState[0].offset = offsetVReg(rs2);
+         d->fxState[0].size   = host_VLENB;
+         d->fxState[1].fx     = Ifx_Read;
+         d->fxState[1].offset = offsetVReg(0);
+         d->fxState[1].size   = host_VLENB;
+         stmt(irsb, IRStmt_Dirty(d));
+
+         putIReg64(irsb, rd, mkexpr(dret));
+         DIP("%s(%s, %s)\n", fName, nameIReg(rd), nameVReg(rs2));
+         return True;
+      }
       /*
        * vmfirst find-first-set mask bit
        */
