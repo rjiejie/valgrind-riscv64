@@ -252,6 +252,10 @@
    args = mkIRExprVec_4(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(temp),    \
                         mkU64(offsetVReg(0)));
 
+#define GETC_VUnopOPI_V(insn)                                                  \
+   GETC_VUnopOP_T(insn, V, V, offsetIReg64, nameIReg, GETR_VUnopOPI,           \
+                  GETV_VopUnknow);
+
 #define GETC_VUnopOPI_V_VAR(insn, vtype)                                       \
    GETC_VUnopOP_T(insn, V, V, offsetIReg64, nameIReg, GETR_VUnopOPI,           \
                   vtype);
@@ -1399,6 +1403,35 @@ static UInt GETA_VUnopX(vmvs)(VexGuestRISCV64State *st,
 static ULong GETA_VBinopVV(vcompress)(VexGuestRISCV64State *st,
                                       ULong vd, ULong vs2, ULong vs1, ULong mask) {
    RVV0p7_BinopOPIVV_T("vcompress.vm", vd, vs2, vs1);
+}
+
+static UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
+                             ULong vd, ULong vs2, ULong mask) {
+   UInt ret = 0;
+   vd += (ULong)st;
+   __asm__ __volatile__(
+      "vle.v\tv8,(%0)\n\t"
+      "vid.v\tv8\n\t"
+      "vse.v\tv8,(%0)\n\t"
+      :
+      : "r"(vd)
+      : "memory");
+   return ret;
+}
+static UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
+                               ULong vd, ULong vs2, ULong mask) {
+   UInt ret = 0;
+   vd += (ULong)st;
+   mask += (ULong)st;
+   RVV0p7_Mask()
+   __asm__ __volatile__(
+      "vle.v\tv8,(%0)\n\t"
+      "vid.v\tv8,v0.t\n\t"
+      "vse.v\tv8,(%0)\n\t"
+      :
+      : "r"(vd)
+      : "memory");
+   return ret;
 }
 
 /*---------------------------------------------------------------*/

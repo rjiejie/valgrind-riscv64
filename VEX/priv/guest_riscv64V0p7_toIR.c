@@ -323,6 +323,12 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
             case 0b10000:
                GETC_VUnopOPI_V_VAR(viota, GETV_VopM1S);
                return True;
+            /*
+             * Vector Element Index Instruction
+             */
+            case 0b10001:
+               GETC_VUnopOPI_V(vid);
+               return True;
             default:
                break;
          }
