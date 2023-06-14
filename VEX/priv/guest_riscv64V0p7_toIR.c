@@ -191,6 +191,91 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
          }
       }
    }
+
+   /* indexed */
+   if (GET_MOP() == 0b011 || GET_MOP() == 0b111) {
+      UInt vs2 = GET_RS2(); /* index register */
+      /* indexed normal load */
+      if (isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VXLDST(vlxbu);
+               } else {                   /* signed-extended */
+                  GETC_VXLDST(vlxb);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VXLDST(vlxhu);
+               } else {                   /* signed-extended */
+                  GETC_VXLDST(vlxh);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VXLDST(vlxwu);
+               } else {                   /* signed-extended */
+                  GETC_VXLDST(vlxw);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               GETC_VXLDST(vlxe);
+               return True;
+            }
+         }
+      }
+      /* indexed normal store */
+      if (!isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxb);
+               } else {
+                  GETC_VXLDST(vsuxb);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxh);
+               } else {
+                  GETC_VXLDST(vsuxh);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxw);
+               } else {
+                  GETC_VXLDST(vsuxw);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxe);
+               } else {
+                  GETC_VXLDST(vsuxe);
+               }
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+   }
    return False;
 }
 

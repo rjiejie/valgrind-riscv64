@@ -2677,6 +2677,47 @@ RVV0p7_VSXLdst(vssh, DIRTY_VSTORE_BODY)
 RVV0p7_VSXLdst(vssw, DIRTY_VSTORE_BODY)
 RVV0p7_VSXLdst(vsse, DIRTY_VSTORE_BODY)
 
+/*----------------------------------------------------------*/
+/*---   3.1 Indexed vector load dirty helpers            ---*/
+/*----------------------------------------------------------*/
+
+#define RVV0p7_Indexed_Load_Store_Memory(insn, vm)    \
+   ULong vs2_offs = (ULong) st + s2;                  \
+   /* vload1/vstore2: Load from or store to memory */ \
+   __asm__ __volatile__ (                             \
+      "vle.v\tv16,(%0)\t" vm "\n\t"                   \
+      #insn ".v\tv8,(%1),v16" vm "\n\t"               \
+      ::"r"(vs2_offs),"r" (rs1_offs)                  \
+      :                                               \
+   );
+
+#undef  RVV0p7_Load_Memory
+#define RVV0p7_Load_Memory      RVV0p7_Indexed_Load_Store_Memory
+
+RVV0p7_VSXLdst(vlxb,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlxh,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlxw,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlxe,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlxbu, DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlxhu, DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlxwu, DIRTY_VLOAD_BODY)
+
+/*----------------------------------------------------------*/
+/*---   3.2 Indexed vector store dirty helpers           ---*/
+/*----------------------------------------------------------*/
+
+#undef  RVV0p7_Store_Memory
+#define RVV0p7_Store_Memory    RVV0p7_Indexed_Load_Store_Memory
+
+RVV0p7_VSXLdst(vsxb,  DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsuxb, DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsxh,  DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsuxh, DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsxw,  DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsuxw, DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsxe,  DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsuxe, DIRTY_VSTORE_BODY)
+
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/
 /*--------------------------------------------------------------------*/
