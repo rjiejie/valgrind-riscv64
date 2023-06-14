@@ -2640,6 +2640,43 @@ RVV0p7_VLdst(vsh, DIRTY_VSTORE_BODY)
 RVV0p7_VLdst(vsw, DIRTY_VSTORE_BODY)
 RVV0p7_VLdst(vse, DIRTY_VSTORE_BODY)
 
+/*----------------------------------------------------------*/
+/*---   2.1 Strided vector load dirty helpers            ---*/
+/*----------------------------------------------------------*/
+
+#define RVV0p7_Strided_Load_Store_Memory(insn, vm)    \
+   /* vload1/vstore2: Load from or store to memory */ \
+   ULong rs2_offs = (ULong) st + s2;                  \
+   __asm__ __volatile__ (                             \
+      "ld\tt0,(%0)\n\t"                               \
+      #insn ".v\tv8,(%1),t0\t" vm "\n\t"              \
+      ::"r"(rs2_offs), "r" (rs1_offs)                 \
+      :"t0"                                           \
+   );
+
+#undef  RVV0p7_Load_Memory
+#define RVV0p7_Load_Memory     RVV0p7_Strided_Load_Store_Memory
+
+RVV0p7_VSXLdst(vlsb,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlsh,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlsw,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlse,  DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlsbu, DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlshu, DIRTY_VLOAD_BODY)
+RVV0p7_VSXLdst(vlswu, DIRTY_VLOAD_BODY)
+
+/*----------------------------------------------------------*/
+/*---   2.2 Strided vector store dirty helpers           ---*/
+/*----------------------------------------------------------*/
+
+#undef  RVV0p7_Store_Memory
+#define RVV0p7_Store_Memory    RVV0p7_Strided_Load_Store_Memory
+
+RVV0p7_VSXLdst(vssb, DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vssh, DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vssw, DIRTY_VSTORE_BODY)
+RVV0p7_VSXLdst(vsse, DIRTY_VSTORE_BODY)
+
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/
 /*--------------------------------------------------------------------*/

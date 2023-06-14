@@ -121,6 +121,76 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
          }
       }
    }
+
+   /* strided */
+   if (((GET_MOP() == 0b010 || GET_MOP() == 0b110) && isLD) /* strided load  */
+       || (GET_MOP() == 0b010 && !isLD)) {                /* strided store */
+      UInt rs2 = GET_RS2(); /* stride register */
+      /* strided normal load */
+      if (isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VSLDST(vlsbu);
+               } else {                   /* signed-extended */
+                  GETC_VSLDST(vlsb);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VSLDST(vlshu);
+               } else {                   /* signed-extended */
+                  GETC_VSLDST(vlsh);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VSLDST(vlswu);
+               } else {                   /* signed-extended */
+                  GETC_VSLDST(vlsw);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               GETC_VSLDST(vlse);
+               return True;
+            }
+         }
+      }
+      /* strided normal store */
+      if (!isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               GETC_VSLDST(vssb);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               GETC_VSLDST(vssh);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               GETC_VSLDST(vssw);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               GETC_VSLDST(vsse);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+   }
    return False;
 }
 
