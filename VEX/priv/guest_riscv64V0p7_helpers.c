@@ -2360,34 +2360,6 @@ static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
    return maskV;
 }
 
-/* Dirty helper for obtaining addr info in an index register.
-   As the index register is also vector register such that it is 
-   beyond 2048 range from guest state pointer, we get its content
-   using a helper instead of IRs. */
-static ULong dirty_get_indexed_addr(VexGuestRISCV64State *st,
-                                    ULong base, UInt idx, UInt sew, ULong vs) {
-   ULong vs_off   = (ULong) st + vs + idx * (1 << sew);
-   ULong base_off = (ULong) st + base;
-   Long  offset;
-
-   switch (sew) {
-      case 0:
-         offset = *((Char *) vs_off);
-         break;
-      case 1:
-         offset = *((Short *) vs_off);
-         break;
-      case 2:
-         offset = *((Int *) vs_off);
-         break;
-      case 3:
-         offset = *((Long *) vs_off);
-      default:
-         break;
-   }
-   return *((ULong *) base_off) + offset;
-}
-
 /* Prepare Vload/Vstore dirty helper info */
 static IRDirty*
 GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
@@ -2429,16 +2401,18 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
       }
       case Indexed: {
          UInt sew = extract_sew(guest_VFLAG);
+         IROp       ops[4] = {Iop_8Sto64, Iop_16Sto64, Iop_32Sto64, Iop_LAST};
+         IRType off_tys[4] = {Ity_I8, Ity_I16, Ity_I32, Ity_I64};
+         vassert(sew >=0 && sew <= 3);
+         IRExpr* offset;
          for (UInt i = vstart; i < vl; i++) {
-            IRTemp   addr = newTemp(irsb, Ity_I64);
-            IRExpr** args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetIReg64(r)),
-                                          mkU32(i), mkU32(sew), mkU64(offsetVReg(s2)));
-            IRDirty *a_d = unsafeIRDirty_1_N(addr, 0, "dirty_get_indexed_addr",
-                                             dirty_get_indexed_addr, args);
+            if (ops[sew] != Iop_LAST)
+               offset = unop(ops[sew], getVRegLane(s2, i, off_tys[sew]));
+            else
+               offset = getVRegLane(s2, i, off_tys[sew]);
             /* Record addresses per element in a segment */
             for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
-               addrV[idx] = binop(Iop_Add64, mkexpr(addr), mkU64(field_idx * width));
-            stmt(irsb, IRStmt_Dirty(a_d));
+               addrV[idx] = binop(Iop_Add64, getIReg64(r), offset);
          }
          break;
       }
