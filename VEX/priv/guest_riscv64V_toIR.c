@@ -135,6 +135,9 @@ static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
                       UInt                  insn,
                       ULong                 flag)
 {
+   if (host_VLENB == 0)
+      return False;
+
    if (dis_RV64V0p7(dres, irsb, insn, flag))
       return True;
    return False;
