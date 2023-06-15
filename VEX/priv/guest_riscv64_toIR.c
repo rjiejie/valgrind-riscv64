@@ -3531,6 +3531,9 @@ DisResult disInstr_RISCV64(IRSB*              irsb,
       on this fact. */
    vassert(host_endness == VexEndnessLE);
 
+   /* Set globals */
+   host_VLENB = archinfo->regLENB;
+
    /* Try to decode. */
    Bool ok = disInstr_RISCV64_WRK(&dres, irsb, &guest_code[delta], guest_IP,
                                   archinfo, abiinfo, sigill_diag);

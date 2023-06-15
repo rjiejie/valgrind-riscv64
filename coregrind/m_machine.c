@@ -897,6 +897,73 @@ static Bool VG_(parse_cpuinfo)(void)
 
 #endif /* defined(VGP_arm64_linux) */
 
+#if defined(VGA_riscv64)
+
+/* Check to see cpu or march info, and if so auto-enable
+   feature implementation. */
+
+static Bool VG_(parse_cpuinfo)(void)
+{
+   const char* search_isa_str = "isa\t:";
+
+   Int    n, fh;
+   SysRes fd;
+   SizeT  num_bytes, file_buf_size;
+   HChar  *file_buf;
+
+   /* Slurp contents of /proc/cpuinfo into FILE_BUF */
+   fd = VG_(open)( "/proc/cpuinfo", 0, VKI_S_IRUSR );
+   if ( sr_isError(fd) ) return False;
+
+   fh  = sr_Res(fd);
+
+   /* Determine the size of /proc/cpuinfo.
+      Work around broken-ness in /proc file system implementation.
+      fstat returns a zero size for /proc/cpuinfo although it is
+      claimed to be a regular file. */
+   num_bytes = 0;
+   file_buf_size = 1000;
+   file_buf = VG_(malloc)("cpuinfo", file_buf_size + 1);
+   while (42) {
+      n = VG_(read)(fh, file_buf, file_buf_size);
+      if (n < 0) break;
+
+      num_bytes += n;
+      if (n < file_buf_size) break;  /* reached EOF */
+   }
+
+   if (n < 0) num_bytes = 0;   /* read error; ignore contents */
+
+   if (num_bytes > file_buf_size) {
+      VG_(free)( file_buf );
+      VG_(lseek)( fh, 0, VKI_SEEK_SET );
+      file_buf = VG_(malloc)( "cpuinfo", num_bytes + 1 );
+      n = VG_(read)( fh, file_buf, num_bytes );
+      if (n < 0) num_bytes = 0;
+   }
+
+   file_buf[num_bytes] = '\0';
+   VG_(close)(fh);
+
+   /* Parse file */
+   HChar *key = NULL;
+   if ((key = VG_(strstr)(file_buf, search_isa_str)) != NULL) {
+      key = VG_(strchr)(key, ':');
+      for (key++; *key != '\n'; key++) {
+         if (*key == 'v') {
+             ULong vlenb;
+             __asm__ __volatile__("vsetvli\t%0,x0,e8,m1\n\t" : "=r"(vlenb) : :);
+             vai.regLENB = vlenb;
+         }
+      }
+   }
+
+   VG_(free)(file_buf);
+   return True;
+}
+
+#endif /* defined(VGA_riscv64) */
+
 Bool VG_(machine_get_hwcaps)( void )
 {
    vg_assert(hwcaps_done == False);
@@ -2270,6 +2337,11 @@ Bool VG_(machine_get_hwcaps)( void )
    {
      va = VexArchRISCV64;
      vai.endness = VexEndnessLE;
+
+     /* Check whether we need to enable features.
+        If the check fails, give up. */
+     if (!VG_(parse_cpuinfo)())
+         return False;
 
      /* Hardware baseline is RV64GC. */
      vai.hwcaps = 0;

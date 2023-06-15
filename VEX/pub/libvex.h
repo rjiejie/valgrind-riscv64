@@ -382,6 +382,8 @@ typedef
          concrete meaning of bit fields in this flag is defined
          by each arch. */
       ULong bb_flag;
+      /* register length in byte for runtime, e.g. VLA */
+      ULong regLENB;
    }
    VexArchInfo;
 
