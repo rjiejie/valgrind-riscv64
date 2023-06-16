@@ -133,13 +133,12 @@ static const HChar* nameVReg(UInt regNo)
 
 static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
                       /*OUT*/ IRSB*         irsb,
-                      UInt                  insn,
-                      ULong                 flag)
+                      UInt                  insn)
 {
    if (host_VLENB == 0)
       return False;
 
-   if (dis_RV64V0p7(dres, irsb, insn, flag))
+   if (dis_RV64V0p7(dres, irsb, insn))
       return True;
    return False;
 }

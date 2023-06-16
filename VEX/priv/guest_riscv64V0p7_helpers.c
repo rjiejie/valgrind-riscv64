@@ -1970,13 +1970,12 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
                   IRDirty* d,                /* OUT */
                   UInt v, UInt r, UInt s2,   /* Inst oprd */
                   Bool mask, Bool isLD,
-                  UInt nf,
-                  ULong flag, ULong width,
+                  UInt nf, ULong width,
                   VLdstT ldst_ty)
 {
-   UInt lmul   = extract_lmul(flag);
-   UInt vstart = extract_vstart(flag);
-   UInt vl     = extract_vl(flag);
+   UInt lmul   = extract_lmul(guest_VFLAG);
+   UInt vstart = extract_vstart(guest_VFLAG);
+   UInt vl     = extract_vl(guest_VFLAG);
    d->nFxState = 2;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
@@ -2005,7 +2004,7 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
          break;
       }
       case Indexed: {
-         UInt sew = extract_sew(flag);
+         UInt sew = extract_sew(guest_VFLAG);
          for (UInt i = vstart; i < vl; i++) {
             IRTemp   addr = newTemp(irsb, Ity_I64);
             IRExpr** args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetIReg64(r)),
@@ -2089,7 +2088,7 @@ args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
 
 /* Macros for creating a proper dirty helper according to insn types */
 #define MK_GETD(s2, nf, ldst_ty) \
-   GETD_Common_VLdSt(irsb, d, v, rs, s2, mask, isLD, nf, flag, width, ldst_ty);
+   GETD_Common_VLdSt(irsb, d, v, rs, s2, mask, isLD, nf, width, ldst_ty);
 
 #define UNIT_STRIDE_GETD        MK_GETD(0,   1,  UnitStride)
 #define STRIDED_GETD            MK_GETD(rs2, 1,  Strided)

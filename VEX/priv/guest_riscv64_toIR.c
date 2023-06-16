@@ -3344,7 +3344,6 @@ static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
                                  /*OUT*/ IRSB*         irsb,
                                  UInt                  insn,
                                  Addr                  guest_pc_curr_instr,
-                                 const VexArchInfo*    archinfo,
                                  const VexAbiInfo*     abiinfo,
                                  Bool                  sigill_diag)
 {
@@ -3366,7 +3365,7 @@ static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
    if (!ok)
       ok = dis_RV64Zfh(dres, irsb, insn);
    if (!ok)
-      ok = dis_RV64V(dres, irsb, insn, archinfo->bb_flag);
+      ok = dis_RV64V(dres, irsb, insn);
    if (ok)
       return True;
 
@@ -3487,8 +3486,8 @@ static Bool disInstr_RISCV64_WRK(/*MB_OUT*/ DisResult* dres,
                               sigill_diag);
       if (ok)
          break;
-      ok = dis_RISCV64_standard(dres, irsb, insn, guest_pc_curr_instr, archinfo,
-                                abiinfo, sigill_diag);
+      ok = dis_RISCV64_standard(dres, irsb, insn, guest_pc_curr_instr, abiinfo,
+                                sigill_diag);
       break;
 
    default:
