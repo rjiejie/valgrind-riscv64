@@ -279,8 +279,7 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
          d->fxState[1].size      = 8;
          stmt(irsb, IRStmt_Dirty(d));
 
-         // TODO get sew
-         UInt sew = 0;
+         UInt sew = extract_sew(guest_VFLAG);
          putIReg64(irsb, rd,
                    sew == 8    ? unop(Iop_8Uto64,  mkexpr(ret))
                    : sew == 16 ? unop(Iop_16Uto64, mkexpr(ret))
@@ -699,8 +698,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          d->fxState[0].size      = host_VLENB;
          stmt(irsb, IRStmt_Dirty(d));
 
-         // TODO get sew
-         UInt sew = 0;
+         UInt sew = extract_sew(guest_VFLAG);
          putFReg64(irsb, rd,
                    sew == 8    ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFUL))
                    : sew == 16 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFUL))

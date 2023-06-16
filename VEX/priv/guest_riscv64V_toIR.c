@@ -38,6 +38,7 @@
 /*------------------------------------------------------------*/
 
 static ULong host_VLENB;
+static ULong guest_VFLAG;
 
 /*------------------------------------------------------------*/
 /*--- Offsets of various parts of the riscv64 guest state  ---*/

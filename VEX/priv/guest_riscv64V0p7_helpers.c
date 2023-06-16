@@ -297,8 +297,7 @@
 static IRDirty*
 GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt vtype)
 {
-   /* TODO */
-   UInt lmul   = 0;
+   UInt lmul   = extract_lmul(guest_VFLAG);
    d->nFxState = isVOpVV(sopc) ? 3 : 2;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
@@ -339,8 +338,7 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
 static IRDirty*
 GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 {
-   /* TODO */
-   UInt lmul   = 0;
+   UInt lmul   = extract_lmul(guest_VFLAG);
    d->nFxState = isVOpVV(sopc) ? 2 : 1;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 

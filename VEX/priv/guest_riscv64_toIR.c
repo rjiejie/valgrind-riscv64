@@ -3534,6 +3534,7 @@ DisResult disInstr_RISCV64(IRSB*              irsb,
 
    /* Set globals */
    host_VLENB = archinfo->regLENB;
+   guest_VFLAG = archinfo->bb_flag;
 
    /* Try to decode. */
    Bool ok = disInstr_RISCV64_WRK(&dres, irsb, &guest_code[delta], guest_IP,
