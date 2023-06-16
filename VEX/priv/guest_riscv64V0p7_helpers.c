@@ -1272,6 +1272,10 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
                                        ULong vd, ULong vs2, ULong vs1, ULong mask) { \
       RVV0p7_BinopOPIMM_T(#insn".mm", vd, vs2, vs1); \
    } \
+   static UInt RVV0p7_Binop_##insn##vv_m(VexGuestRISCV64State *st, \
+                                         ULong vd, ULong vs2, ULong vs1, ULong mask) { \
+      RVV0p7_BinopOPIMM_T(#insn".mm", vd, vs2, vs1); \
+   } \
 
 #define RVV0p7_UnopOPIM_FT(insn) \
    static UInt RVV0p7_Unop_##insn##v_m(VexGuestRISCV64State *st, \
@@ -1755,15 +1759,6 @@ typedef enum {
    GETA_VBinopVV_M(vcompress) = (Addr)NULL,
    GETA_VBinopVF(vfmerge)     = (Addr)NULL,
    GETA_VUnopF_M(vfmerge)     = (Addr)NULL,
-
-   GETA_VBinopVV_M(vmand)     = (Addr)NULL,
-   GETA_VBinopVV_M(vmnand)    = (Addr)NULL,
-   GETA_VBinopVV_M(vmandnot)  = (Addr)NULL,
-   GETA_VBinopVV_M(vmxor)     = (Addr)NULL,
-   GETA_VBinopVV_M(vmor)      = (Addr)NULL,
-   GETA_VBinopVV_M(vmnor)     = (Addr)NULL,
-   GETA_VBinopVV_M(vmornot)   = (Addr)NULL,
-   GETA_VBinopVV_M(vmxnor)    = (Addr)NULL,
 } GETA_NULL;
 
 /* Load/store dirty helpers
