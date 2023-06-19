@@ -530,9 +530,10 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       ipop                                                  \
                                                             \
       __asm__ __volatile__(                                 \
-         "vle.v\tv24,(%0)\n\t"                              \
+         "vle.v\tv8,(%0)\n\t"                               \
+         "vle.v\tv24,(%1)\n\t"                              \
          :                                                  \
-         : "r"(vs1)                                         \
+         : "r"(vd), "r"(vs1)                                \
          :);                                                \
                                                             \
       imask                                                 \
@@ -606,9 +607,10 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       mask += (ULong)st;                                    \
                                                             \
       __asm__ __volatile__(                                 \
-         "vle.v\tv16,(%0)\n\t"                              \
+         "vle.v\tv8,(%0)\n\t"                               \
+         "vle.v\tv16,(%1)\n\t"                              \
          :                                                  \
-         : "r"(vs2)                                         \
+         : "r"(vd), "r"(vs2)                                \
          :);                                                \
                                                             \
       imask                                                 \
@@ -643,6 +645,12 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
          : "r"(vs2)                                         \
          :);                                                \
       ipop                                                  \
+                                                            \
+      __asm__ __volatile__(                                 \
+         "vle.v\tv8,(%0)\n\t"                               \
+         :                                                  \
+         : "r"(vd)                                          \
+         :);                                                \
                                                             \
       imask                                                 \
       ipre                                                  \
@@ -850,6 +858,12 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
          : "r"(vs2)                                         \
          :);                                                \
       ipop                                                  \
+                                                            \
+      __asm__ __volatile__(                                 \
+         "vle.v\tv8,(%0)\n\t"                               \
+         :                                                  \
+         : "r"(vd)                                          \
+         :);                                                \
                                                             \
       imask                                                 \
       ipre                                                  \
