@@ -92,6 +92,43 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             default:
                return False;
          }
+      } else { /* unit-stride segment load */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, bu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, b);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, hu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, h);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, wu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, w);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
       }
       /* unit-stride normal store */
       if (!isLD && nf == 0){
@@ -114,6 +151,31 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             case 0b111: {                 /* SEW store */
                width = (1 << extract_sew(guest_VFLAG));
                GETC_VLDST(vse);
+               return True;
+            }
+            default:
+               return False;
+         }
+      } else { /* unit-stride segment store */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, b);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, h);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, w);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e);
                return True;
             }
             default:
@@ -162,6 +224,43 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
          }
+      } else { /* strided segment load */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, bu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, b);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, hu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, h);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, wu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, w);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
       }
       /* strided normal store */
       if (!isLD && nf == 0) {
@@ -189,11 +288,38 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             default:
                return False;
          }
+      } else { /* strided segment store */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, b);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, h);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, w);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
       }
    }
 
    /* indexed */
-   if (GET_MOP() == 0b011 || GET_MOP() == 0b111) {
+   if (((GET_MOP() == 0b011 || GET_MOP() == 0b111) && nf == 0)
+       || ((GET_MOP() == 0b011 || GET_MOP() == 0b111) && nf != 0 && isLD)
+       || (GET_MOP() == 0b011 && nf !=0 && !isLD)) {
       UInt vs2 = GET_RS2(); /* index register */
       /* indexed normal load */
       if (isLD && nf == 0) {
@@ -230,6 +356,43 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                GETC_VXLDST(vlxe);
                return True;
             }
+         }
+      } else { /* indexed segment load */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, bu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, b);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, hu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, h);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, wu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, w);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, e);
+               return True;
+            }
+            default:
+               return False;
          }
       }
       /* indexed normal store */
@@ -269,6 +432,31 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                } else {
                   GETC_VXLDST(vsuxe);
                }
+               return True;
+            }
+            default:
+               return False;
+         }
+      } else { /* indexed segment store */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, b);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, h);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, w);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, e);
                return True;
             }
             default:

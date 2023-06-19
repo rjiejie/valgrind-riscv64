@@ -2718,6 +2718,225 @@ RVV0p7_VSXLdst(vsuxw, DIRTY_VSTORE_BODY)
 RVV0p7_VSXLdst(vsxe,  DIRTY_VSTORE_BODY)
 RVV0p7_VSXLdst(vsuxe, DIRTY_VSTORE_BODY)
 
+/*----------------------------------------------------------*/
+/*---   4.1 Segment vector load dirty helpers (Zvlsseg)  ---*/
+/*----------------------------------------------------------*/
+
+/* For generating all nf variants of switch-case in dis_RV64V0p7_ldst */
+#define VSEG_DIS_NF_CASES(get_c_macro, insn_prefix, \
+                          insn_suffix)              \
+   switch (nf) {                                    \
+      case 2:                                       \
+         get_c_macro(insn_prefix##2##insn_suffix);  \
+         return True;                               \
+      case 3:                                       \
+         get_c_macro(insn_prefix##3##insn_suffix);  \
+         return True;                               \
+      case 4:                                       \
+         get_c_macro(insn_prefix##4##insn_suffix);  \
+         return True;                               \
+      case 5:                                       \
+         get_c_macro(insn_prefix##5##insn_suffix);  \
+         return True;                               \
+      case 6:                                       \
+         get_c_macro(insn_prefix##6##insn_suffix);  \
+         return True;                               \
+      case 7:                                       \
+         get_c_macro(insn_prefix##7##insn_suffix);  \
+         return True;                               \
+      case 8:                                       \
+         get_c_macro(insn_prefix##8##insn_suffix);  \
+         return True;                               \
+      default:                                      \
+         return False;                              \
+   }
+
+/* For generating all nf(2-8) variants in a batch */
+#define RVV0p7_VSEG_NF_DEFS(ldst_macro, insn_prefix, \
+                            body, insn_suffix)       \
+ldst_macro(insn_prefix##2##insn_suffix, body, 2)     \
+ldst_macro(insn_prefix##3##insn_suffix, body, 3)     \
+ldst_macro(insn_prefix##4##insn_suffix, body, 4)     \
+ldst_macro(insn_prefix##5##insn_suffix, body, 5)     \
+ldst_macro(insn_prefix##6##insn_suffix, body, 6)     \
+ldst_macro(insn_prefix##7##insn_suffix, body, 7)     \
+ldst_macro(insn_prefix##8##insn_suffix, body, 8)
+
+/* Load/store vector registers and update the address 
+   for accessing virtual guest state in the next step
+   to the correct location. */
+#define LDST_VEC_UPDATE_ADDR(insn, v_reg, vm) \
+   __asm__ __volatile__(                      \
+      #insn ".v\tv" #v_reg ",(%0)" vm "\n\t"  \
+      "sub\t%0,%0,%1\n\t"                     \
+      :"=r"(v_end)                            \
+      :"0"(v_end), "r"(reg_len):              \
+   );                                         \
+   __attribute__ ((fallthrough));
+
+/* Load/store guest state
+   Segment load/store guest state should take both nf and
+   lmul into account, making it more complicated than normal
+   load/store. We achieve guest state load/store by iterating
+   all virtual registers that a segment instruction touches.
+
+   We split vector registers by lmul using the outmost switch,
+   and further determine how many register groups to load/store
+   by nf using the nested switch. For example, in the condition
+   of LMUL=2 and NF=3 in a seg load, there are 6 registers accessed
+   in a single instruction. Accordingly, we fall into the lmul
+   case 1, and nf case 3, where the memory contents will be stored
+   to vCPU registers from v13(v12), v11(v10), and v9(v8) by falling
+   through case 3 to case 1.
+*/
+#define RVV0p7_Seg_LoadStore_GuestState(insn, nf, vm, v) \
+                                                         \
+   ULong lmul = 0;                                       \
+   __asm__ __volatile__(                                 \
+      "csrr\t%0,vtype\n\t"                               \
+      "andi\t%0,%0,0x03\n\t"                             \
+   :"=r"(lmul)::);                                       \
+                                                         \
+   ULong reg_len = host_VLENB * lmul;                    \
+   ULong v_end   = v##_offs + (nf - 1) * reg_len;        \
+                                                         \
+   switch (lmul) {                                       \
+      case 0: {                                          \
+         /* LMUL = 1 */                                  \
+         switch (nf) {                                   \
+            case 8:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 15, vm)        \
+            case 7:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 14, vm)        \
+            case 6:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 13, vm)        \
+            case 5:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 12, vm)        \
+            case 4:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 11, vm)        \
+            case 3:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 10, vm)        \
+            case 2:                                      \
+               LDST_VEC_UPDATE_ADDR(insn,  9, vm)        \
+            case 1:                                      \
+               LDST_VEC_UPDATE_ADDR(insn,  8, vm)        \
+            default:                                     \
+               break;                                    \
+        }                                                \
+        break;                                           \
+      }                                                  \
+      case 1: {                                          \
+         /* LMUL = 2 */                                  \
+         switch (nf) {                                   \
+            case 4:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 14, vm)        \
+            case 3:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 12, vm)        \
+            case 2:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 10, vm)        \
+            case 1:                                      \
+               LDST_VEC_UPDATE_ADDR(insn,  8, vm)        \
+            default:                                     \
+               break;                                    \
+        }                                                \
+        break;                                           \
+      }                                                  \
+      case 2: {                                          \
+         /* LMUL = 4 */                                  \
+         switch (nf) {                                   \
+            case 2:                                      \
+               LDST_VEC_UPDATE_ADDR(insn, 12, vm)        \
+            case 1:                                      \
+               LDST_VEC_UPDATE_ADDR(insn,  8, vm)        \
+            default:                                     \
+               break;                                    \
+         }                                               \
+         break;                                          \
+      }                                                  \
+      case 3: {                                          \
+         /* LMUL = 8 */                                  \
+         __asm__ __volatile__(                           \
+            #insn ".v\tv8,(%0)" vm "\n\t"                \
+         ::"r"(v_end):);                                 \
+         break;                                          \
+      }                                                  \
+      default:                                           \
+         break;                                          \
+   }
+
+/* 4.1.1 Segment unit-stride load */
+#define RVV0p7_Seg_Store_GuestState(nf, vm) \
+   RVV0p7_Seg_LoadStore_GuestState(vse, nf, vm, vd)
+
+#undef  RVV0p7_Load_Memory
+#undef  RVV0p7_Store_GuestState
+#define RVV0p7_Load_Memory        RVV0p7_Unit_Stride_Load_Store_Memory
+#define RVV0p7_Store_GuestState   RVV0p7_Seg_Store_GuestState
+
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, b)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, h)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, w)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, bu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, hu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, wu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, e)
+
+/* 4.1.2 Segment unit-stride store */
+#define RVV0p7_Seg_USX_Load_GuestState(nf, vm) \
+   RVV0p7_Seg_LoadStore_GuestState(vle, nf, vm, vs)
+
+#undef  RVV0p7_Load_GuestState
+#undef  RVV0p7_Store_Memory
+#define RVV0p7_Load_GuestState    RVV0p7_Seg_USX_Load_GuestState
+#define RVV0p7_Store_Memory       RVV0p7_Unit_Stride_Load_Store_Memory
+
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, b)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, h)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, w)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, e)
+
+/* 4.2.1 Segment strided load */
+#undef  RVV0p7_Load_Memory
+#define RVV0p7_Load_Memory        RVV0p7_Strided_Load_Store_Memory
+
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, b)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, h)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, w)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, bu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, hu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, wu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, e)
+
+/* 4.2.2 Segment strided store */
+#undef  RVV0p7_Store_Memory
+#define RVV0p7_Store_Memory       RVV0p7_Strided_Load_Store_Memory
+
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, b)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, h)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, w)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, e)
+
+/* 4.3.1 Segment indexed load */
+#undef  RVV0p7_Load_Memory
+#define RVV0p7_Load_Memory        RVV0p7_Indexed_Load_Store_Memory
+
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, b)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, h)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, w)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, bu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, hu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, wu)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, e)
+
+/* 4.3.2 Segment indexed store */
+#undef  RVV0p7_Store_Memory
+#define RVV0p7_Store_Memory       RVV0p7_Indexed_Load_Store_Memory
+
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vsxseg, DIRTY_VSTORE_BODY, b)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vsxseg, DIRTY_VSTORE_BODY, h)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vsxseg, DIRTY_VSTORE_BODY, w)
+RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vsxseg, DIRTY_VSTORE_BODY, e)
+
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/
 /*--------------------------------------------------------------------*/
