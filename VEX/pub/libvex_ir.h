@@ -2503,6 +2503,8 @@ typedef
    enum {
       Ijk_INVALID=0x1A00, 
       Ijk_Boring,         /* not interesting; just goto next */
+      Ijk_ExitBB,         /* potential critical state changes, must exit IRSB
+                             translation and disable chasing */
       Ijk_Call,           /* guest is doing a call */
       Ijk_Ret,            /* guest is doing a return */
       Ijk_ClientReq,      /* do guest client req before continuing */

@@ -77,6 +77,11 @@ static ULong guest_VFLAG;
 #define OFFB_V30 (offsetof(VexGuestRISCV64State, guest_vreg) + host_VLENB * 30)
 #define OFFB_V31 (offsetof(VexGuestRISCV64State, guest_vreg) + host_VLENB * 31)
 
+/* Vector CSRs offsets */
+#define OFFB_VTYPE  offsetof(VexGuestRISCV64State, guest_vtype)
+#define OFFB_VL     offsetof(VexGuestRISCV64State, guest_vl)
+#define OFFB_VSTART offsetof(VexGuestRISCV64State, guest_vstart)
+
 static Int offsetVReg(UInt regNo)
 {
    switch (regNo) {
@@ -114,6 +119,43 @@ static Int offsetVReg(UInt regNo)
       case 31: return OFFB_V31;
       default: vassert(0);
    }
+}
+
+/* Vector CSRs get/put interfaces */
+/* VType CSR read, return type is I64 */
+static IRExpr* getVType(void) {
+   return IRExpr_Get(OFFB_VTYPE, Ity_I64);
+}
+
+/* VType CSR write, the written value should be I64 */
+static void putVType(IRSB* irsb, IRExpr* e) {
+   IRType ty = typeOfIRExpr(irsb->tyenv, e);
+   vassert(ty == Ity_I64);
+   stmt(irsb, IRStmt_Put(OFFB_VTYPE, e));
+}
+
+/* VL CSR read, return type is I64 */
+static IRExpr* getVL(void) {
+   return IRExpr_Get(OFFB_VL, Ity_I64);
+}
+
+/* VL CSR write, the written value should be I64 */
+static void putVL(IRSB* irsb, IRExpr* e) {
+   IRType ty = typeOfIRExpr(irsb->tyenv, e);
+   vassert(ty == Ity_I64);
+   stmt(irsb, IRStmt_Put(OFFB_VL, e));
+}
+
+/* VStart CSR read, return type is I64 */
+static IRExpr* getVStart(void) {
+   return IRExpr_Get(OFFB_VSTART, Ity_I64);
+}
+
+/* VStart CSR write, the written value should be I64 */
+static void putVStart(IRSB* irsb, IRExpr* e) {
+   IRType ty = typeOfIRExpr(irsb->tyenv, e);
+   vassert(ty == Ity_I64);
+   stmt(irsb, IRStmt_Put(OFFB_VSTART, e));
 }
 
 /* Find the offset of the requested data type and vector register lane
@@ -168,12 +210,13 @@ static const HChar* nameVReg(UInt regNo)
 
 static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
                       /*OUT*/ IRSB*         irsb,
-                      UInt                  insn)
+                      UInt                  insn,
+                      Addr                  guest_pc_curr_instr)
 {
    if (host_VLENB == 0)
       return False;
 
-   if (dis_RV64V0p7(dres, irsb, insn))
+   if (dis_RV64V0p7(dres, irsb, insn, guest_pc_curr_instr))
       return True;
    return False;
 }

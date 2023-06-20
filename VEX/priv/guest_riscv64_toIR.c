@@ -3365,7 +3365,7 @@ static Bool dis_RISCV64_standard(/*MB_OUT*/ DisResult* dres,
    if (!ok)
       ok = dis_RV64Zfh(dres, irsb, insn);
    if (!ok)
-      ok = dis_RV64V(dres, irsb, insn);
+      ok = dis_RV64V(dres, irsb, insn, guest_pc_curr_instr);
    if (ok)
       return True;
 
