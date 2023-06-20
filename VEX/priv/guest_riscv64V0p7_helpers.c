@@ -82,6 +82,7 @@
 #define GETV_VopWidenS2 (1 << 2) /* Indicate VS2 is widened  by OP, e.g. VFWADDW/VFNCVT */
 #define GETV_VopM1D     (1 << 3) /* Indicate VD  is 1 LMUL   by OP, e.g. VMFEQ   */
 #define GETV_VopM1S     (1 << 4) /* Indicate VS* is 1 LMUL   by OP, e.g. VMAND   */
+#define GETV_VopMask    (1 << 5) /* Indicate V0  is readed   by OP, e.g. VADC    */
 
 /*---------------------------------------------------------------*/
 /*--- Get call of helper functions                            ---*/
@@ -361,7 +362,7 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
       d->nFxState += 1;
    }
 
-   if (!mask) {
+   if (!mask || (vtype & GETV_VopMask)) {
       d->fxState[d->nFxState].fx     = Ifx_Read;
       d->fxState[d->nFxState].offset = offsetVReg(0);
       d->fxState[d->nFxState].size   = host_VLENB;
@@ -400,7 +401,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       d->nFxState += 1;
    }
 
-   if (!mask) {
+   if (!mask || (vtype & GETV_VopMask)) {
       d->fxState[d->nFxState].fx     = Ifx_Read;
       d->fxState[d->nFxState].offset = offsetVReg(0);
       d->fxState[d->nFxState].size   = host_VLENB;

@@ -158,16 +158,16 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
        * Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions
        */
       case 0b010000:
-         GETC_VBinopOPI(vadc);
+         GETC_VBinopOPI_VAR(vadc, GETV_VopMask);
          return True;
       case 0b010001:
-         GETC_VBinopOPI(vmadc);
+         GETC_VBinopOPI_VAR(vmadc, GETV_VopMask);
          return True;
       case 0b010010:
-         GETC_VBinopOPI_VX(vsbc);
+         GETC_VBinopOPI_VX_VAR(vsbc, GETV_VopMask);
          return True;
       case 0b010011:
-         GETC_VBinopOPI_VX(vmsbc);
+         GETC_VBinopOPI_VX_VAR(vmsbc, GETV_VopMask);
          return True;
       /*
        * Vector Bitwise Logical Instructions
