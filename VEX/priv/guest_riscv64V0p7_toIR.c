@@ -142,8 +142,118 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
    Bool mask = GET_VMASK();
 
    switch (GET_FUNCT6()) {
+      /*
+       * Vector Single-Width Integer Add and Subtract
+       */
       case 0b000000:
          GETC_VBinopOPI(vadd);
+         return True;
+      case 0b000010:
+         GETC_VBinopOPI_VX(vsub);
+         return True;
+      case 0b000011:
+         GETC_VBinopOPI_XI(vrsub);
+         return True;
+      /*
+       * Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions
+       */
+      case 0b010000:
+         GETC_VBinopOPI(vadc);
+         return True;
+      case 0b010001:
+         GETC_VBinopOPI(vmadc);
+         return True;
+      case 0b010010:
+         GETC_VBinopOPI_VX(vsbc);
+         return True;
+      case 0b010011:
+         GETC_VBinopOPI_VX(vmsbc);
+         return True;
+      /*
+       * Vector Bitwise Logical Instructions
+       */
+      case 0b001001:
+         GETC_VBinopOPI(vand);
+         return True;
+      case 0b001010:
+         GETC_VBinopOPI(vor);
+         return True;
+      case 0b001011:
+         GETC_VBinopOPI(vxor);
+         return True;
+      /*
+       * Vector Single-Width Bit Shift Instructions
+       */
+      case 0b100101:
+         GETC_VBinopOPI(vsll);
+         return True;
+      case 0b101000:
+         GETC_VBinopOPI(vsrl);
+         return True;
+      case 0b101001:
+         GETC_VBinopOPI(vsra);
+         return True;
+      /*
+       * Vector Narrowing Integer Right Shift Instructions
+       */
+      case 0b101100:
+         GETC_VBinopOPI_VAR(vnsrl, GETV_VopWidenS2);
+         return True;
+      case 0b101101:
+         GETC_VBinopOPI_VAR(vnsra, GETV_VopWidenS2);
+         return True;
+      /*
+       * Vector Integer Comparison Instructions
+       */
+      case 0b011000:
+         GETC_VBinopOPI_VAR(vmseq, GETV_VopM1D);
+         return True;
+      case 0b011001:
+         GETC_VBinopOPI_VAR(vmsne, GETV_VopM1D);
+         return True;
+      case 0b011010:
+         GETC_VBinopOPI_VX_VAR(vmsltu, GETV_VopM1D);
+         return True;
+      case 0b011011:
+         GETC_VBinopOPI_VX_VAR(vmslt, GETV_VopM1D);
+         return True;
+      case 0b011100:
+         GETC_VBinopOPI_VAR(vmsleu, GETV_VopM1D);
+         return True;
+      case 0b011101:
+         GETC_VBinopOPI_VAR(vmsle, GETV_VopM1D);
+         return True;
+      case 0b011110:
+         GETC_VBinopOPI_XI_VAR(vmsgtu, GETV_VopM1D);
+         return True;
+      case 0b011111:
+         GETC_VBinopOPI_XI_VAR(vmsgt, GETV_VopM1D);
+         return True;
+      /*
+       * Vector Integer Min/Max Instructions
+       */
+      case 0b000100:
+         GETC_VBinopOPI_VX(vminu);
+         return True;
+      case 0b000101:
+         GETC_VBinopOPI_VX(vmin);
+         return True;
+      case 0b000110:
+         GETC_VBinopOPI_VX(vmaxu);
+         return True;
+      case 0b000111:
+         GETC_VBinopOPI_VX(vmax);
+         return True;
+      /*
+       * Vector Integer Merge and Move Instructions
+       */
+      case 0b010111:
+         if (!mask)
+            GETC_VBinopOPI(vmerge);
+         else {
+            rs2 = rs1;
+            GETC_VUnopOPI(vmv);
+         }
          return True;
       /*
        * Vector Single-Width Saturating Add and Subtract
@@ -259,6 +369,105 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
    Bool mask = GET_VMASK();
 
    switch (GET_FUNCT6()) {
+      /*
+       * Vector Widening Integer Add/Subtract
+       */
+      case 0b110000:
+         GETC_VBinopOPI_VX_VAR(vwaddu, GETV_VopWidenD);
+         return True;
+      case 0b110010:
+         GETC_VBinopOPI_VX_VAR(vwsubu, GETV_VopWidenD);
+         return True;
+      case 0b110001:
+         GETC_VBinopOPI_VX_VAR(vwadd, GETV_VopWidenD);
+         return True;
+      case 0b110011:
+         GETC_VBinopOPI_VX_VAR(vwsub, GETV_VopWidenD);
+         return True;
+      case 0b110100:
+         GETC_VBinopOPI_VX_VAR(vwadduw, GETV_VopWidenD | GETV_VopWidenS2);
+         return True;
+      case 0b110110:
+         GETC_VBinopOPI_VX_VAR(vwsubuw, GETV_VopWidenD | GETV_VopWidenS2);
+         return True;
+      case 0b110101:
+         GETC_VBinopOPI_VX_VAR(vwaddw, GETV_VopWidenD | GETV_VopWidenS2);
+         return True;
+      case 0b110111:
+         GETC_VBinopOPI_VX_VAR(vwsubw, GETV_VopWidenD | GETV_VopWidenS2);
+         return True;
+      /*
+       * Vector Single-Width Integer Multiply Instructions
+       */
+      case 0b100101:
+         GETC_VBinopOPI_VX(vmul);
+         return True;
+      case 0b100111:
+         GETC_VBinopOPI_VX(vmulh);
+         return True;
+      case 0b100100:
+         GETC_VBinopOPI_VX(vmulhu);
+         return True;
+      case 0b100110:
+         GETC_VBinopOPI_VX(vmulhsu);
+         return True;
+      /*
+       * Vector Integer Divide Instructions
+       */
+      case 0b100000:
+         GETC_VBinopOPI_VX(vdivu);
+         return True;
+      case 0b100001:
+         GETC_VBinopOPI_VX(vdiv);
+         return True;
+      case 0b100010:
+         GETC_VBinopOPI_VX(vremu);
+         return True;
+      case 0b100011:
+         GETC_VBinopOPI_VX(vrem);
+         return True;
+      /*
+       * Vector Widening Integer Multiply Instructions
+       */
+      case 0b111011:
+         GETC_VBinopOPI_VX_VAR(vwmul, GETV_VopWidenD);
+         return True;
+      case 0b111000:
+         GETC_VBinopOPI_VX_VAR(vwmulu, GETV_VopWidenD);
+         return True;
+      case 0b111010:
+         GETC_VBinopOPI_VX_VAR(vwmulsu, GETV_VopWidenD);
+         return True;
+      /*
+       * Vector Single-Width Integer Multiply-Add Instructions
+       */
+      case 0b101101:
+         GETC_VBinopOPI_VX_VAR(vmacc, GETV_VopAccD);
+         return True;
+      case 0b101111:
+         GETC_VBinopOPI_VX_VAR(vnmsac, GETV_VopAccD);
+         return True;
+      case 0b101001:
+         GETC_VBinopOPI_VX_VAR(vmadd, GETV_VopAccD);
+         return True;
+      case 0b101011:
+         GETC_VBinopOPI_VX_VAR(vnmsub, GETV_VopAccD);
+         return True;
+      /*
+       * Vector Widening Integer Multiply-Add Instructions
+       */
+      case 0b111100:
+         GETC_VBinopOPI_VX_VAR(vwmaccu, GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111101:
+         GETC_VBinopOPI_VX_VAR(vwmacc, GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111110:
+         GETC_VBinopOPI_VX_VAR(vwmaccsu, GETV_VopAccD | GETV_VopWidenD);
+         return True;
+      case 0b111111:
+         GETC_VBinopOPI_X_VAR(vwmaccus, GETV_VopAccD | GETV_VopWidenD);
+         return True;
       /*
        * Integer Extract Instruction
        */
