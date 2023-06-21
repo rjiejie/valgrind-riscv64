@@ -2084,9 +2084,11 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
          d->nFxState += 1;
          break;
       case Indexed:
-         d->fxState[2].fx     = Ifx_Read;
-         d->fxState[2].offset = offsetVReg(s2);
-         d->fxState[2].size   = host_VLENB;
+         d->fxState[2].fx        = Ifx_Read;
+         d->fxState[2].offset    = offsetVReg(s2);
+         d->fxState[2].size      = host_VLENB;
+         d->fxState[2].nRepeats  = lmul;
+         d->fxState[2].repeatLen = host_VLENB;
          d->nFxState += 1;
          break;
       default:
