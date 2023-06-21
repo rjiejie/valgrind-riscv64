@@ -439,15 +439,6 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       "vsetvl\tx0,x0,t0\n\t"  \
       ::: "t0", "t1", "t2");
 
-// Push vl/vtype
-// Set whole register with M1 LMUL
-#define RVV0p7_PushM1()             \
-   __asm__ __volatile__(            \
-      "csrr\tt1,vl\n\t"             \
-      "csrr\tt2,vtype\n\t"          \
-      "vsetvli\tx0,x0,e8,m1\n\t"    \
-      ::: "t1", "t2");
-
 // Get mask
 #define RVV0p7_Mask()               \
    __asm__ __volatile__(            \
@@ -945,6 +936,10 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // OPI
 #define RVV0p7_UnopX_T(insn, vd, rs1)\
    RVV0p7_UnopX_I_F_M_PP_T(insn, vd, rs1, , , , , RVV0p7_VX(), "t0", , )
+
+#define RVV0p7_UnopX_P_T(insn, vd, rs1)\
+   RVV0p7_UnopX_I_F_M_PP_T(insn, vd, rs1, , , RVV0p7_Push(), RVV0p7_Pop(), RVV0p7_VX(), "t0", , )
+
 #define RVV0p7_UnopI_T(insn, vd, rs1)\
    RVV0p7_UnopX_I_F_M_PP_T(insn, vd, rs1, , , , , RVV0p7_VI(), "t0", , )
 
@@ -1483,7 +1478,7 @@ static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
 static UInt GETA_VUnopX(vmvs)(VexGuestRISCV64State *st,
                               ULong vd, ULong rs1, ULong mask) {
    rs1 += (ULong)st;
-   RVV0p7_UnopX_I_F_M_PP_T("vmv.s.x", vd, rs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), RVV0p7_VX(), "t0", , );
+   RVV0p7_UnopX_P_T("vmv.s.x", vd, rs1);
 }
 
 static ULong GETA_VBinopVV(vcompress)(VexGuestRISCV64State *st,
@@ -1819,7 +1814,7 @@ static UInt GETA_VUnopF(vfmvs)(VexGuestRISCV64State *st,
                                ULong vd, ULong rs1, ULong mask,
                                UInt frm) {
    rs1 += (ULong)st;
-   RVV0p7_UnopX_I_F_M_PP_T("vfmv.s.f", vd, rs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), RVV0p7_VF(), "ft0", , );
+   RVV0p7_UnopX_I_F_M_PP_T("vfmv.s.f", vd, rs1, , , RVV0p7_Push(), RVV0p7_Pop(), RVV0p7_VF(), "ft0", , );
 }
 
 /*---------------------------------------------------------------*/
