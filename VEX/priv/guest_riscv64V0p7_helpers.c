@@ -654,6 +654,9 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 
 /* Unop */
 // OPI
+#define RVV0p7_UnopOPIV_T(insn, vd, vs2)\
+   RVV0p7_UnopV_M_PP_T(insn, vd, vs2, , , , , , )
+
 #define RVV0p7_UnopOPIV_M_P_T(insn, vd, vs2)\
    RVV0p7_UnopV_M_PP_T(insn, vd, vs2, RVV0p7_Mask(), ",v0.t", RVV0p7_Push(), RVV0p7_Pop(), , )
 #define RVV0p7_UnopOPIV_P_T(insn, vd, vs2)\
@@ -939,6 +942,12 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
    RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, , , RVV0p7_Push(), RVV0p7_Pop(), RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
 
 /* Unop */
+// OPI
+#define RVV0p7_UnopX_T(insn, vd, rs1)\
+   RVV0p7_UnopX_I_F_M_PP_T(insn, vd, rs1, , , , , RVV0p7_VX(), "t0", , )
+#define RVV0p7_UnopI_T(insn, vd, rs1)\
+   RVV0p7_UnopX_I_F_M_PP_T(insn, vd, rs1, , , , , RVV0p7_VI(), "t0", , )
+
 // OPF
 #define RVV0p7_UnopF_M_T(insn, vd, rs1)\
    RVV0p7_UnopX_I_F_M_PP_T(insn, vd, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_VF(), "ft0", RVV0p7_PushFCSR(), RVV0p7_PopFCSR())
@@ -1451,6 +1460,20 @@ RVV0p7_UnopOPIM_P_FT(viota)
 /*--- OPI special function definitions                        ---*/
 /*---------------------------------------------------------------*/
 
+static UInt GETA_VUnopV(vmv)(VexGuestRISCV64State *st,
+                             ULong vd, ULong vs2, ULong vs1, ULong mask) {
+   RVV0p7_UnopOPIV_T("vmv.v.v", vd, vs1);
+}
+static UInt GETA_VUnopX(vmv)(VexGuestRISCV64State *st,
+                             ULong vd, ULong vs2, ULong rs1, ULong mask) {
+   rs1 += (ULong)st;
+   RVV0p7_UnopX_T("vmv.v.x", vd, rs1);
+}
+static UInt GETA_VUnopI(vmv)(VexGuestRISCV64State *st,
+                             ULong vd, ULong vs2, ULong rs1, ULong mask) {
+   RVV0p7_UnopI_T("vmv.v.x", vd, rs1);
+}
+
 static ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
                                  ULong vs2, ULong rs1) {
    ULong ret = 0;
@@ -1797,20 +1820,6 @@ static UInt GETA_VUnopF(vfmvs)(VexGuestRISCV64State *st,
                                UInt frm) {
    rs1 += (ULong)st;
    RVV0p7_UnopX_I_F_M_PP_T("vfmv.s.f", vd, rs1, , , RVV0p7_PushM1(), RVV0p7_Pop(), RVV0p7_VF(), "ft0", , );
-}
-
-static UInt GETA_VUnopV(vmv)(VexGuestRISCV64State *st,
-                             ULong vd, ULong vs2, ULong vs1, ULong mask) {
-   RVV0p7_UnopV_M_PP_T("vmv.v.v", vd, vs1, , , , , , );
-}
-static UInt GETA_VUnopX(vmv)(VexGuestRISCV64State *st,
-                             ULong vd, ULong vs2, ULong rs1, ULong mask) {
-   rs1 += (ULong)st;
-   RVV0p7_UnopX_I_F_M_PP_T("vmv.v.x", vd, rs1, , , , , RVV0p7_VX(), "t0", , );
-}
-static UInt GETA_VUnopI(vmv)(VexGuestRISCV64State *st,
-                             ULong vd, ULong vs2, ULong rs1, ULong mask) {
-   RVV0p7_UnopX_I_F_M_PP_T("vmv.v.x", vd, rs1, , , , , RVV0p7_VI(), "t0", , );
 }
 
 /*---------------------------------------------------------------*/
