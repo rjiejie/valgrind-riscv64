@@ -2064,12 +2064,11 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
    /* Mask info */
    d->mMask = calculate_dirty_mask(irsb, mask, vl, vstart, nf);
 
-   lmul *= nf;
    /* Mark vector register modified */
    d->fxState[0].fx        = isLD ? Ifx_Write : Ifx_Read;
    d->fxState[0].offset    = offsetVReg(v);
    d->fxState[0].size      = host_VLENB;
-   d->fxState[0].nRepeats  = lmul;
+   d->fxState[0].nRepeats  = lmul * nf;
    d->fxState[0].repeatLen = host_VLENB;
 
    /* Mark gpr state modified */
