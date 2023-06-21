@@ -30,9 +30,72 @@
 
 static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
                              /*OUT*/ IRSB*         irsb,
-                             UInt                  insn)
+                             UInt                  insn,
+                             Addr                  guest_pc_curr_instr)
 {
-   return False;
+   Bool is_vsetvl = INSN(31, 31);
+   UInt rd  = GET_RD();
+   UInt rs1 = GET_RS1();
+
+   IRExpr* set_vill = NULL;
+   if (is_vsetvl) {
+      /* In vsetvl case, we cannot immediately get the written value from GPR,
+         therefore we terminate translation and return to scheduler. */
+      UInt   rs2 = GET_RS2();
+      IRExpr* s2 = getIReg64(rs2);
+      IRExpr* reserved = binop(Iop_And64, s2, mkU64(0x7FFFFFFFFFFFFF80));
+      IRExpr* ediv     = binop(Iop_And64, s2, mkU64(0x0000000000000060));
+      IRExpr* vill     = binop(Iop_And64, s2, mkU64(0x8000000000000000));
+      /* Check if reserved bits are zeros, if not, set vstart/vl to zero and
+         set vill bit. Ref: RVV 0.7.1 spec 6.1 */
+      set_vill = binop(Iop_Or64,
+                       binop(Iop_Or64, binop(Iop_CmpNE64, reserved, mkU64(0)),
+                                       binop(Iop_CmpNE64, ediv, mkU64(0))),
+                       binop(Iop_CmpNE64, vill, mkU64(0)));
+      /* If provided rs2 is legal, write rs2 to vtype, else set vill bit and
+         clear XLEN-1 bits */
+      IRExpr* new_vtype = IRExpr_ITE(set_vill, mkU64(0x8000000000000000), s2);
+      putVType(irsb, new_vtype);
+   } else {
+      UInt imm11    = INSN(30, 20);
+      UInt reserved = imm11 & 0xFFFFFF80;
+      UInt ediv     = imm11 & 0x00000060;
+      if (ediv != 0 || reserved != 0)
+         putVType(irsb, mkU64(0x8000000000000000));
+      else
+         putVType(irsb, mkU64(imm11));
+      set_vill = mkU64(ediv != 0 || reserved != 0);
+   }
+
+   /* Update VL */
+   IRExpr* new_vl = NULL;
+   IRExpr* vtype  = getVType();
+   IRExpr* lmul   = binop(Iop_And64, vtype, mkU64(0x03));
+   IRExpr* sew    = binop(Iop_Shr64, binop(Iop_And64, vtype, mkU64(0x001C)), mkU64(2));
+   IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Mul64, mkU64(host_VLENB), lmul), sew);
+   if (rs1 == 0)
+      new_vl = IRExpr_ITE(set_vill, mkU64(0), vl_max);
+   else
+      new_vl = IRExpr_ITE(set_vill,
+                          mkU64(0),
+                          IRExpr_ITE(binop(Iop_CmpLT64U, getIReg64(rs1), vl_max),
+                          getIReg64(rs1), vl_max));
+   putVL(irsb, new_vl);
+
+   /* Update VStart */
+   IRExpr* vstart = IRExpr_ITE(set_vill, mkU64(0), getVStart());
+   putVStart(irsb, vstart);
+   if (rd != 0)
+      putIReg64(irsb, rd, new_vl);
+
+   /* Update PC as we will exit translation */
+   putPC(irsb, mkU64(guest_pc_curr_instr + 4));
+
+   /* There is a potential vector CSR changing, we stop here */
+   dres->whatNext    = Dis_StopHere;
+   dres->jk_StopHere = Ijk_ExitBB;
+
+   return True;
 }
 
 static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
@@ -92,6 +155,43 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             default:
                return False;
          }
+      } else { /* unit-stride segment load */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, bu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, b);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, hu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, h);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, wu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, w);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
       }
       /* unit-stride normal store */
       if (!isLD && nf == 0){
@@ -114,6 +214,312 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             case 0b111: {                 /* SEW store */
                width = (1 << extract_sew(guest_VFLAG));
                GETC_VLDST(vse);
+               return True;
+            }
+            default:
+               return False;
+         }
+      } else { /* unit-stride segment store */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, b);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, h);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, w);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+   }
+
+   /* strided */
+   if (((GET_MOP() == 0b010 || GET_MOP() == 0b110) && isLD) /* strided load  */
+       || (GET_MOP() == 0b010 && !isLD)) {                /* strided store */
+      UInt rs2 = GET_RS2(); /* stride register */
+      /* strided normal load */
+      if (isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VSLDST(vlsbu);
+               } else {                   /* signed-extended */
+                  GETC_VSLDST(vlsb);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VSLDST(vlshu);
+               } else {                   /* signed-extended */
+                  GETC_VSLDST(vlsh);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VSLDST(vlswu);
+               } else {                   /* signed-extended */
+                  GETC_VSLDST(vlsw);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               GETC_VSLDST(vlse);
+               return True;
+            }
+         }
+      } else { /* strided segment load */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, bu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, b);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, hu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, h);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, wu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, w);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+      /* strided normal store */
+      if (!isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               GETC_VSLDST(vssb);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               GETC_VSLDST(vssh);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               GETC_VSLDST(vssw);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               GETC_VSLDST(vsse);
+               return True;
+            }
+            default:
+               return False;
+         }
+      } else { /* strided segment store */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, b);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, h);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, w);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+   }
+
+   /* indexed */
+   if (((GET_MOP() == 0b011 || GET_MOP() == 0b111) && nf == 0)
+       || ((GET_MOP() == 0b011 || GET_MOP() == 0b111) && nf != 0 && isLD)
+       || (GET_MOP() == 0b011 && nf !=0 && !isLD)) {
+      UInt vs2 = GET_RS2(); /* index register */
+      /* indexed normal load */
+      if (isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VXLDST(vlxbu);
+               } else {                   /* signed-extended */
+                  GETC_VXLDST(vlxb);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VXLDST(vlxhu);
+               } else {                   /* signed-extended */
+                  GETC_VXLDST(vlxh);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  GETC_VXLDST(vlxwu);
+               } else {                   /* signed-extended */
+                  GETC_VXLDST(vlxw);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               GETC_VXLDST(vlxe);
+               return True;
+            }
+         }
+      } else { /* indexed segment load */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit load */
+               width = 1;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, bu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, b);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit load */
+               width = 2;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, hu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, h);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit load */
+               width = 4;
+               if (GET_MOP() == 0b000) {  /* zero-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, wu);
+               } else {                   /* signed-extended */
+                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, w);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW load */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, e);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+      /* indexed normal store */
+      if (!isLD && nf == 0) {
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxb);
+               } else {
+                  GETC_VXLDST(vsuxb);
+               }
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxh);
+               } else {
+                  GETC_VXLDST(vsuxh);
+               }
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxw);
+               } else {
+                  GETC_VXLDST(vsuxw);
+               }
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               if (GET_MOP() == 0b011) {
+                  GETC_VXLDST(vsxe);
+               } else {
+                  GETC_VXLDST(vsuxe);
+               }
+               return True;
+            }
+            default:
+               return False;
+         }
+      } else { /* indexed segment store */
+         switch (GET_FUNCT3()) {
+            case 0b000: {                 /* 8-bit store */
+               width = 1;
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, b);
+               return True;
+            }
+            case 0b101: {                 /* 16-bit store */
+               width = 2;
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, h);
+               return True;
+            }
+            case 0b110: {                 /* 32-bit store */
+               width = 4;
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, w);
+               return True;
+            }
+            case 0b111: {                 /* SEW store */
+               width = (1 << extract_sew(guest_VFLAG));
+               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, e);
                return True;
             }
             default:
@@ -977,14 +1383,15 @@ static Bool dis_RV64V0p7_arith(/*MB_OUT*/ DisResult* dres,
 
 static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
                          /*OUT*/ IRSB*         irsb,
-                         UInt                  insn)
+                         UInt                  insn,
+                         Addr                  guest_pc_curr_instr)
 {
    Bool ok = False;
 
    switch (GET_OPCODE()) {
       case OPC_OP_V:
          if (GET_FUNCT3() == RV64_SOPC_OPCFG)
-            return dis_RV64V0p7_cfg(dres, irsb, insn);
+            return dis_RV64V0p7_cfg(dres, irsb, insn, guest_pc_curr_instr);
          ok = dis_RV64V0p7_arith(dres, irsb, insn);
          break;
       case OPC_LOAD_FP:

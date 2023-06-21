@@ -77,6 +77,11 @@ static ULong guest_VFLAG;
 #define OFFB_V30 (offsetof(VexGuestRISCV64State, guest_vreg) + host_VLENB * 30)
 #define OFFB_V31 (offsetof(VexGuestRISCV64State, guest_vreg) + host_VLENB * 31)
 
+/* Vector CSRs offsets */
+#define OFFB_VTYPE  offsetof(VexGuestRISCV64State, guest_vtype)
+#define OFFB_VL     offsetof(VexGuestRISCV64State, guest_vl)
+#define OFFB_VSTART offsetof(VexGuestRISCV64State, guest_vstart)
+
 static Int offsetVReg(UInt regNo)
 {
    switch (regNo) {
@@ -116,6 +121,78 @@ static Int offsetVReg(UInt regNo)
    }
 }
 
+/* Vector CSRs get/put interfaces */
+/* VType CSR read, return type is I64 */
+static IRExpr* getVType(void) {
+   return IRExpr_Get(OFFB_VTYPE, Ity_I64);
+}
+
+/* VType CSR write, the written value should be I64 */
+static void putVType(IRSB* irsb, IRExpr* e) {
+   IRType ty = typeOfIRExpr(irsb->tyenv, e);
+   vassert(ty == Ity_I64);
+   stmt(irsb, IRStmt_Put(OFFB_VTYPE, e));
+}
+
+/* VL CSR read, return type is I64 */
+static IRExpr* getVL(void) {
+   return IRExpr_Get(OFFB_VL, Ity_I64);
+}
+
+/* VL CSR write, the written value should be I64 */
+static void putVL(IRSB* irsb, IRExpr* e) {
+   IRType ty = typeOfIRExpr(irsb->tyenv, e);
+   vassert(ty == Ity_I64);
+   stmt(irsb, IRStmt_Put(OFFB_VL, e));
+}
+
+/* VStart CSR read, return type is I64 */
+static IRExpr* getVStart(void) {
+   return IRExpr_Get(OFFB_VSTART, Ity_I64);
+}
+
+/* VStart CSR write, the written value should be I64 */
+static void putVStart(IRSB* irsb, IRExpr* e) {
+   IRType ty = typeOfIRExpr(irsb->tyenv, e);
+   vassert(ty == Ity_I64);
+   stmt(irsb, IRStmt_Put(OFFB_VSTART, e));
+}
+
+/* Find the offset of the requested data type and vector register lane
+   number. It is borrowed from ARM64 offsetQRegLane except that we
+   do not support 128-sized type currently. */
+static Int offsetVRegLane(UInt vregNo, IRType laneTy, UInt laneNo) {
+   Int base = offsetVReg(vregNo);
+   UInt laneSzB = 0;
+   switch (laneTy) {
+      case Ity_I8:                laneSzB = 1; break;
+      case Ity_I16: case Ity_F16: laneSzB = 2; break;
+      case Ity_I32: case Ity_F32: laneSzB = 4; break;
+      case Ity_I64: case Ity_F64: laneSzB = 8; break;
+      default: break;
+   }
+   /* assure that we fall into a reasonable type */
+   vassert(laneSzB > 0);
+   UInt minOff = laneNo * laneSzB;
+   UInt maxOff = minOff + laneSzB - 1;
+   /* maximal data length up to 64-bit, currently does not support V128 */
+   vassert(maxOff < 8);
+   return base + minOff;
+}
+
+/* Write a value into vector register, the value type is determined by e */
+static void putVRegLane(IRSB *irsb, UInt vregNo, UInt laneNo, IRExpr* e) {
+   vassert(vregNo >= 0 && vregNo < 32);
+   IRType ty  = typeOfIRExpr(irsb->tyenv, e);
+   stmt(irsb, IRStmt_Put(offsetVRegLane(vregNo, ty, laneNo), e));
+}
+
+/* Read a value from vector register, the value type is determined by ty */
+static IRExpr* getVRegLane(UInt vregNo, UInt laneNo, IRType ty) {
+   vassert(vregNo >= 0 && vregNo < 32);
+   return IRExpr_Get(offsetVRegLane(vregNo, ty, laneNo), ty);
+}
+
 /* Obtain ABI name of a register. */
 static const HChar* nameVReg(UInt regNo)
 {
@@ -133,12 +210,13 @@ static const HChar* nameVReg(UInt regNo)
 
 static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
                       /*OUT*/ IRSB*         irsb,
-                      UInt                  insn)
+                      UInt                  insn,
+                      Addr                  guest_pc_curr_instr)
 {
    if (host_VLENB == 0)
       return False;
 
-   if (dis_RV64V0p7(dres, irsb, insn))
+   if (dis_RV64V0p7(dres, irsb, insn, guest_pc_curr_instr))
       return True;
    return False;
 }
