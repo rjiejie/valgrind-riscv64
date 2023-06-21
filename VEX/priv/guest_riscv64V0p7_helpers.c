@@ -2064,6 +2064,7 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
    /* Mask info */
    d->mMask = calculate_dirty_mask(irsb, mask, vl, vstart, nf);
 
+   lmul *= nf;
    /* Mark vector register modified */
    d->fxState[0].fx        = isLD ? Ifx_Write : Ifx_Read;
    d->fxState[0].offset    = offsetVReg(v);
