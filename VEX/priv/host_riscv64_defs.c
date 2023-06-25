@@ -411,6 +411,16 @@ RISCV64Instr* RISCV64Instr_LI(HReg dst, ULong imm64)
    return i;
 }
 
+RISCV64Instr* RISCV64Instr_AddUI(HReg dst, HReg src, ULong imm64)
+{
+   RISCV64Instr* i       = LibVEX_Alloc_inline(sizeof(RISCV64Instr));
+   i->tag                = RISCV64in_AddUI;
+   i->RISCV64in.AddUI.dst   = dst;
+   i->RISCV64in.AddUI.src   = src;
+   i->RISCV64in.AddUI.imm64 = imm64;
+   return i;
+}
+
 RISCV64Instr* RISCV64Instr_MV(HReg dst, HReg src)
 {
    RISCV64Instr* i     = LibVEX_Alloc_inline(sizeof(RISCV64Instr));
@@ -710,6 +720,14 @@ void ppRISCV64Instr(const RISCV64Instr* i, Bool mode64)
       vex_printf("li      ");
       ppHRegRISCV64(i->RISCV64in.LI.dst);
       vex_printf(", 0x%llx", i->RISCV64in.LI.imm64);
+      return;
+   case RISCV64in_AddUI:
+      vex_printf("addui      ");
+      ppHRegRISCV64(i->RISCV64in.AddUI.dst);
+      vex_printf(", ");
+      ppHRegRISCV64(i->RISCV64in.AddUI.src);
+      vex_printf(", ");
+      vex_printf(", 0x%llx", i->RISCV64in.AddUI.imm64);
       return;
    case RISCV64in_MV:
       vex_printf("mv      ");
@@ -1062,6 +1080,10 @@ void getRegUsage_RISCV64Instr(HRegUsage* u, const RISCV64Instr* i, Bool mode64)
    case RISCV64in_LI:
       addHRegUse(u, HRmWrite, i->RISCV64in.LI.dst);
       return;
+   case RISCV64in_AddUI:
+      addHRegUse(u, HRmWrite, i->RISCV64in.AddUI.dst);
+      addHRegUse(u, HRmRead, i->RISCV64in.AddUI.src);
+      return;
    case RISCV64in_MV:
       addHRegUse(u, HRmWrite, i->RISCV64in.MV.dst);
       addHRegUse(u, HRmRead, i->RISCV64in.MV.src);
@@ -1297,6 +1319,10 @@ void mapRegs_RISCV64Instr(HRegRemap* m, RISCV64Instr* i, Bool mode64)
    case RISCV64in_LI:
       mapReg(m, &i->RISCV64in.LI.dst);
       return;
+   case RISCV64in_AddUI:
+      mapReg(m, &i->RISCV64in.AddUI.dst);
+      mapReg(m, &i->RISCV64in.AddUI.src);
+      return;
    case RISCV64in_MV:
       mapReg(m, &i->RISCV64in.MV.dst);
       mapReg(m, &i->RISCV64in.MV.src);
@@ -1434,15 +1460,20 @@ void genSpill_RISCV64(/*OUT*/ HInstr** i1,
 
    HReg base   = get_baseblock_register();
    Int  soff12 = offsetB - BASEBLOCK_OFFSET_ADJUSTMENT;
-   vassert(soff12 >= -2048 && soff12 < 2048);
+   vassert(soff12 < 2147483647);
+
+   HReg t0 = hregRISCV64_x5();
+   *i1     = RISCV64Instr_AddUI(t0, base, soff12);
+   base    = t0;
+   soff12  = ((soff12 & 0xfff) << 20) >> 20;
 
    HRegClass rclass = hregClass(rreg);
    switch (rclass) {
    case HRcInt64:
-      *i1 = RISCV64Instr_Store(RISCV64op_SD, rreg, base, soff12);
+      *i2 = RISCV64Instr_Store(RISCV64op_SD, rreg, base, soff12);
       return;
    case HRcFlt64:
-      *i1 = RISCV64Instr_FpLdSt(RISCV64op_FSD, rreg, base, soff12);
+      *i2 = RISCV64Instr_FpLdSt(RISCV64op_FSD, rreg, base, soff12);
       return;
    case HRcVec: {
       HReg t0   = hregRISCV64_x5();
@@ -1468,15 +1499,20 @@ void genReload_RISCV64(/*OUT*/ HInstr** i1,
 
    HReg base   = get_baseblock_register();
    Int  soff12 = offsetB - BASEBLOCK_OFFSET_ADJUSTMENT;
-   vassert(soff12 >= -2048 && soff12 < 2048);
+   vassert(soff12 < 2147483647);
+
+   HReg t0 = hregRISCV64_x5();
+   *i1     = RISCV64Instr_AddUI(t0, base, soff12);
+   base    = t0;
+   soff12  = ((soff12 & 0xfff) << 20) >> 20;
 
    HRegClass rclass = hregClass(rreg);
    switch (rclass) {
    case HRcInt64:
-      *i1 = RISCV64Instr_Load(RISCV64op_LD, rreg, base, soff12);
+      *i2 = RISCV64Instr_Load(RISCV64op_LD, rreg, base, soff12);
       return;
    case HRcFlt64:
-      *i1 = RISCV64Instr_FpLdSt(RISCV64op_FLD, rreg, base, soff12);
+      *i2 = RISCV64Instr_FpLdSt(RISCV64op_FLD, rreg, base, soff12);
       return;
    case HRcVec: {
       HReg t0   = hregRISCV64_x5();
@@ -1846,6 +1882,18 @@ static Bool is_addr48_to_ireg_EXACTLY_18B(UChar* p, UInt dst, ULong imm48)
    return True;
 }
 
+static UChar* add_upper_immediate(UChar* p, UInt dst, UInt src, ULong imm64) {
+   vassert(dst > 0 && dst <= 31);
+   Long simm64 = imm64;
+   vassert(simm64 >= -2147483648 && simm64 <= 2147483647);
+
+   /* lui dst, (imm64 & 0x0000FFFFF000) >> 12 */
+   /* add dst, src, dst */
+   p = emit_U(p, 0b0110111, dst, ((imm64 + 0x800) >> 12) & 0xfffff);
+   p = emit_R(p, 0b0110011, dst, 0b000, src, dst, 0b0000000);
+   return p;
+}
+
 /* Emit an instruction into buf and return the number of bytes used. Note that
    buf is not the insn's final place, and therefore it is imperative to emit
    position-independent code. If the emitted instruction was a profiler inc, set
@@ -1890,6 +1938,19 @@ Int emit_RISCV64Instr(/*MB_MOD*/ Bool*    is_profInc,
    switch (i->tag) {
    case RISCV64in_LI:
       p = imm64_to_ireg(p, iregEnc(i->RISCV64in.LI.dst), i->RISCV64in.LI.imm64);
+      goto done;
+   case RISCV64in_AddUI:
+      /* Add the [31:12] field of the given immediate with src to dst.
+         This is also a pseudoinstruction and *undocumented* in riscv spec.
+         It is only used for register allocation to recompute a new base
+         address for accessing addresses that out of 2048 range from guest
+         state pointer. Because the genSpill/genReload interfaces exposed to
+         different architectures do not allow to compute base address using
+         more than 2 instructions, we have to create this pseudoinstruction
+         to hide extra address caculation steps in code emission stage. */
+      p = add_upper_immediate(p, iregEnc(i->RISCV64in.AddUI.dst),
+                                 iregEnc(i->RISCV64in.AddUI.src),
+                                 i->RISCV64in.AddUI.imm64);
       goto done;
    case RISCV64in_MV: {
       /* c.mv dst, src */

@@ -337,6 +337,7 @@ typedef enum {
 /* The kind of instructions. */
 typedef enum {
    RISCV64in_LI = 0x52640000, /* Load immediate pseudoinstruction. */
+   RISCV64in_AddUI,           /* Fake pesudoinstruction, only for use in reg alloc. */
    RISCV64in_MV,              /* Copy one register to another. */
    RISCV64in_ALU,             /* Computational binary instruction. */
    RISCV64in_ALUImm,          /* Computational binary instruction, with
@@ -447,6 +448,12 @@ typedef struct {
          HReg  dst;
          ULong imm64;
       } LI;
+      /* Add the [31:12] field of the immediate with src to dst. */
+      struct {
+         HReg  dst;
+         HReg  src;
+         ULong imm64;
+      } AddUI;
       /* Copy one register to another. */
       struct {
          HReg dst;
@@ -629,6 +636,7 @@ typedef struct {
 } RISCV64Instr;
 
 RISCV64Instr* RISCV64Instr_LI(HReg dst, ULong imm64);
+RISCV64Instr* RISCV64Instr_AddUI(HReg dst, HReg src, ULong imm64);
 RISCV64Instr* RISCV64Instr_MV(HReg dst, HReg src);
 RISCV64Instr* RISCV64Instr_ALU(RISCV64ALUOp op, HReg dst, HReg src1, HReg src2);
 RISCV64Instr*
