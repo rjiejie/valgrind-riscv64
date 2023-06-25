@@ -37,34 +37,18 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    UInt rd  = GET_RD();
    UInt rs1 = GET_RS1();
 
-   IRExpr* set_vill = NULL;
    if (is_vsetvl) {
       /* In vsetvl case, we cannot immediately get the written value from GPR,
          therefore we terminate translation and return to scheduler. */
       UInt   rs2 = GET_RS2();
       IRExpr* s2 = getIReg64(rs2);
-      IRExpr* reserved = binop(Iop_And64, s2, mkU64(0x7FFFFFFFFFFFFF80));
-      IRExpr* ediv     = binop(Iop_And64, s2, mkU64(0x0000000000000060));
-      IRExpr* vill     = binop(Iop_And64, s2, mkU64(0x8000000000000000));
-      /* Check if reserved bits are zeros, if not, set vstart/vl to zero and
-         set vill bit. Ref: RVV 0.7.1 spec 6.1 */
-      set_vill = binop(Iop_Or64,
-                       binop(Iop_Or64, binop(Iop_CmpNE64, reserved, mkU64(0)),
-                                       binop(Iop_CmpNE64, ediv, mkU64(0))),
-                       binop(Iop_CmpNE64, vill, mkU64(0)));
-      /* If provided rs2 is legal, write rs2 to vtype, else set vill bit and
-         clear XLEN-1 bits */
-      IRExpr* new_vtype = IRExpr_ITE(set_vill, mkU64(0x8000000000000000), s2);
-      putVType(irsb, new_vtype);
+      putVType(irsb, binop(Iop_And64, s2, mkU64(0x007F)));
    } else {
       UInt imm11    = INSN(30, 20);
       UInt reserved = imm11 & 0xFFFFFF80;
       UInt ediv     = imm11 & 0x00000060;
-      if (ediv != 0 || reserved != 0)
-         putVType(irsb, mkU64(0x8000000000000000));
-      else
-         putVType(irsb, mkU64(imm11));
-      set_vill = mkU64(ediv != 0 || reserved != 0);
+      vassert(ediv == 0 && reserved == 0);
+      putVType(irsb, binop(Iop_And64, mkU64(imm11), mkU64(0x007F)));
    }
 
    /* Update VL */
@@ -74,17 +58,12 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    IRExpr* sew    = binop(Iop_Shr64, binop(Iop_And64, vtype, mkU64(0x001C)), mkU64(2));
    IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Mul64, mkU64(host_VLENB), lmul), sew);
    if (rs1 == 0)
-      new_vl = IRExpr_ITE(set_vill, mkU64(0), vl_max);
+      new_vl = vl_max;
    else
-      new_vl = IRExpr_ITE(set_vill,
-                          mkU64(0),
-                          IRExpr_ITE(binop(Iop_CmpLT64U, getIReg64(rs1), vl_max),
-                          getIReg64(rs1), vl_max));
+      new_vl = IRExpr_ITE(binop(Iop_CmpLT64U, getIReg64(rs1), vl_max),
+                          getIReg64(rs1), vl_max);
    putVL(irsb, new_vl);
 
-   /* Update VStart */
-   IRExpr* vstart = IRExpr_ITE(set_vill, mkU64(0), getVStart());
-   putVStart(irsb, vstart);
    if (rd != 0)
       putIReg64(irsb, rd, new_vl);
 
