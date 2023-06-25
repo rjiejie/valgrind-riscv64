@@ -2540,7 +2540,6 @@ void VG_(init_tt_tc) ( void )
              == VG_TT_FAST_SETS * sizeof(FastCacheSet));
    /* check fast cache entries have the layout that the handwritten assembly
       fragments assume. */
-   vg_assert(sizeof(FastCacheSet) == (1 << VG_FAST_CACHE_SET_BITS));
    vg_assert(offsetof(FastCacheSet,guest0) == FCS_g0);
    vg_assert(offsetof(FastCacheSet,host0)  == FCS_h0);
    vg_assert(offsetof(FastCacheSet,guest1) == FCS_g1);
@@ -2549,14 +2548,10 @@ void VG_(init_tt_tc) ( void )
    vg_assert(offsetof(FastCacheSet,host2)  == FCS_h2);
    vg_assert(offsetof(FastCacheSet,guest3) == FCS_g3);
    vg_assert(offsetof(FastCacheSet,host3)  == FCS_h3);
-   vg_assert(offsetof(FastCacheSet,guest0) == 0 * sizeof(Addr));
-   vg_assert(offsetof(FastCacheSet,host0)  == 1 * sizeof(Addr));
-   vg_assert(offsetof(FastCacheSet,guest1) == 2 * sizeof(Addr));
-   vg_assert(offsetof(FastCacheSet,host1)  == 3 * sizeof(Addr));
-   vg_assert(offsetof(FastCacheSet,guest2) == 4 * sizeof(Addr));
-   vg_assert(offsetof(FastCacheSet,host2)  == 5 * sizeof(Addr));
-   vg_assert(offsetof(FastCacheSet,guest3) == 6 * sizeof(Addr));
-   vg_assert(offsetof(FastCacheSet,host3)  == 7 * sizeof(Addr));
+   vg_assert(offsetof(FastCacheSet,guest0) == 0 * (2 * sizeof(Addr) + sizeof(ULong)));
+   vg_assert(offsetof(FastCacheSet,guest1) == 1 * (2 * sizeof(Addr) + sizeof(ULong)));
+   vg_assert(offsetof(FastCacheSet,guest2) == 2 * (2 * sizeof(Addr) + sizeof(ULong)));
+   vg_assert(offsetof(FastCacheSet,guest3) == 3 * (2 * sizeof(Addr) + sizeof(ULong)));
 
    /* check fast cache is aligned as we requested.  Not fatal if it
       isn't, but we might as well make sure. */
@@ -2567,7 +2562,7 @@ void VG_(init_tt_tc) ( void )
       have a lot of TTEntryCs so let's check that too. */
    if (sizeof(HWord) == 8) {
       vg_assert(sizeof(TTEntryH) <= 32);
-      vg_assert(sizeof(TTEntryC) <= 112);
+      vg_assert(sizeof(TTEntryC) <= 120);
    } 
    else if (sizeof(HWord) == 4) {
       vg_assert(sizeof(TTEntryH) <= 20);
@@ -2576,9 +2571,9 @@ void VG_(init_tt_tc) ( void )
          || defined(VGP_nanomips_linux) || defined(VGP_arm_linux)
       /* On PPC32, MIPS32, ARM32 platforms, alignof(ULong) == 8, so the
          structure is larger than on other 32 bit targets. */
-      vg_assert(sizeof(TTEntryC) <= 96);
+      vg_assert(sizeof(TTEntryC) <= 104);
 #     else
-      vg_assert(sizeof(TTEntryC) <= 88);
+      vg_assert(sizeof(TTEntryC) <= 96);
 #     endif
    }
    else {
