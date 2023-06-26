@@ -81,6 +81,7 @@ static ULong guest_VFLAG;
 #define OFFB_VTYPE  offsetof(VexGuestRISCV64State, guest_vtype)
 #define OFFB_VL     offsetof(VexGuestRISCV64State, guest_vl)
 #define OFFB_VSTART offsetof(VexGuestRISCV64State, guest_vstart)
+#define OFFB_VCSR   offsetof(VexGuestRISCV64State, guest_vcsr)
 
 static Int offsetVReg(UInt regNo)
 {
@@ -204,6 +205,27 @@ static const HChar* nameVReg(UInt regNo)
       "v24", "v25", "v26", "v27", "v28", "v29", "v30", "v31",
    };
    return names[regNo];
+}
+
+static const HChar* nameVCSR(UInt csr) {
+   switch (csr) {
+      case 0x008:
+         return "vstart";
+      case 0x009:
+         return "vxsat";
+      case 0x00A:
+         return "vxrm";
+      case 0x00F:
+         return "vcsr";
+      case 0xC20:
+         return "vl";
+      case 0xC21:
+         return "vtype";
+      case 0xC22:
+         return "vlenb";
+      default:
+         vpanic("nameVCSR(riscv64)");
+   }
 }
 
 #include "guest_riscv64V0p7_toIR.c"
