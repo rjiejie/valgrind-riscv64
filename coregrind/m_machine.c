@@ -904,7 +904,7 @@ static Bool VG_(parse_cpuinfo)(void)
 
 static Bool VG_(parse_cpuinfo)(void)
 {
-   const char* search_isa_str = "isa\t:";
+   const char* search_isa_str = "\nisa\t";
 
    Int    n, fh;
    SysRes fd;
