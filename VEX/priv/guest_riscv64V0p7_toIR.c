@@ -55,8 +55,8 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    IRExpr* new_vl = NULL;
    IRExpr* vtype  = getVType();
    IRExpr* lmul   = binop(Iop_And64, vtype, mkU64(0x03));
-   IRExpr* sew    = binop(Iop_Shr64, binop(Iop_And64, vtype, mkU64(0x001C)), mkU64(2));
-   IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Mul64, mkU64(host_VLENB), lmul), sew);
+   IRExpr* sew    = binop(Iop_Shr64, binop(Iop_And64, vtype, mkU64(0x001C)), mkU8(2));
+   IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Mul64, mkU64(host_VLENB), lmul), unop(Iop_64to8, sew));
    if (rs1 == 0)
       new_vl = vl_max;
    else

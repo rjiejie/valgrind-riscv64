@@ -2083,6 +2083,7 @@ void ppIRJumpKind ( IRJumpKind kind )
 {
    switch (kind) {
       case Ijk_Boring:        vex_printf("Boring"); break;
+      case Ijk_ExitBB:        vex_printf("ExitBB"); break;
       case Ijk_Call:          vex_printf("Call"); break;
       case Ijk_Ret:           vex_printf("Return"); break;
       case Ijk_ClientReq:     vex_printf("ClientReq"); break;

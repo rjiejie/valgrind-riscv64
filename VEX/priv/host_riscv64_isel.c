@@ -2020,9 +2020,9 @@ static void iselNext(ISelEnv* env, IRExpr* next, IRJumpKind jk, Int offsIP)
    if (next->tag == Iex_Const) {
       IRConst* cdst = next->Iex.Const.con;
       vassert(cdst->tag == Ico_U64);
-      if (jk == Ijk_Boring || jk == Ijk_Call) {
+      if (jk == Ijk_Boring || jk == Ijk_Call || jk == Ijk_ExitBB) {
          /* Boring transfer to known address. */
-         if (env->chainingAllowed) {
+         if (env->chainingAllowed && jk != Ijk_ExitBB) {
             /* .. almost always true .. */
             /* Skip the event check at the dst if this is a forwards edge. */
             Bool toFastEP = (Addr64)cdst->Ico.U64 > env->max_ga;
