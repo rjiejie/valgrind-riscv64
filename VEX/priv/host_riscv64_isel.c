@@ -142,15 +142,13 @@ static HReg newVRegV(ISelEnv* env)
    to recompute the base address. The offset is divided into
    two parts where low 12-bit part is new offset and high 20-bit
    is added to old_base to form the new_base. */
-static HReg getNewBaseFromLargeOffset(ISelEnv* env, Int off,
-                                      HReg old_base) {
+static inline HReg getNewBaseFromLargeOffset(ISelEnv* env, /* MOD */
+                                             Int* off,     /* MOD */
+                                             HReg old_base) {
    /* Slow path for load/store out of the range of 2048 */
-   HReg off_tmp    = newVRegI(env);
-   HReg new_base   = newVRegI(env);
-
-   Long hi_20 = off & 0xFFFFF000;
-   addInstr(env, RISCV64Instr_LI(off_tmp, hi_20));
-   addInstr(env, RISCV64Instr_ALU(RISCV64op_ADD, new_base, off_tmp, old_base));
+   HReg new_base = newVRegI(env);
+   addInstr(env, RISCV64Instr_AddUI(new_base, old_base, *off));
+   *off  = ((*off & 0xFFF) << 20) >> 20;
    return new_base;
 }
 
@@ -1145,15 +1143,11 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
       HReg dst  = newVRegI(env);
       HReg base = get_baseblock_register();
       Int  off  = e->Iex.Get.offset - BASEBLOCK_OFFSET_ADJUSTMENT;
+      vassert(off >= -2048 && off <= 2147483647);
 
-      if (off >= -2048 && off < 2048) {
-         /* Fast path for load/store within the range of 2048 */
-      } else if (off >= 2048 && off <= 2147483647) {
+      if (off >= 2048 && off <= 2147483647)
          /* Slow path for load/store out of the range of 2048 */
-         base = getNewBaseFromLargeOffset(env, off, base);
-         off  = off & 0x0FFF;
-      } else
-         vassert(0); /* impossible path where offset is below -2048 or above 2147483647 */
+         base = getNewBaseFromLargeOffset(env, &off, base);
 
       if (ty == Ity_I64)
          addInstr(env, RISCV64Instr_Load(RISCV64op_LD, dst, base, off));
@@ -1731,15 +1725,11 @@ static void iselStmt(ISelEnv* env, IRStmt* stmt)
       IRType tyd = typeOfIRExpr(env->type_env, stmt->Ist.Put.data);
       HReg base = get_baseblock_register();
       Int  off  = stmt->Ist.Put.offset - BASEBLOCK_OFFSET_ADJUSTMENT;
+      vassert(off >= -2048 && off <= 2147483647);
 
-      if (off >= -2048 && off < 2048) {
-         /* Fast path for load/store within the range of 2048 */
-      } else if (off >= 2048 && off <= 2147483647) {
+      if (off >= 2048 && off <= 2147483647)
          /* Slow path for load/store out of the range of 2048 */
-         base = getNewBaseFromLargeOffset(env, off, base);
-         off  = off & 0x0FFF;
-      } else
-         vassert(0); /* impossible path where offset is below -2048 or above 2147483647 */
+         base = getNewBaseFromLargeOffset(env, &off, base);
 
       if (tyd == Ity_I64 || tyd == Ity_I32 || tyd == Ity_I16 || tyd == Ity_I8) {
          HReg src  = iselIntExpr_R(env, stmt->Ist.Put.data);
