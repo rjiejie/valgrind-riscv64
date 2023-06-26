@@ -239,7 +239,7 @@ static inline UShort extract_vma(ULong flag) {
    return (UShort) FIELD_EX64(flag, BB_FLAG, VMA);
 }
 
-static inline ULong get_flag_from_guest_state(VexGuestRISCV64State* vex_state) {
+static inline ULong get_flag_from_guest_state(volatile VexGuestRISCV64State* vex_state) {
    ULong flag = 0;
    flag = FIELD_DP64(flag, BB_FLAG, VTYPE,  extract64(vex_state->guest_vtype, 0, 8));
    flag = FIELD_DP64(flag, BB_FLAG, VL,     vex_state->guest_vl);

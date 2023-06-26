@@ -70,7 +70,7 @@
 #endif
 
 #if !defined(VGA_riscv64)
-static inline ULong get_flag_from_guest_state(VexGuestArchState *vex_state) {
+static inline ULong get_flag_from_guest_state(volatile VexGuestArchState *vex_state) {
    return 0;
 }
 #endif

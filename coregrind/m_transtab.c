@@ -1763,7 +1763,7 @@ void VG_(add_to_transtab)( const VexGuestExtents* vge,
    vg_assert(n_guest_instrs < 200); /* it can be zero, tho */
 
    if (DEBUG_TRANSTAB)
-      VG_(printf)("add_to_transtab(entry = 0x%lx, flag = 0x%lx, len = %u) ...\n",
+      VG_(printf)("add_to_transtab(entry = 0x%lx, flag = 0x%llx, len = %u) ...\n",
                   entry, flag, code_len);
 
    n_in_count++;
