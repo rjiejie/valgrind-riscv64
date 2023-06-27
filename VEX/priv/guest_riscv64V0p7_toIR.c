@@ -316,7 +316,7 @@ static inline Bool RVV0p7_is_indexed(UInt insn, Bool isLD, UInt nf) {
       /* zero-exteneded indexed || sign-extended indexed */
       return GET_MOP() == 0b011 || GET_MOP() == 0b111;
    else {
-      if (nf == 0)
+      if (nf == 1)
          /* ordered indexed || unordered indexed */
          return GET_MOP() == 0b011 || GET_MOP() == 0b111;
       else
@@ -326,19 +326,19 @@ static inline Bool RVV0p7_is_indexed(UInt insn, Bool isLD, UInt nf) {
 } 
 
 static inline Bool RVV0p7_is_normal_load(UInt nf, Bool isLD) {
-   return nf == 0 && isLD;
+   return nf == 1 && isLD;
 }
 
 static inline Bool RVV0p7_is_normal_store(UInt nf, Bool isLD) {
-   return nf == 0 && !isLD;
+   return nf == 1 && !isLD;
 }
 
 static inline Bool RVV0p7_is_seg_load(UInt nf, Bool isLD) {
-   return nf != 0 && isLD;
+   return nf != 1 && isLD;
 }
 
 static inline Bool RVV0p7_is_seg_store(UInt nf, Bool isLD) {
-   return nf != 0 && !isLD;
+   return nf != 1 && !isLD;
 }
 
 static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
@@ -354,7 +354,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
 
    UInt v    = GET_RD();     /* vd for load *or* vs3 for store */
    UInt rs   = GET_RS1();    /* base address register rs1 */
-   UInt nf   = GET_NF();     /* nf field */
+   UInt nf   = GET_NF() + 1; /* nf value */
    Bool mask = GET_VMASK();  /* if mask is enabled? */
 
    /* unit stride */
