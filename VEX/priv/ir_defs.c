@@ -2794,7 +2794,7 @@ IRStmt* IRStmt_Dirty ( IRDirty* d )
       before they add their dirty into statements. Otherwise, it cannot
       catch critical information in mAddr and may cause instrumentation
       failures. */
-   if (d->mFx != Ifx_None && d->mAddr) {
+   if (d->mFx != Ifx_None && d->mAddr && !d->mAddrVec) {
       d->mNAddrs     = 1;
       d->mAddrVec    = (IRExpr **) LibVEX_Alloc_inline(sizeof(IRExpr *));
       d->mAddrVec[0] = d->mAddr;
@@ -4516,6 +4516,12 @@ inline Bool isFlatIRStmt ( const IRStmt* st )
                return False;
          if (di->mAddr && !isIRAtom(di->mAddr)) 
             return False;
+         for (i = 0; i < di->mNAddrs; i++) {
+            if (!isIRAtom(di->mAddrVec[i]))
+               return False;
+            if (di->mMask && !isIRAtom(di->mMask[i]))
+               return False;
+         }
          return True;
       }
       case Ist_NoOp:
@@ -4777,6 +4783,8 @@ void useBeforeDef_Stmt ( const IRSB* bb, const IRStmt* stmt, Int* def_counts )
             }
          }
          if (d->mFx != Ifx_None) {
+            if (d->mAddr)
+               useBeforeDef_Expr(bb,stmt,d->mAddr,def_counts);
             for (i = 0; i < d->mNAddrs; i++) {
                useBeforeDef_Expr(bb,stmt,d->mAddrVec[i],def_counts);
                if (d->mMask) {

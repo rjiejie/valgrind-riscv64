@@ -479,9 +479,19 @@ static void flatten_Stmt ( IRSB* bb, IRStmt* st )
          *d2 = *d;
          d2->args = shallowCopyIRExprVec(d2->args);
          if (d2->mFx != Ifx_None) {
-            d2->mAddr = flatten_Expr(bb, d2->mAddr);
+            if (d2->mAddr)
+               d2->mAddr = flatten_Expr(bb, d2->mAddr);
+            if (d2->mAddrVec) {
+               for (i = 0; i < d2->mNAddrs; i++) {
+                  d2->mAddrVec[i] = flatten_Expr(bb, d2->mAddrVec[i]);
+                  if (d2->mMask)
+                     d2->mMask[i] = flatten_Expr(bb, d2->mMask[i]);
+               }
+            }
          } else {
             vassert(d2->mAddr == NULL);
+            vassert(d2->mNAddrs == 0);
+            vassert(d2->mMask == NULL);
          }
          d2->guard = flatten_Expr(bb, d2->guard);
          for (i = 0; d2->args[i]; i++) {
@@ -2794,8 +2804,20 @@ static IRStmt* subst_and_maybe_fold_Stmt ( Bool doFolding,
          *d2 = *d;
          d2->args = shallowCopyIRExprVec(d2->args);
          if (d2->mFx != Ifx_None) {
-            vassert(isIRAtom(d2->mAddr));
-            d2->mAddr = fold_Expr(f_env, subst_Expr(s_env, d2->mAddr));
+            if (d2->mAddr) {
+               vassert(isIRAtom(d2->mAddr));
+               d2->mAddr = fold_Expr(f_env, subst_Expr(s_env, d2->mAddr));
+            }
+            if (d2->mAddrVec) {
+               for (i = 0; i < d2->mNAddrs; i++) {
+                  vassert(isIRAtom(d2->mAddrVec[i]));
+                  d2->mAddrVec[i] = fold_Expr(f_env, subst_Expr(s_env, d2->mAddrVec[i]));
+                  if (d2->mMask) {
+                     vassert(isIRAtom(d2->mMask[i]));
+                     d2->mMask[i] = fold_Expr(f_env, subst_Expr(s_env, d2->mMask[i]));
+                  }
+               }
+            }
          }
          vassert(isIRAtom(d2->guard));
          d2->guard = fold_Expr(f_env, subst_Expr(s_env, d2->guard));
@@ -3150,6 +3172,8 @@ static void addUses_Stmt ( Bool* set, IRStmt* st )
       case Ist_Dirty:
          d = st->Ist.Dirty.details;
          if (d->mFx != Ifx_None) {
+            if (d->mAddr)
+               addUses_Expr(set, d->mAddr);
             for (i = 0; i < d->mNAddrs; i++) {
                addUses_Expr(set, d->mAddrVec[i]);
                if (d->mMask)
@@ -4790,6 +4814,8 @@ static void deltaIRExpr ( IRExpr* e, Int delta )
          if (d->tmp != IRTemp_INVALID)
             d->tmp += delta;
          if (d->mNAddrs) {
+            if (d->mAddr)
+               deltaIRExpr(d->mAddr, delta);
             for (i = 0; i < d->mNAddrs; i++) {
                deltaIRExpr(d->mAddrVec[i], delta);
                if (d->mMask)
@@ -5322,6 +5348,8 @@ static void aoccCount_Stmt ( UShort* uses, IRStmt* st )
       case Ist_Dirty:
          d = st->Ist.Dirty.details;
          if (d->mFx != Ifx_None) {
+            if (d->mAddr)
+               aoccCount_Expr(uses, d->mAddr);
             for (i = 0; i < d->mNAddrs; i++) {
                aoccCount_Expr(uses, d->mAddrVec[i]);
                if (d->mMask)
@@ -5725,8 +5753,14 @@ static IRStmt* atbSubst_Stmt ( ATmpInfo* env, IRStmt* st )
          d  = st->Ist.Dirty.details;
          d2 = emptyIRDirty();
          *d2 = *d;
-         if (d2->mFx != Ifx_None)
-            d2->mAddr = atbSubst_Expr(env, d2->mAddr);
+         if (d2->mFx != Ifx_None) {
+            if (d2->mAddr)
+               d2->mAddr = atbSubst_Expr(env, d2->mAddr);
+            if (d2->mAddrVec) {
+               for (i = 0; i < d2->mNAddrs; i++)
+                  d2->mAddrVec[i] = atbSubst_Expr(env, d2->mAddrVec[i]);
+            }
+         }
          d2->guard = atbSubst_Expr(env, d2->guard);
          for (i = 0; d2->args[i]; i++) {
             IRExpr* arg = d2->args[i];
@@ -6455,8 +6489,13 @@ static Bool do_XOR_TRANSFORM_IRSB ( IRSB* sb )
          case Ist_Dirty: {
             IRDirty* d = st->Ist.Dirty.details;
             if (d->mFx != Ifx_None) {
-               for (Int j = 0; j < d->mNAddrs; j++)
+               if (d->mAddr)
+                  vassert(isIRAtom(d->mAddr));
+               for (Int j = 0; j < d->mNAddrs; j++) {
                   vassert(isIRAtom(d->mAddrVec[j]));
+                  if (d->mMask)
+                     vassert(isIRAtom(d->mMask[j]));
+               }
             }
             vassert(isIRAtom(d->guard));
             for (Int j = 0; d->args[j]; j++) {
