@@ -135,6 +135,7 @@ typedef struct {
    /* 608 */ ULong guest_vl;
    /* 616 */ ULong guest_vtype;
    /* 624 */ ULong guest_vcsr;
+   /* 632 */ ULong _padding;
 #define RV_VLEN_MAX 1024
    ULong guest_vreg[32 * RV_VLEN_MAX / 64];
 
