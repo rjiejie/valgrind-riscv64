@@ -1150,11 +1150,13 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
          stmt(irsb, IRStmt_Dirty(d));
 
          UInt sew = extract_sew(guest_VFLAG);
-         putIReg64(irsb, rd,
-                   sew == 8    ? unop(Iop_8Uto64,  mkexpr(ret))
-                   : sew == 16 ? unop(Iop_16Uto64, mkexpr(ret))
-                   : sew == 32 ? unop(Iop_32Uto64, mkexpr(ret))
-                               : mkexpr(ret));
+
+         if (rd != 0)
+            putIReg64(irsb, rd,
+                      sew == 8    ? unop(Iop_8Uto64,  mkexpr(ret))
+                      : sew == 16 ? unop(Iop_16Uto64, mkexpr(ret))
+                      : sew == 32 ? unop(Iop_32Uto64, mkexpr(ret))
+                                  : mkexpr(ret));
          DIP("%s(%s, %s, %s)\n", fName, nameIReg(rd), nameVReg(rs2), nameIReg(rs1));
          return True;
       /*
