@@ -270,7 +270,8 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    IRExpr* vtype  = getVType();
    IRExpr* lmul   = binop(Iop_And64, vtype, mkU64(0x03));
    IRExpr* sew    = binop(Iop_Shr64, binop(Iop_And64, vtype, mkU64(0x001C)), mkU8(2));
-   IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Mul64, mkU64(host_VLENB), lmul), unop(Iop_64to8, sew));
+   IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Shl64, mkU64(host_VLENB), unop(Iop_64to8, lmul)),
+                          unop(Iop_64to8, sew));
    if (rs1 == 0)
       new_vl = vl_max;
    else
@@ -390,7 +391,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                GETC_VLDST(vle);
                return True;
             }
@@ -429,7 +430,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e);
                return True;
             }
@@ -456,7 +457,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                GETC_VLDST(vse);
                return True;
             }
@@ -483,7 +484,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e);
                return True;
             }
@@ -528,7 +529,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                GETC_VSLDST(vlse);
                return True;
             }
@@ -565,7 +566,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e);
                return True;
             }
@@ -593,7 +594,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                GETC_VSLDST(vsse);
                return True;
             }
@@ -620,7 +621,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e);
                return True;
             }
@@ -665,7 +666,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                GETC_VXLDST(vlxe);
                return True;
             }
@@ -702,7 +703,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, e);
                return True;
             }
@@ -742,7 +743,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                if (GET_MOP() == 0b011) {
                   GETC_VXLDST(vsxe);
                } else {
@@ -773,7 +774,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = (1 << extract_sew(guest_VFLAG));
+               width = extract_sew(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, e);
                return True;
             }
@@ -1153,9 +1154,9 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
 
          if (rd != 0)
             putIReg64(irsb, rd,
-                      sew == 8    ? unop(Iop_8Uto64,  mkexpr(ret))
-                      : sew == 16 ? unop(Iop_16Uto64, mkexpr(ret))
-                      : sew == 32 ? unop(Iop_32Uto64, mkexpr(ret))
+                      sew == 1    ? unop(Iop_8Uto64,  mkexpr(ret))
+                      : sew == 2 ? unop(Iop_16Uto64, mkexpr(ret))
+                      : sew == 4 ? unop(Iop_32Uto64, mkexpr(ret))
                                   : mkexpr(ret));
          DIP("%s(%s, %s, %s)\n", fName, nameIReg(rd), nameVReg(rs2), nameIReg(rs1));
          return True;
@@ -1572,9 +1573,9 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
 
          UInt sew = extract_sew(guest_VFLAG);
          putFReg64(irsb, rd,
-                   sew == 8    ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFUL))
-                   : sew == 16 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFUL))
-                   : sew == 32 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFFFFFUL))
+                   sew == 1    ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFUL))
+                   : sew == 2 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFUL))
+                   : sew == 4 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFFFFFUL))
                                : mkexpr(dret));
          DIP("%s(%s, %s)\n", fName, nameFReg(rd), nameVReg(rs2));
          return True;

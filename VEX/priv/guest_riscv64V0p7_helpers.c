@@ -2040,7 +2040,7 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
          break;
       }
       case Indexed: {
-         UInt sew = extract_sew(guest_VFLAG);
+         UInt sew = 31 - __builtin_clz((UInt) extract_sew(guest_VFLAG));
          IROp       ops[4] = {Iop_8Sto64, Iop_16Sto64, Iop_32Sto64, Iop_LAST};
          IRType off_tys[4] = {Ity_I8, Ity_I16, Ity_I32, Ity_I64};
          vassert(sew >=0 && sew <= 3);
@@ -2439,6 +2439,7 @@ ldst_macro(insn_prefix##8##insn_suffix, body, 8)
       "andi\t%0,%0,0x03\n\t"                             \
    :"=r"(lmul)::);                                       \
                                                          \
+   lmul = 1 << lmul;                                     \
    ULong reg_len = host_VLENB * lmul;                    \
    ULong v_end   = v##_offs + (nf - 1) * reg_len;        \
                                                          \
