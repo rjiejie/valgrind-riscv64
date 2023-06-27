@@ -174,17 +174,17 @@
 #define GETC_VBinopSAT(insn)                                                   \
    GETC_VBinopOP_T(insn, V, X, I, offsetIReg64, nameIReg, GETR_VBinopSAT,      \
                    GETV_VopUnknow);                                            \
-   accumulateXSAT(irsb, mkexpr(ret));
+   putVxsat0p7(irsb, mkexpr(ret));
 
 #define GETC_VBinopSAT_VAR(insn, vtype)                                        \
    GETC_VBinopOP_T(insn, V, X, I, offsetIReg64, nameIReg, GETR_VBinopSAT,      \
                    vtype);                                                     \
-   accumulateXSAT(irsb, mkexpr(ret));
+   putVxsat0p7(irsb, mkexpr(ret));
 
 #define GETC_VBinopSAT_VX(insn)                                                \
    GETC_VBinopOP_T(insn, V, X, X, offsetIReg64, nameIReg, GETR_VBinopSAT,      \
                    GETV_VopUnknow);                                            \
-   accumulateXSAT(irsb, mkexpr(ret));
+   putVxsat0p7(irsb, mkexpr(ret));
 
 // SAT2 - used for args format: rd, rs1/imm, rs2
 #define GETR_VBinopSAT2()                                                      \
@@ -197,12 +197,12 @@
 #define GETC_VBinopSAT2_VX_VAR(insn, vtype)                                    \
    GETC_VBinopOP_T(insn, V, X, X, offsetIReg64, nameIReg, GETR_VBinopSAT2,     \
                    vtype);                                                     \
-   accumulateXSAT(irsb, mkexpr(ret));
+   putVxsat0p7(irsb, mkexpr(ret));
 
 #define GETC_VBinopSAT2_X_VAR(insn, vtype)                                     \
    GETC_VBinopOP_T(insn, X, X, X, offsetIReg64, nameIReg, GETR_VBinopSAT2,     \
                    vtype);                                                     \
-   accumulateXSAT(irsb, mkexpr(ret));
+   putVxsat0p7(irsb, mkexpr(ret));
 
 // OPF - used for args format: rd, rs2, rs1/imm
 #define GETR_VBinopOPF()                                                       \
