@@ -291,6 +291,56 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    return True;
 }
 
+/* Criteria are described in RVV 0.7.1 spec 7.2:
+   Vector Load/Store Addressing Modes */
+static inline Bool RVV0p7_is_unitstride(UInt insn, Bool isLD) {
+   if (isLD)
+      /* zero-exteneded unit-stride || sign-extended unit-stride */
+      return GET_MOP() == 0b000 || GET_MOP() == 0b100;
+   else
+      /* unit-stride */
+      return GET_MOP() == 0b000;
+}
+
+static inline Bool RVV0p7_is_strided(UInt insn, Bool isLD) {
+   if (isLD)
+      /* zero-exteneded strided || sign-extended strided */
+      return GET_MOP() == 0b010 || GET_MOP() == 0b110;
+   else
+      /* strided */
+      return GET_MOP() == 0b010;
+}
+
+static inline Bool RVV0p7_is_indexed(UInt insn, Bool isLD, UInt nf) {
+   if (isLD)
+      /* zero-exteneded indexed || sign-extended indexed */
+      return GET_MOP() == 0b011 || GET_MOP() == 0b111;
+   else {
+      if (nf == 0)
+         /* ordered indexed || unordered indexed */
+         return GET_MOP() == 0b011 || GET_MOP() == 0b111;
+      else
+         /* ordered indexed in segment */
+         return GET_MOP() == 0b011;
+   }
+} 
+
+static inline Bool RVV0p7_is_normal_load(UInt nf, Bool isLD) {
+   return nf == 0 && isLD;
+}
+
+static inline Bool RVV0p7_is_normal_store(UInt nf, Bool isLD) {
+   return nf == 0 && !isLD;
+}
+
+static inline Bool RVV0p7_is_seg_load(UInt nf, Bool isLD) {
+   return nf != 0 && isLD;
+}
+
+static inline Bool RVV0p7_is_seg_store(UInt nf, Bool isLD) {
+   return nf != 0 && !isLD;
+}
+
 static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                               /*OUT*/ IRSB*         irsb,
                               UInt                  insn)
@@ -308,10 +358,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
    Bool mask = GET_VMASK();  /* if mask is enabled? */
 
    /* unit stride */
-   if (((GET_MOP() == 0b000 || GET_MOP() == 0b100) && isLD) /* unit-stride load  */
-       || (GET_MOP() == 0b000 && !isLD)) {                  /* unit-stride store */
+   if (RVV0p7_is_unitstride(insn, isLD)) {
       /* unit-stride normal load */
-      if (isLD && nf == 0) {
+      if (RVV0p7_is_normal_load(nf, isLD)) {
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
@@ -348,7 +397,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             default:
                return False;
          }
-      } else { /* unit-stride segment load */
+      }
+
+      if (RVV0p7_is_seg_load(nf, isLD)) { /* unit-stride segment load */
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
@@ -387,7 +438,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
          }
       }
       /* unit-stride normal store */
-      if (!isLD && nf == 0){
+      if (RVV0p7_is_normal_store(nf, isLD)){
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit store */
                width = 1;
@@ -412,7 +463,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             default:
                return False;
          }
-      } else { /* unit-stride segment store */
+      }
+
+      if (RVV0p7_is_seg_store(nf, isLD)) { /* unit-stride segment store */
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit store */
                width = 1;
@@ -438,14 +491,14 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return False;
          }
       }
+      return False;
    }
 
    /* strided */
-   if (((GET_MOP() == 0b010 || GET_MOP() == 0b110) && isLD) /* strided load  */
-       || (GET_MOP() == 0b010 && !isLD)) {                /* strided store */
+   if (RVV0p7_is_strided(insn, isLD)) {                /* strided store */
       UInt rs2 = GET_RS2(); /* stride register */
       /* strided normal load */
-      if (isLD && nf == 0) {
+      if (RVV0p7_is_normal_load(nf, isLD)) {
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
@@ -480,7 +533,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
          }
-      } else { /* strided segment load */
+      }
+
+      if (RVV0p7_is_seg_load(nf, isLD)) { /* strided segment load */
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
@@ -518,8 +573,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return False;
          }
       }
+
       /* strided normal store */
-      if (!isLD && nf == 0) {
+      if (RVV0p7_is_normal_store(nf, isLD)) {
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit store */
                width = 1;
@@ -544,7 +600,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             default:
                return False;
          }
-      } else { /* strided segment store */
+      }
+
+      if (RVV0p7_is_seg_store(nf, isLD)) { /* strided segment store */
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit store */
                width = 1;
@@ -570,15 +628,14 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return False;
          }
       }
+      return False;
    }
 
    /* indexed */
-   if (((GET_MOP() == 0b011 || GET_MOP() == 0b111) && nf == 0)
-       || ((GET_MOP() == 0b011 || GET_MOP() == 0b111) && nf != 0 && isLD)
-       || (GET_MOP() == 0b011 && nf !=0 && !isLD)) {
+   if (RVV0p7_is_indexed(insn, isLD, nf)) {
       UInt vs2 = GET_RS2(); /* index register */
       /* indexed normal load */
-      if (isLD && nf == 0) {
+      if (RVV0p7_is_normal_load(nf, isLD)) {
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
@@ -613,7 +670,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
          }
-      } else { /* indexed segment load */
+      }
+
+      if (RVV0p7_is_seg_load(nf, isLD)) { /* indexed segment load */
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
@@ -651,8 +710,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return False;
          }
       }
+
       /* indexed normal store */
-      if (!isLD && nf == 0) {
+      if (RVV0p7_is_normal_store(nf, isLD)) {
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit store */
                width = 1;
@@ -693,7 +753,9 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             default:
                return False;
          }
-      } else { /* indexed segment store */
+      }
+
+      if (RVV0p7_is_seg_store(nf, isLD)) { /* indexed segment store */
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit store */
                width = 1;
@@ -719,6 +781,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return False;
          }
       }
+      return False;
    }
    return False;
 }
