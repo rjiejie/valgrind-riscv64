@@ -5242,10 +5242,10 @@ void tcStmt ( const IRSB* bb, const IRStmt* stmt, IRType gWordTy )
          if (!saneIRCallee(d->cee)) goto bad_dirty;
          if (d->cee->regparms > countArgs(d->args)) goto bad_dirty;
          if (d->mFx == Ifx_None) {
-            if (d->mAddr != NULL || d->mSize != 0)
+            if (d->mAddr != NULL || d->mAddrVec != NULL || d->mSize != 0)
                goto bad_dirty;
          } else {
-            if (d->mAddr == NULL || d->mSize == 0)
+            if ((d->mAddr == NULL && d->mAddrVec == NULL) || d->mSize == 0)
                goto bad_dirty;
          }
          if (d->nFxState < 0 || d->nFxState > VEX_N_FXSTATE)
@@ -5256,7 +5256,7 @@ void tcStmt ( const IRSB* bb, const IRStmt* stmt, IRType gWordTy )
             if (d->fxState[i].nRepeats == 0) {
                if (d->fxState[i].repeatLen != 0) goto bad_dirty;
             } else {
-               if (d->fxState[i].repeatLen <= d->fxState[i].size)
+               if (d->fxState[i].repeatLen < d->fxState[i].size)
                   goto bad_dirty;
                /* the % is safe because of the .size check above */
                if ((d->fxState[i].repeatLen % d->fxState[i].size) != 0)
