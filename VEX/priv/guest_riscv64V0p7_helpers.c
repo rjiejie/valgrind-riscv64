@@ -351,8 +351,8 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
          i == 0 ? (vtype & GETV_VopAccD ? Ifx_Modify : Ifx_Write) : Ifx_Read;
       d->fxState[i].offset = offsetVReg(regNos[i]);
       d->fxState[i].size   = host_VLENB;
-      d->fxState[i].nRepeats  = lmuls[i];
-      d->fxState[i].repeatLen = host_VLENB;
+      d->fxState[i].nRepeats  = lmuls[i] - 1;
+      d->fxState[i].repeatLen = lmuls[i] - 1 == 0 ? 0 : host_VLENB;
    }
 
    if (isVOpVXorVF(sopc)) {
@@ -390,8 +390,8 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       d->fxState[i].fx     = i == 0 ? Ifx_Write : Ifx_Read;
       d->fxState[i].offset = offsetVReg(regNos[i]);
       d->fxState[i].size   = host_VLENB;
-      d->fxState[i].nRepeats  = lmuls[i];
-      d->fxState[i].repeatLen = host_VLENB;
+      d->fxState[i].nRepeats  = lmuls[i] - 1;
+      d->fxState[i].repeatLen = lmuls[i] - 1 == 0 ? 0 : host_VLENB;
    }
 
    if (isVOpVXorVF(sopc)) {
@@ -2068,8 +2068,8 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
    d->fxState[0].fx        = isLD ? Ifx_Write : Ifx_Read;
    d->fxState[0].offset    = offsetVReg(v);
    d->fxState[0].size      = host_VLENB;
-   d->fxState[0].nRepeats  = lmul * nf;
-   d->fxState[0].repeatLen = host_VLENB;
+   d->fxState[0].nRepeats  = lmul * nf - 1;
+   d->fxState[0].repeatLen = lmul * nf - 1 == 0 ? 0 : host_VLENB;
 
    /* Mark gpr state modified */
    d->fxState[1].fx        = Ifx_Read;
@@ -2087,8 +2087,8 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
          d->fxState[2].fx        = Ifx_Read;
          d->fxState[2].offset    = offsetVReg(s2);
          d->fxState[2].size      = host_VLENB;
-         d->fxState[2].nRepeats  = lmul;
-         d->fxState[2].repeatLen = host_VLENB;
+         d->fxState[2].nRepeats  = lmul - 1;
+         d->fxState[2].repeatLen = lmul - 1 == 0 ? 0 : host_VLENB;
          d->nFxState += 1;
          break;
       default:
