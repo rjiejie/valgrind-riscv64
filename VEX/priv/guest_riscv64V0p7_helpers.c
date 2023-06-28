@@ -1988,6 +1988,16 @@ static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
                                     mkU32(vstart + idx));
       IRDirty *m_d = unsafeIRDirty_1_N(mask_segs, 0, "dirty_get_mask",
                                        dirty_get_mask, args);
+      /* The following claims are used to pass the dirty sanity check. As
+         sanity check for dirty helpers with guest pointer as its argument
+         compulsively require fxState.fx/offset/size, we point it to always
+         defined x0 register in riscv64. Only to pass the sanity check,
+         the actual v0 access is marked in GETD_Common_VLdSt. */
+      m_d->nFxState          = 1;
+      m_d->fxState[0].fx     = Ifx_Read;
+      m_d->fxState[0].offset = offsetIReg64(0);
+      m_d->fxState[0].size   = 1;
+
       UInt n_mask = n_addrs - idx < 8 ? n_addrs - idx : 8;
       for (UInt i = 0; i < n_mask; i++) {
          IRExpr* mask_64 = binop(Iop_And64, binop(Iop_Shr64, mkexpr(mask_segs),
