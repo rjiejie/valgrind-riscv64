@@ -1141,6 +1141,7 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
          args = mkIRExprVec_3(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(offsetIReg64(rs1)));
          d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);
 
+         vex_bzero(&d->fxState, sizeof(d->fxState));
          d->nFxState = 2;
          d->fxState[0].fx        = Ifx_Read;
          d->fxState[0].offset    = offsetVReg(rs2);
@@ -1259,6 +1260,7 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
                               mkU64(offsetVReg(0)));
          d    = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
+         vex_bzero(&d->fxState, sizeof(d->fxState));
          d->nFxState          = mask ? 1 : 2;
          d->fxState[0].fx     = Ifx_Read;
          d->fxState[0].offset = offsetVReg(rs2);
@@ -1565,6 +1567,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          args = mkIRExprVec_3(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(0));
          d = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
+         vex_bzero(&d->fxState, sizeof(d->fxState));
          d->nFxState = 1;
          d->fxState[0].fx        = Ifx_Read;
          d->fxState[0].offset    = offsetVReg(rs2);
