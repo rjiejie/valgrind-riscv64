@@ -40,6 +40,7 @@
 #include "pub_tool_libcprint.h"
 #include "pub_tool_tooliface.h"
 #include "pub_tool_guest.h"         // VexGuestArchState
+#include "pub_tool_machine.h"       // machine_get_size_of_largest_guest_register
 
 #include "mc_include.h"
 
@@ -1412,39 +1413,11 @@ static Int get_otrack_shadow_offset_wrk ( Int offset, Int szB )
    tl_assert(sz > 0);
    tl_assert(host_is_little_endian());
 
-   if (o == GOF(x0)  && is48) return -1;
-   if (o == GOF(x1)  && is48) return o;
-   if (o == GOF(x2)  && is48) return o;
-   if (o == GOF(x3)  && is48) return o;
-   if (o == GOF(x4)  && is48) return o;
-   if (o == GOF(x5)  && is48) return o;
-   if (o == GOF(x6)  && is48) return o;
-   if (o == GOF(x7)  && is48) return o;
-   if (o == GOF(x8)  && is48) return o;
-   if (o == GOF(x9)  && is48) return o;
-   if (o == GOF(x10) && is48) return o;
-   if (o == GOF(x11) && is48) return o;
-   if (o == GOF(x12) && is48) return o;
-   if (o == GOF(x13) && is48) return o;
-   if (o == GOF(x14) && is48) return o;
-   if (o == GOF(x15) && is48) return o;
-   if (o == GOF(x16) && is48) return o;
-   if (o == GOF(x17) && is48) return o;
-   if (o == GOF(x18) && is48) return o;
-   if (o == GOF(x19) && is48) return o;
-   if (o == GOF(x20) && is48) return o;
-   if (o == GOF(x21) && is48) return o;
-   if (o == GOF(x22) && is48) return o;
-   if (o == GOF(x23) && is48) return o;
-   if (o == GOF(x24) && is48) return o;
-   if (o == GOF(x25) && is48) return o;
-   if (o == GOF(x26) && is48) return o;
-   if (o == GOF(x27) && is48) return o;
-   if (o == GOF(x28) && is48) return o;
-   if (o == GOF(x29) && is48) return o;
-   if (o == GOF(x30) && is48) return o;
-   if (o == GOF(x31) && is48) return o;
-   if (o == GOF(pc)  && sz == 8) return -1;
+   /* Allow partial access to GPRs, borrowed from MIPS64 gpr */
+   if (o == GOF(x0) && sz <= 8) return -1;
+   if (o >= GOF(x1) && sz <= 8 && o <= (GOF(x31) + 8 - sz))
+      return GOF(x1) + ((o-GOF(x1)) & -8);
+   if (o == GOF(pc) && sz == 8) return -1;
 
    if (o >= GOF(f0)   && o+sz <= GOF(f0) +SZB(f0))  return GOF(f0);
    if (o >= GOF(f1)   && o+sz <= GOF(f1) +SZB(f1))  return GOF(f1);
@@ -1488,6 +1461,50 @@ static Int get_otrack_shadow_offset_wrk ( Int offset, Int szB )
    if (o == GOF(LLSC_SIZE) && sz == 8) return -1;
    if (o == GOF(LLSC_ADDR) && sz == 8) return o;
    if (o == GOF(LLSC_DATA) && sz == 8) return o;
+
+   if (o == GOF(vstart) && is48) return o;
+   if (o == GOF(vl)     && is48) return o;
+   if (o == GOF(vtype)  && is48) return o;
+   if (o == GOF(vcsr)   && is48) return o;
+
+   ULong host_VLENB = VG_(machine_get_size_of_largest_guest_register)();
+   /* Vector otags */
+   if (host_VLENB > 8) {
+#define GOFV(vreg_no) (GOF(vreg) + host_VLENB * vreg_no)
+      if (o >= GOFV( 0) && o+sz <= GOFV( 1)) return GOFV( 0);
+      if (o >= GOFV( 1) && o+sz <= GOFV( 2)) return GOFV( 1);
+      if (o >= GOFV( 2) && o+sz <= GOFV( 3)) return GOFV( 2);
+      if (o >= GOFV( 3) && o+sz <= GOFV( 4)) return GOFV( 3);
+      if (o >= GOFV( 4) && o+sz <= GOFV( 5)) return GOFV( 4);
+      if (o >= GOFV( 5) && o+sz <= GOFV( 6)) return GOFV( 5);
+      if (o >= GOFV( 6) && o+sz <= GOFV( 7)) return GOFV( 6);
+      if (o >= GOFV( 7) && o+sz <= GOFV( 8)) return GOFV( 7);
+      if (o >= GOFV( 8) && o+sz <= GOFV( 9)) return GOFV( 8);
+      if (o >= GOFV( 9) && o+sz <= GOFV(10)) return GOFV( 9);
+      if (o >= GOFV(10) && o+sz <= GOFV(11)) return GOFV(10);
+      if (o >= GOFV(11) && o+sz <= GOFV(12)) return GOFV(11);
+      if (o >= GOFV(12) && o+sz <= GOFV(13)) return GOFV(12);
+      if (o >= GOFV(13) && o+sz <= GOFV(14)) return GOFV(13);
+      if (o >= GOFV(14) && o+sz <= GOFV(15)) return GOFV(14);
+      if (o >= GOFV(15) && o+sz <= GOFV(16)) return GOFV(15);
+      if (o >= GOFV(16) && o+sz <= GOFV(17)) return GOFV(16);
+      if (o >= GOFV(17) && o+sz <= GOFV(18)) return GOFV(17);
+      if (o >= GOFV(18) && o+sz <= GOFV(19)) return GOFV(18);
+      if (o >= GOFV(19) && o+sz <= GOFV(20)) return GOFV(19);
+      if (o >= GOFV(20) && o+sz <= GOFV(21)) return GOFV(20);
+      if (o >= GOFV(21) && o+sz <= GOFV(22)) return GOFV(21);
+      if (o >= GOFV(22) && o+sz <= GOFV(23)) return GOFV(22);
+      if (o >= GOFV(23) && o+sz <= GOFV(24)) return GOFV(23);
+      if (o >= GOFV(24) && o+sz <= GOFV(25)) return GOFV(24);
+      if (o >= GOFV(25) && o+sz <= GOFV(26)) return GOFV(25);
+      if (o >= GOFV(26) && o+sz <= GOFV(27)) return GOFV(26);
+      if (o >= GOFV(27) && o+sz <= GOFV(28)) return GOFV(27);
+      if (o >= GOFV(28) && o+sz <= GOFV(29)) return GOFV(28);
+      if (o >= GOFV(29) && o+sz <= GOFV(30)) return GOFV(29);
+      if (o >= GOFV(30) && o+sz <= GOFV(31)) return GOFV(30);
+      if (o >= GOFV(31) && o+sz <= GOFV(32)) return GOFV(31);
+#undef GOFV
+   }
 
    VG_(printf)("MC_(get_otrack_shadow_offset)(riscv64)(off=%d,sz=%d)\n",
                offset,szB);

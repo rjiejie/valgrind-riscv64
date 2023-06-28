@@ -2498,7 +2498,7 @@ Int VG_(machine_get_size_of_largest_guest_register) ( void )
 
 #  elif defined(VGA_riscv64)
    /* 64-bit integer and floating-point registers, no vector set. */
-   return 8;
+   return vai.regLENB > 8 ? vai.regLENB : 8;
 
 #  else
 #    error "Unknown arch"
