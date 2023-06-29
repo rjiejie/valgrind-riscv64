@@ -1899,6 +1899,7 @@ typedef enum {
 do {                                         \
       /* Get rs1/vd absolute offset */       \
       ULong rs1_offs = (ULong) st + rs1;     \
+      ULong rs1_addr = *((ULong *) rs1_offs);\
       ULong vd_offs  = (ULong) st + v;       \
       mask           = (ULong) st + mask;    \
                                              \
@@ -1919,6 +1920,7 @@ do {                                         \
 do {                                         \
       /* Get rd/vs absolute offset */        \
       ULong rs1_offs = (ULong) st + rs1;     \
+      ULong rs1_addr = *((ULong *) rs1_offs);\
       ULong vs_offs  = (ULong) st + v;       \
       mask           = (ULong) st + mask;    \
                                              \
@@ -2200,21 +2202,21 @@ args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
 
 #define RVV0p7_VLdst_Generic(insn, body, nf)                             \
    static void RVV0p7_VLdst_##insn##_vm(VexGuestRISCV64State *st,        \
-                               UInt v, UInt rs1, ULong mask) {           \
+                               ULong v, ULong rs1, ULong mask) {         \
       body##_VM(insn, nf)                                                \
    }                                                                     \
    static void RVV0p7_VLdst_##insn(VexGuestRISCV64State *st,             \
-                               UInt v, UInt rs1, ULong mask) {           \
+                               ULong v, ULong rs1, ULong mask) {         \
       body(insn, nf)                                                     \
    }
 
 #define RVV0p7_VSXLdst_Generic(insn, body, nf)                           \
    static void RVV0p7_VLdst_##insn##_vm(VexGuestRISCV64State *st,        \
-                               UInt v, UInt rs1, UInt s2, ULong mask) {  \
+                            ULong v, ULong rs1, ULong s2, ULong mask) {  \
       body##_VM(insn, nf)                                                \
    }                                                                     \
    static void RVV0p7_VLdst_##insn(VexGuestRISCV64State *st,             \
-                               UInt v, UInt rs1, UInt s2, ULong mask) {  \
+                            ULong v, ULong rs1, ULong s2, ULong mask) {  \
       body(insn, nf)                                                     \
    }
 
@@ -2245,7 +2247,7 @@ args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
    /* vload1: Load from memory */                      \
    __asm__ __volatile__ (                              \
       #insn ".v\tv8,(%0)\t" vm "\n\t"                  \
-      ::"r" (rs1_offs)                                 \
+      ::"r" (rs1_addr)                                 \
       :                                                \
    );
 
@@ -2299,10 +2301,11 @@ RVV0p7_VLdst(vse, DIRTY_VSTORE_BODY)
 #define RVV0p7_Strided_Load_Store_Memory(insn, vm)    \
    /* vload1/vstore2: Load from or store to memory */ \
    ULong rs2_offs = (ULong) st + s2;                  \
+   ULong rs2_addr = *((ULong *) rs2_offs);            \
    __asm__ __volatile__ (                             \
       "ld\tt0,(%0)\n\t"                               \
       #insn ".v\tv8,(%1),t0\t" vm "\n\t"              \
-      ::"r"(rs2_offs), "r" (rs1_offs)                 \
+      ::"r"(rs2_addr), "r" (rs1_addr)                 \
       :"t0"                                           \
    );
 
@@ -2339,7 +2342,7 @@ RVV0p7_VSXLdst(vsse, DIRTY_VSTORE_BODY)
    __asm__ __volatile__ (                             \
       "vle.v\tv16,(%0)\t" vm "\n\t"                   \
       #insn ".v\tv8,(%1),v16" vm "\n\t"               \
-      ::"r"(vs2_offs),"r" (rs1_offs)                  \
+      ::"r"(vs2_offs),"r" (rs1_addr)                  \
       :                                               \
    );
 
