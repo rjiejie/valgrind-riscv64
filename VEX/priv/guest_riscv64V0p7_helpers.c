@@ -414,6 +414,16 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 /*--- Special instruction templates                           ---*/
 /*---------------------------------------------------------------*/
 
+#define RVV0p7_Config()             \
+   do {                             \
+      if (host_VFLAG == guest_VFLAG)\
+         break;                     \
+      host_VFLAG = guest_VFLAG;     \
+      UShort vl = extract_vl(guest_VFLAG);      \
+      UShort vtype = extract_vtype(guest_VFLAG);\
+      __asm__ __volatile__("vsetvl\tx0,%0,%1\n\t"::"r"(vl),"r"(vtype):);\
+   } while (0)
+
 // Push vl/vtype
 // Set whole register du to current vtype
 #define RVV0p7_Push()         \
@@ -506,6 +516,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // v8-v15, v16-v23, v24-v31
 #define RVV0p7_BinopVV_M_PP_T(insn, vd, vs2, vs1, imask, mreg, ipush, ipop, ipre, ipost)\
    do {                                                     \
+      RVV0p7_Config();                                      \
       UInt ret = 0;                                         \
                                                             \
       vd  += (ULong)st;                                     \
@@ -542,6 +553,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // v8-v15, v16-v23
 #define RVV0p7_UnopV_M_PP_T(insn, vd, vs, imask, mreg, ipush, ipop, ipre, ipost)\
    do {                                                     \
+      RVV0p7_Config();                                      \
       UInt ret = 0;                                         \
                                                             \
       vd  += (ULong)st;                                     \
@@ -673,6 +685,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // v8-v15, v16-v23, t0/ft0
 #define RVV0p7_BinopVX_VI_VF_M_PP_T(insn, vd, vs2, rs1, imask, mreg, ipush, ipop, isopc, treg, ipre, ipost)\
    do {                                                     \
+      RVV0p7_Config();                                      \
       UInt ret = 0;                                         \
                                                             \
       vd  += (ULong)st;                                     \
@@ -708,6 +721,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // v8-v15, t0/ft0, v16-v23
 #define RVV0p7_BinopVX_VI_VF_M_PP_T2(insn, vd, vs2, rs1, imask, mreg, ipush, ipop, isopc, treg, ipre, ipost)\
    do {                                                     \
+      RVV0p7_Config();                                      \
       UInt ret = 0;                                         \
                                                             \
       vd  += (ULong)st;                                     \
@@ -743,6 +757,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // ret, v16-v23, t0/ft0
 #define RVV0p7_BinopVX_VF_T3(insn, vs2, rs1, imask, mreg, isopc, treg, oreg)\
    do {                                                     \
+      RVV0p7_Config();                                      \
       vs2 += (ULong)st;                                     \
       rs1 += (ULong)st;                                     \
                                                             \
@@ -765,6 +780,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 // v8-v15, t0/ft0
 #define RVV0p7_UnopX_I_F_M_PP_T(insn, vd, rs1, imask, mreg, ipush, ipop, isopc, treg, ipre, ipost)\
    do {                                                     \
+      RVV0p7_Config();                                      \
       UInt ret = 0;                                         \
                                                             \
       vd  += (ULong)st;                                     \
@@ -1508,6 +1524,7 @@ static ULong GETA_VUnopV_M(vmfirst)(VexGuestRISCV64State *st,
 
 static UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
                              ULong vd, ULong vs2, ULong mask) {
+   RVV0p7_Config();
    UInt ret = 0;
    vd += (ULong)st;
    __asm__ __volatile__(
@@ -1521,6 +1538,7 @@ static UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
 }
 static UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
                                ULong vd, ULong vs2, ULong mask) {
+   RVV0p7_Config();
    UInt ret = 0;
    vd += (ULong)st;
    mask += (ULong)st;
@@ -1897,6 +1915,7 @@ typedef enum {
                         loadMemory,          \
                         storeGuestState)     \
 do {                                         \
+      RVV0p7_Config();                       \
       /* Get rs1/vd absolute offset */       \
       ULong rs1_offs = (ULong) st + rs1;     \
       ULong rs1_addr = *((ULong *) rs1_offs);\
@@ -1918,6 +1937,7 @@ do {                                         \
                          loadGuestState,     \
                          storeMemory)        \
 do {                                         \
+      RVV0p7_Config();                       \
       /* Get rd/vs absolute offset */        \
       ULong rs1_offs = (ULong) st + rs1;     \
       ULong rs1_addr = *((ULong *) rs1_offs);\
