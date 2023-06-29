@@ -455,8 +455,13 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
          } else if (arg->tag == Iex_GSPTR) {
             if (nextArgReg >= RISCV64_N_ARGREGS)
                return False; /* Out of argregs. */
+            HReg real_gst   = newVRegI(env);
+            HReg adjust_tmp = newVRegI(env);
+            addInstr(env, RISCV64Instr_LI(adjust_tmp, BASEBLOCK_OFFSET_ADJUSTMENT));
+            addInstr(env, RISCV64Instr_ALU(RISCV64op_SUB, real_gst, hregRISCV64_x8(),
+                                           adjust_tmp));
             addInstr(env,
-                     RISCV64Instr_MV(argregs[nextArgReg], hregRISCV64_x8()));
+                     RISCV64Instr_MV(argregs[nextArgReg], real_gst));
             nextArgReg++;
          } else if (arg->tag == Iex_VECRET) {
             /* Because of the go_fast logic above, we can't get here, since
@@ -495,7 +500,12 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
          } else if (arg->tag == Iex_GSPTR) {
             if (nextArgReg >= RISCV64_N_ARGREGS)
                return False; /* Out of argregs. */
-            tmpregs[nextArgReg] = hregRISCV64_x8();
+            HReg real_gst   = newVRegI(env);
+            HReg adjust_tmp = newVRegI(env);
+            addInstr(env, RISCV64Instr_LI(adjust_tmp, BASEBLOCK_OFFSET_ADJUSTMENT));
+            addInstr(env, RISCV64Instr_ALU(RISCV64op_SUB, real_gst, hregRISCV64_x8(),
+                                           adjust_tmp));
+            tmpregs[nextArgReg] = real_gst;
             nextArgReg++;
          } else if (arg->tag == Iex_VECRET) {
             vassert(!hregIsInvalid(r_vecRetAddr));
