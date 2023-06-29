@@ -1470,16 +1470,16 @@ RVV0p7_UnopOPIM_P_FT(viota)
 /*---------------------------------------------------------------*/
 
 static UInt GETA_VUnopV(vmv)(VexGuestRISCV64State *st,
-                             ULong vd, ULong vs2, ULong vs1, ULong mask) {
+                             ULong vd, ULong vs1, ULong mask) {
    RVV0p7_UnopOPIV_T("vmv.v.v", vd, vs1);
 }
 static UInt GETA_VUnopX(vmv)(VexGuestRISCV64State *st,
-                             ULong vd, ULong vs2, ULong rs1, ULong mask) {
+                             ULong vd, ULong rs1, ULong mask) {
    rs1 += (ULong)st;
    RVV0p7_UnopX_T("vmv.v.x", vd, rs1);
 }
 static UInt GETA_VUnopI(vmv)(VexGuestRISCV64State *st,
-                             ULong vd, ULong vs2, ULong rs1, ULong mask) {
+                             ULong vd, ULong rs1, ULong mask) {
    RVV0p7_UnopI_T("vmv.v.x", vd, rs1);
 }
 
