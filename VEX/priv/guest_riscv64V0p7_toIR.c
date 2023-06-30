@@ -26,6 +26,14 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+static inline UShort extract_sew_0p7(ULong flag) {
+   return (UShort) (flag >> 2) & 0x07UL;
+}
+
+static inline UShort extract_lmul_0p7(ULong flag) {
+   return (UShort) flag & 0x03UL;
+}
+
 /* Read a value from VXSAT CSR */
 static IRExpr* getVxsat0p7(void) {
    IRExpr* fcsr = getFCSR();
@@ -391,7 +399,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                GETC_VLDST(vle);
                return True;
             }
@@ -430,7 +438,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e);
                return True;
             }
@@ -457,7 +465,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                GETC_VLDST(vse);
                return True;
             }
@@ -484,7 +492,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e);
                return True;
             }
@@ -529,7 +537,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                GETC_VSLDST(vlse);
                return True;
             }
@@ -566,7 +574,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e);
                return True;
             }
@@ -594,7 +602,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                GETC_VSLDST(vsse);
                return True;
             }
@@ -621,7 +629,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e);
                return True;
             }
@@ -666,7 +674,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                GETC_VXLDST(vlxe);
                return True;
             }
@@ -703,7 +711,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW load */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, e);
                return True;
             }
@@ -743,7 +751,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                if (GET_MOP() == 0b011) {
                   GETC_VXLDST(vsxe);
                } else {
@@ -774,7 +782,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                return True;
             }
             case 0b111: {                 /* SEW store */
-               width = extract_sew(guest_VFLAG);
+               width = extract_sew_0p7(guest_VFLAG);
                VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, e);
                return True;
             }

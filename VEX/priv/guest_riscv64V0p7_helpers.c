@@ -334,7 +334,7 @@
 static IRDirty*
 GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt vtype)
 {
-   UInt lmul   = extract_lmul(guest_VFLAG);
+   UInt lmul   = extract_lmul_0p7(guest_VFLAG);
    d->nFxState = isVOpVV(sopc) ? 3 : 2;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
@@ -375,7 +375,7 @@ GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt 
 static IRDirty*
 GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 {
-   UInt lmul   = extract_lmul(guest_VFLAG);
+   UInt lmul   = extract_lmul_0p7(guest_VFLAG);
    d->nFxState = isVOpVV(sopc) ? 2 : 1;
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
@@ -2043,7 +2043,7 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
                   UInt nf, ULong width,
                   VLdstT ldst_ty)
 {
-   UInt lmul   = extract_lmul(guest_VFLAG);
+   UInt lmul   = extract_lmul_0p7(guest_VFLAG);
    UInt vstart = extract_vstart(guest_VFLAG);
    UInt vl     = extract_vl(guest_VFLAG);
    d->nFxState = 2;
@@ -2074,7 +2074,7 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
          break;
       }
       case Indexed: {
-         UInt sew = 31 - __builtin_clz((UInt) extract_sew(guest_VFLAG));
+         UInt sew = 31 - __builtin_clz((UInt) extract_sew_0p7(guest_VFLAG));
          IROp       ops[4] = {Iop_8Sto64, Iop_16Sto64, Iop_32Sto64, Iop_LAST};
          IRType off_tys[4] = {Ity_I8, Ity_I16, Ity_I32, Ity_I64};
          vassert(sew >=0 && sew <= 3);
