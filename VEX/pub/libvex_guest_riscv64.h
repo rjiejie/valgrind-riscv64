@@ -216,14 +216,6 @@ FIELD(BB_FLAG, VSTART, 24, 16)
 /* vtype: cover all [0:7] bits, accommodating RVV 0.7.1 and 1.0 */
 FIELD(BB_FLAG, VTYPE,  0,  8)
 
-static inline UShort extract_sew_raw(ULong flag) {
-   return (UShort) FIELD_EX64(flag, BB_FLAG, SEW);
-}
-
-static inline UShort extract_lmul_raw(ULong flag) {
-   return (UShort) FIELD_EX64(flag, BB_FLAG, LMUL);
-}
-
 static inline UShort extract_sew(ULong flag) {
    return (UShort) (1 << FIELD_EX64(flag, BB_FLAG, SEW));
 }
@@ -247,6 +239,10 @@ static inline UShort extract_vta(ULong flag) {
 
 static inline UShort extract_vma(ULong flag) {
    return (UShort) FIELD_EX64(flag, BB_FLAG, VMA);
+}
+
+static inline UShort extract_vtype(ULong flag) {
+   return (UShort) FIELD_EX64(flag, BB_FLAG, VTYPE);
 }
 
 static inline ULong get_flag_from_guest_state(volatile VexGuestRISCV64State* vex_state) {
