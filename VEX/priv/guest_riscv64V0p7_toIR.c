@@ -27,11 +27,11 @@
 */
 
 static inline UShort extract_sew_0p7(ULong flag) {
-   return (UShort) (flag >> 2) & 0x07UL;
+   return (UShort) (1 << (flag >> 2) & 0x07UL);
 }
 
 static inline UShort extract_lmul_0p7(ULong flag) {
-   return (UShort) flag & 0x03UL;
+   return (UShort) (1 << flag & 0x03UL);
 }
 
 /* Read a value from VXSAT CSR */
