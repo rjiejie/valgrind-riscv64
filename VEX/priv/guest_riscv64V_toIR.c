@@ -162,7 +162,9 @@ static void putVStart(IRSB* irsb, IRExpr* e) {
 
 /* Find the offset of the requested data type and vector register lane
    number. It is borrowed from ARM64 offsetQRegLane except that we
-   do not support 128-sized type currently. */
+   do not support 128-sized type currently. Besides, RVV allows elements
+   to cross the boundary of a single register to form a register group.
+   It is useless to check maxOff < register length. */
 static Int offsetVRegLane(UInt vregNo, IRType laneTy, UInt laneNo) {
    Int base = offsetVReg(vregNo);
    UInt laneSzB = 0;
@@ -178,7 +180,7 @@ static Int offsetVRegLane(UInt vregNo, IRType laneTy, UInt laneNo) {
    UInt minOff = laneNo * laneSzB;
    UInt maxOff = minOff + laneSzB - 1;
    /* maximal data offset up to host_VLENB */
-   vassert(maxOff < host_VLENB);
+   vassert(maxOff < (host_VLENB << 3));
    return base + minOff;
 }
 
