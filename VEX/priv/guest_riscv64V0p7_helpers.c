@@ -2446,7 +2446,7 @@ ldst_macro(insn_prefix##8##insn_suffix, body, 8)
 #define LDST_VEC_UPDATE_ADDR(insn, v_reg, vm) \
    __asm__ __volatile__(                      \
       #insn ".v\tv" #v_reg ",(%0)" vm "\n\t"  \
-      "sub\t%0,%0,%1\n\t"                     \
+      "sub\t%0,%1,%2\n\t"                     \
       :"=r"(v_end)                            \
       :"0"(v_end), "r"(reg_len):              \
    );                                         \
@@ -2480,7 +2480,7 @@ ldst_macro(insn_prefix##8##insn_suffix, body, 8)
    ULong v_end   = v##_offs + (nf - 1) * reg_len;        \
                                                          \
    switch (lmul) {                                       \
-      case 0: {                                          \
+      case 1: {                                          \
          /* LMUL = 1 */                                  \
          switch (nf) {                                   \
             case 8:                                      \
@@ -2504,7 +2504,7 @@ ldst_macro(insn_prefix##8##insn_suffix, body, 8)
         }                                                \
         break;                                           \
       }                                                  \
-      case 1: {                                          \
+      case 2: {                                          \
          /* LMUL = 2 */                                  \
          switch (nf) {                                   \
             case 4:                                      \
@@ -2520,7 +2520,7 @@ ldst_macro(insn_prefix##8##insn_suffix, body, 8)
         }                                                \
         break;                                           \
       }                                                  \
-      case 2: {                                          \
+      case 4: {                                          \
          /* LMUL = 4 */                                  \
          switch (nf) {                                   \
             case 2:                                      \
@@ -2532,7 +2532,7 @@ ldst_macro(insn_prefix##8##insn_suffix, body, 8)
          }                                               \
          break;                                          \
       }                                                  \
-      case 3: {                                          \
+      case 8: {                                          \
          /* LMUL = 8 */                                  \
          __asm__ __volatile__(                           \
             #insn ".v\tv8,(%0)" vm "\n\t"                \
