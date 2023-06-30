@@ -1560,7 +1560,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        * Floating-Point Scalar Move Instructions
        */
       case 0b001100: {
-         IRTemp dret = newTemp(irsb, Ity_F64);
+         IRTemp dret = newTemp(irsb, Ity_I64);
          fName = GETN_VUnopV(vfmv);
          fAddr = GETA_VUnopV(vfmv);
 
@@ -1574,12 +1574,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          d->fxState[0].size      = host_VLENB;
          stmt(irsb, IRStmt_Dirty(d));
 
-         UInt sew = extract_sew(guest_VFLAG);
-         putFReg64(irsb, rd,
-                   sew == 1    ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFUL))
-                   : sew == 2 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFUL))
-                   : sew == 4 ? binop(Iop_Or64, mkexpr(dret), mkU64(~0xFFFFFFFFUL))
-                               : mkexpr(dret));
+         putFReg64(irsb, rd, unop(Iop_ReinterpI64asF64, mkexpr(dret)));
          DIP("%s(%s, %s)\n", fName, nameFReg(rd), nameVReg(rs2));
          return True;
       }
