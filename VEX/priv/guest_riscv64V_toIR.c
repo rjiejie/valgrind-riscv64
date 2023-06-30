@@ -177,8 +177,8 @@ static Int offsetVRegLane(UInt vregNo, IRType laneTy, UInt laneNo) {
    vassert(laneSzB > 0);
    UInt minOff = laneNo * laneSzB;
    UInt maxOff = minOff + laneSzB - 1;
-   /* maximal data length up to 64-bit, currently does not support V128 */
-   vassert(maxOff < 8);
+   /* maximal data offset up to host_VLENB */
+   vassert(maxOff < host_VLENB);
    return base + minOff;
 }
 
