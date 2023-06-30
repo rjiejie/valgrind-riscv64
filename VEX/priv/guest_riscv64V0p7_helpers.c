@@ -2023,7 +2023,7 @@ static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
       UInt n_mask = n_addrs - idx < 8 ? n_addrs - idx : 8;
       for (UInt i = 0; i < n_mask; i++) {
          IRExpr* mask_64 = binop(Iop_And64, binop(Iop_Shr64, mkexpr(mask_segs),
-                                                  mkU64(i)), mkU64(1));
+                                                  mkU8(i)), mkU64(1));
          for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
             maskV[idx] = unop(Iop_64to1, mask_64);
       }
