@@ -1155,10 +1155,10 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
 
          if (rd != 0)
             putIReg64(irsb, rd,
-                      sew == 1    ? unop(Iop_8Uto64,  mkexpr(ret))
-                      : sew == 2 ? unop(Iop_16Uto64, mkexpr(ret))
-                      : sew == 4 ? unop(Iop_32Uto64, mkexpr(ret))
-                                  : mkexpr(ret));
+                      sew == 1   ? unop(Iop_8Uto64,  unop(Iop_64to8,  mkexpr(ret)))
+                      : sew == 2 ? unop(Iop_16Uto64, unop(Iop_64to16, mkexpr(ret)))
+                      : sew == 4 ? unop(Iop_32Uto64, unop(Iop_64to32, mkexpr(ret)))
+                                 : mkexpr(ret));
          DIP("%s(%s, %s, %s)\n", fName, nameIReg(rd), nameVReg(rs2), nameIReg(rs1));
          return True;
       /*
