@@ -2016,6 +2016,7 @@ static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
          compulsively require fxState.fx/offset/size, we point it to always
          defined x0 register in riscv64. Only to pass the sanity check,
          the actual v0 access is marked in GETD_Common_VLdSt. */
+      vex_bzero(&m_d->fxState, sizeof(m_d->fxState));
       m_d->nFxState          = 1;
       m_d->fxState[0].fx     = Ifx_Read;
       m_d->fxState[0].offset = offsetIReg64(0);
