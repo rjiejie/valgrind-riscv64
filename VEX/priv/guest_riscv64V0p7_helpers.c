@@ -1957,7 +1957,7 @@ do {                                         \
 /* Dirty helper for converting v0 to a real mask */
 /* This is the tricky part about converting a v0 mask to multiple segments.
    Here is the outline:
-      As each mask element in v0 has a width of LMUL/SEW, we need to convert masks to
+      As each mask element in v0 has a width of SEW/LMUL, we need to convert masks to
       SEW width for better addressing them. We zero out v8 and then add 1 to v8
       with vm on. Therefore, all masked elements keep 0 while others are 1,
       meaning that v8 has all masks represented in SEW width. The next step is
@@ -2023,11 +2023,11 @@ static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
       m_d->fxState[0].size   = 1;
 
       UInt n_mask = n_addrs - idx < 8 ? n_addrs - idx : 8;
-      for (UInt i = 0; i < n_mask; i++) {
+      for (UInt i = 0; i < n_mask; i++, idx++) {
          IRExpr* mask_64 = binop(Iop_And64, binop(Iop_Shr64, mkexpr(mask_segs),
                                                   mkU8(i)), mkU64(1));
-         for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
-            maskV[idx] = unop(Iop_64to1, mask_64);
+         for (UInt field_idx = 0; field_idx < nf; field_idx++)
+            maskV[idx * nf + field_idx] = unop(Iop_64to1, mask_64);
       }
       stmt(irsb, IRStmt_Dirty(m_d));
    }
