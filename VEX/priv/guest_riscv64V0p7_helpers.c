@@ -2325,10 +2325,9 @@ RVV0p7_VLdst(vse, DIRTY_VSTORE_BODY)
    ULong rs2_offs = (ULong) st + s2;                  \
    ULong rs2_addr = *((ULong *) rs2_offs);            \
    __asm__ __volatile__ (                             \
-      "ld\tt0,(%0)\n\t"                               \
-      #insn ".v\tv8,(%1),t0\t" vm "\n\t"              \
+      #insn ".v\tv8,(%1),%0\t" vm "\n\t"              \
       ::"r"(rs2_addr), "r" (rs1_addr)                 \
-      :"t0"                                           \
+      :                                               \
    );
 
 #undef  RVV0p7_Load_Memory
