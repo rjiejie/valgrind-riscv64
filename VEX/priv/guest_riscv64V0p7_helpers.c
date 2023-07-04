@@ -414,14 +414,11 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 /*--- Special instruction templates                           ---*/
 /*---------------------------------------------------------------*/
 
-#define RVV0p7_Config()             \
-   do {                             \
-      if (host_VFLAG == guest_VFLAG)\
-         break;                     \
-      host_VFLAG = guest_VFLAG;     \
-      UShort vl = extract_vl(guest_VFLAG);      \
-      UShort vtype = extract_vtype(guest_VFLAG);\
-      __asm__ __volatile__("vsetvl\tx0,%0,%1\n\t"::"r"(vl),"r"(vtype):);\
+#define RVV0p7_Config()                                                        \
+   do {                                                                        \
+      UShort vl    = st->guest_vl;                                             \
+      UShort vtype = st->guest_vtype;                                          \
+      __asm__ __volatile__("vsetvl\tx0,%0,%1\n\t" ::"r"(vl), "r"(vtype) :);    \
    } while (0)
 
 // Push vl/vtype
