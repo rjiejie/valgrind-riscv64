@@ -2998,6 +2998,10 @@ UWord evalCfiExpr ( const XArray* exprs, Int ix,
             case Creg_ARM64_X30: return eec->uregs->x30;
             case Creg_ARM64_X29: return eec->uregs->x29;
 #           elif defined(VGP_riscv64_linux)
+            case Creg_RISCV64_PC: return eec->uregs->pc;
+            case Creg_RISCV64_SP: return eec->uregs->sp;
+            case Creg_RISCV64_FP: return eec->uregs->fp;
+            case Creg_RISCV64_RA: return eec->uregs->ra;
             I_die_here;
 #           else
 #             error "Unsupported arch"

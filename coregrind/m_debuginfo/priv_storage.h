@@ -435,7 +435,11 @@ typedef
       Creg_S390_SP,
       Creg_S390_FP,
       Creg_S390_LR,
-      Creg_MIPS_RA
+      Creg_MIPS_RA,
+      Creg_RISCV64_PC,
+      Creg_RISCV64_SP,
+      Creg_RISCV64_FP,
+      Creg_RISCV64_RA
    }
    CfiReg;
 

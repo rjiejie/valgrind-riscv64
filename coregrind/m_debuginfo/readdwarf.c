@@ -2919,9 +2919,15 @@ static Int copy_convert_CfiExpr_tree ( XArray*        dstxa,
             return ML_(CfiExpr_CfiReg)( dstxa, Creg_ARM64_X29 );
          if (dwreg == srcuc->ra_reg)
             return ML_(CfiExpr_CfiReg)( dstxa, Creg_ARM64_X30 );
+#        elif defined(VGA_riscv64)
+         if (dwreg == SP_REG)
+            return ML_(CfiExpr_CfiReg)( dstxa, Creg_RISCV64_SP );
+         if (dwreg == FP_REG)
+            return ML_(CfiExpr_CfiReg)( dstxa, Creg_RISCV64_FP );
+         if (dwreg == srcuc->ra_reg)
+            return ML_(CfiExpr_CfiReg)( dstxa, Creg_RISCV64_PC ); /* correct? */
 #        elif defined(VGA_ppc32) || defined(VGA_ppc64be) \
             || defined(VGA_ppc64le)
-#        elif defined(VGA_riscv64)
          I_die_here;
 #        else
 #           error "Unknown arch"
@@ -3201,6 +3207,20 @@ static Int dwarfexpr_to_dag ( const UnwindContext* ctx,
             PUSH(ix);
             if (ddump_frames)
                VG_(printf)("DW_OP_breg%d: %ld", reg, sw);
+            break;
+
+         case DW_OP_bregx:
+            /* push: uleb128 reg + sleb128 */
+            uw = step_leb128U( &expr );
+            sw = step_leb128S( &expr );
+            ix = ML_(CfiExpr_Binop)( dst,
+                    Cbinop_Add,
+                    ML_(CfiExpr_DwReg)( dst, uw ),
+                    ML_(CfiExpr_Const)( dst, (UWord)sw )
+                 );
+            PUSH(ix);
+            if (ddump_frames)
+               VG_(printf)("DW_OP_bregx%d: %lu, %ld", reg, uw, sw);
             break;
 
          case DW_OP_reg0 ... DW_OP_reg31:

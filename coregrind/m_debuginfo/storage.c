@@ -1015,6 +1015,10 @@ static void ppCfiReg ( CfiReg reg )
       case Creg_S390_SP:   VG_(printf)("SP"); break;
       case Creg_S390_FP:   VG_(printf)("FP"); break;
       case Creg_S390_LR:   VG_(printf)("LR"); break;
+      case Creg_RISCV64_PC:  VG_(printf)("PC"); break;
+      case Creg_RISCV64_SP:  VG_(printf)("SP"); break;
+      case Creg_RISCV64_FP:  VG_(printf)("FP"); break;
+      case Creg_RISCV64_RA:  VG_(printf)("RA"); break;
       default: vg_assert(0);
    }
 }
