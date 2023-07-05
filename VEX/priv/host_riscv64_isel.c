@@ -1056,6 +1056,7 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
          return dst;
       }
       case Iop_1Sto8:
+      case Iop_1Sto16:
       case Iop_1Sto32:
       case Iop_1Sto64: {
          HReg tmp = newVRegI(env);
@@ -1117,6 +1118,7 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
          return dst;
       }
       case Iop_CmpNEZ8:
+      case Iop_CmpNEZ16:
       case Iop_CmpNEZ32:
       case Iop_CmpNEZ64: {
          HReg dst = newVRegI(env);
@@ -1254,7 +1256,7 @@ static HReg iselIntExpr_R_wrk(ISelEnv* env, IRExpr* e)
    /* ---------------------- MULTIPLEX ---------------------- */
    case Iex_ITE: {
       /* ITE(ccexpr, iftrue, iffalse) */
-      if (ty == Ity_I64 || ty == Ity_I32) {
+      if (ty == Ity_I64 || ty == Ity_I32 || ty == Ity_I16 || ty == Ity_I8) {
          HReg dst     = newVRegI(env);
          HReg iftrue  = iselIntExpr_R(env, e->Iex.ITE.iftrue);
          HReg iffalse = iselIntExpr_R(env, e->Iex.ITE.iffalse);
