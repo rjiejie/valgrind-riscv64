@@ -511,7 +511,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b010) {  /* zero-extended */
                   GETC_VSLDST(vlsbu);
                } else {                   /* signed-extended */
                   GETC_VSLDST(vlsb);
@@ -520,7 +520,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b101: {                 /* 16-bit load */
                width = 2;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b010) {  /* zero-extended */
                   GETC_VSLDST(vlshu);
                } else {                   /* signed-extended */
                   GETC_VSLDST(vlsh);
@@ -529,7 +529,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b110: {                 /* 32-bit load */
                width = 4;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b010) {  /* zero-extended */
                   GETC_VSLDST(vlswu);
                } else {                   /* signed-extended */
                   GETC_VSLDST(vlsw);
@@ -548,7 +548,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b010) {  /* zero-extended */
                   VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, bu);
                } else {                   /* signed-extended */
                   VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, b);
@@ -557,7 +557,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b101: {                 /* 16-bit load */
                width = 2;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b010) {  /* zero-extended */
                   VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, hu);
                } else {                   /* signed-extended */
                   VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, h);
@@ -566,7 +566,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b110: {                 /* 32-bit load */
                width = 4;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b010) {  /* zero-extended */
                   VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, wu);
                } else {                   /* signed-extended */
                   VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, w);
@@ -648,7 +648,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b011) {  /* zero-extended */
                   GETC_VXLDST(vlxbu);
                } else {                   /* signed-extended */
                   GETC_VXLDST(vlxb);
@@ -657,7 +657,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b101: {                 /* 16-bit load */
                width = 2;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b011) {  /* zero-extended */
                   GETC_VXLDST(vlxhu);
                } else {                   /* signed-extended */
                   GETC_VXLDST(vlxh);
@@ -666,7 +666,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b110: {                 /* 32-bit load */
                width = 4;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b011) {  /* zero-extended */
                   GETC_VXLDST(vlxwu);
                } else {                   /* signed-extended */
                   GETC_VXLDST(vlxw);
@@ -685,7 +685,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
          switch (GET_FUNCT3()) {
             case 0b000: {                 /* 8-bit load */
                width = 1;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b011) {  /* zero-extended */
                   VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, bu);
                } else {                   /* signed-extended */
                   VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, b);
@@ -694,7 +694,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b101: {                 /* 16-bit load */
                width = 2;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b011) {  /* zero-extended */
                   VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, hu);
                } else {                   /* signed-extended */
                   VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, h);
@@ -703,7 +703,7 @@ static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
             }
             case 0b110: {                 /* 32-bit load */
                width = 4;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
+               if (GET_MOP() == 0b011) {  /* zero-extended */
                   VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, wu);
                } else {                   /* signed-extended */
                   VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, w);
