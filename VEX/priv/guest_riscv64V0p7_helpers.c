@@ -102,7 +102,7 @@
       } else {                                                                 \
          fName = mask ? GETN_VBinopV##I(insn) : GETN_VBinopV##I##_M(insn);     \
          fAddr = mask ? GETA_VBinopV##I(insn) : GETA_VBinopV##I##_M(insn);     \
-         temp  = rs1;                                                          \
+         temp  = ((Long) rs1 << 59) >> 59;                                     \
       }                                                                        \
       vassert(fAddr != NULL);                                                  \
       ARGS()                                                                   \
@@ -264,7 +264,7 @@
       } else {                                                                 \
          fName = mask ? GETN_VUnop##I(insn) : GETN_VUnop##I##_M(insn);         \
          fAddr = mask ? GETA_VUnop##I(insn) : GETA_VUnop##I##_M(insn);         \
-         temp  = rs1;                                                          \
+         temp  = ((Long) rs1 << 59) >> 59;                                     \
       }                                                                        \
       vassert(fAddr != NULL);                                                  \
       ARGS()                                                                   \

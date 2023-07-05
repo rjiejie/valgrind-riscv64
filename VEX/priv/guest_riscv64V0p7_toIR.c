@@ -803,7 +803,7 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
    void *fAddr = NULL;
    const HChar *fName = NULL;
    IRExpr **args = NULL;
-   UInt temp = 0;
+   ULong temp = 0;
    IRTemp ret = newTemp(irsb, Ity_I32);
    IRTemp xrm = newTemp(irsb, Ity_I32);
 
