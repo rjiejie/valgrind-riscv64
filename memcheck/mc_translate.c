@@ -7473,7 +7473,8 @@ static void do_origins_Dirty ( MCEnv* mce, IRDirty* d )
             rule of propagating OTags. Mask bit 0 indicates the
             corresponding address is masked and not actually accessed. */
          if (d->mMask)
-            here = IRExpr_ITE( d->mMask[idx], mkU32(0), here );
+            here = assignNew('B', mce, Ity_I32,
+                             IRExpr_ITE(d->mMask[idx], mkU32(0), here));
 
          curr = gen_maxU32( mce, curr, here );
       }
