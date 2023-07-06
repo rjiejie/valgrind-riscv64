@@ -252,8 +252,7 @@ static Bool dis_RV64V0p7_csr(/*MB_OUT*/ DisResult* dres,
 
 static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
                              /*OUT*/ IRSB*         irsb,
-                             UInt                  insn,
-                             Addr                  guest_pc_curr_instr)
+                             UInt                  insn)
 {
    Bool is_vsetvl = INSN(31, 31);
    UInt rd  = GET_RD();
@@ -289,13 +288,6 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
 
    if (rd != 0)
       putIReg64(irsb, rd, new_vl);
-
-   /* Update PC as we will exit translation */
-   putPC(irsb, mkU64(guest_pc_curr_instr + 4));
-
-   /* There is a potential vector CSR changing, we stop here */
-   dres->whatNext    = Dis_StopHere;
-   dres->jk_StopHere = Ijk_ExitBB;
 
    return True;
 }
@@ -1646,16 +1638,21 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
                          Addr                  guest_pc_curr_instr)
 {
    Bool ok = False;
+   UInt nf = 1;
 
    switch (GET_OPCODE()) {
       case OPC_OP_V:
-         if (GET_FUNCT3() == RV64_SOPC_OPCFG)
-            return dis_RV64V0p7_cfg(dres, irsb, insn, guest_pc_curr_instr);
+         if (GET_FUNCT3() == RV64_SOPC_OPCFG) {
+            ok = dis_RV64V0p7_cfg(dres, irsb, insn);
+            /* There is a potential vector CSR changing, we stop here */
+            goto ExitBB;
+         }
          ok = dis_RV64V0p7_arith(dres, irsb, insn);
          break;
       case OPC_LOAD_FP:
       case OPC_STORE_FP:
          ok = dis_RV64V0p7_ldst(dres, irsb, insn);
+         nf += GET_NF();
          break;
       case OPC_SYSTEM:
          ok = dis_RV64V0p7_csr(dres, irsb, insn);
@@ -1669,10 +1666,24 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
       putVStart(irsb, mkU64(0));
       /* Reset occurs, terminate translation. As cfg instructions will
          directly return, there is no need to handle it. */
-      dres->whatNext    = Dis_StopHere;
-      dres->jk_StopHere = Ijk_ExitBB;
+      goto ExitBB;
    }
 
+   if (extract_lmul_0p7(guest_VFLAG) * nf > 4) {
+      /* FIXME:
+         LMUL > 4 will consume more TEMPORARY and need more spilled space, it will cause
+         two FATALs:
+         a, VEX temporary storage exhausted.
+         b, N_SPILL64S is too low in VEX. */
+      goto ExitBB;
+   }
+
+   return ok;
+
+ExitBB:
+   putPC(irsb, mkU64(guest_pc_curr_instr + 4));
+   dres->whatNext    = Dis_StopHere;
+   dres->jk_StopHere = Ijk_ExitBB;
    return ok;
 }
 
