@@ -1991,14 +1991,13 @@ static ULong dirty_get_mask(VexGuestRISCV64State *st,
 static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
                                             Bool mask,
                                             UInt vl,
-                                            UInt vstart,
-                                            UInt nf) {
+                                            UInt vstart) {
    IRExpr** maskV = NULL;
    UInt n_addrs   = vl - vstart;
    if (mask)
       return maskV;
    else
-      maskV = LibVEX_Alloc_inline(n_addrs * nf * sizeof(IRExpr*));
+      maskV = LibVEX_Alloc_inline(n_addrs * sizeof(IRExpr*));
 
    UInt idx = 0;
    while (idx < n_addrs) {
@@ -2020,11 +2019,10 @@ static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
       m_d->fxState[0].size   = 1;
 
       UInt n_mask = n_addrs - idx < 8 ? n_addrs - idx : 8;
-      for (UInt i = 0; i < n_mask; i++, idx++) {
+      for (UInt i = 0; i < n_mask; i++) {
          IRExpr* mask_64 = binop(Iop_And64, binop(Iop_Shr64, mkexpr(mask_segs),
                                                   mkU8(i)), mkU64(1));
-         for (UInt field_idx = 0; field_idx < nf; field_idx++)
-            maskV[idx * nf + field_idx] = unop(Iop_64to1, mask_64);
+         maskV[idx++] = unop(Iop_64to1, mask_64);
       }
       stmt(irsb, IRStmt_Dirty(m_d));
    }
@@ -2047,27 +2045,22 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
    vex_bzero(&d->fxState, sizeof(d->fxState));
 
    /* Mark memory effect: address and mask */
-   d->mNAddrs     = (vl - vstart) * nf;
+   d->mNAddrs     = vl - vstart;
    d->mFx         = isLD ? Ifx_Read : Ifx_Write;
-   d->mSize       = width;
-   IRExpr** addrV = LibVEX_Alloc_inline((vl - vstart) * nf * sizeof(IRExpr*));
+   d->mSize       = width * nf;
+   IRExpr** addrV = LibVEX_Alloc_inline(d->mNAddrs * sizeof(IRExpr*));
 
    /* Address info */
    UInt idx = 0;
    switch (ldst_ty) {
       case UnitStride:
          for (UInt i = vstart; i < vl; i++)
-            for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
-               addrV[idx] = binop(Iop_Add64, getIReg64(r),
-                                  mkU64((i * nf + field_idx) * width));
+            addrV[idx++] = binop(Iop_Add64, getIReg64(r), mkU64(i * d->mSize));
          break;
       case Strided: {
-         for (UInt i = vstart; i < vl; i++) {
-            IRExpr* base = binop(Iop_Add64, getIReg64(r),
+         for (UInt i = vstart; i < vl; i++)
+            addrV[idx++] = binop(Iop_Add64, getIReg64(r),
                                  binop(Iop_Mul64, mkU64(i), getIReg64(s2)));
-            for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
-               addrV[idx] = binop(Iop_Add64, base, mkU64(field_idx * width));
-         }
          break;
       }
       case Indexed: {
@@ -2081,9 +2074,7 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
                offset = unop(ops[sew], getVRegLane(s2, i, off_tys[sew]));
             else
                offset = getVRegLane(s2, i, off_tys[sew]);
-            /* Record addresses per element in a segment */
-            for (UInt field_idx = 0; field_idx < nf; field_idx++, idx++)
-               addrV[idx] = binop(Iop_Add64, getIReg64(r), offset);
+            addrV[idx++] = binop(Iop_Add64, getIReg64(r), offset);
          }
          break;
       }
@@ -2093,7 +2084,7 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
    d->mAddrVec = addrV;
 
    /* Mask info */
-   d->mMask = calculate_dirty_mask(irsb, mask, vl, vstart, nf);
+   d->mMask = calculate_dirty_mask(irsb, mask, vl, vstart);
 
    /* Mark vector register modified */
    d->fxState[0].fx        = isLD ? Ifx_Write : Ifx_Read;
