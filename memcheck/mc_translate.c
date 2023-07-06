@@ -5140,6 +5140,9 @@ IRExpr* expr2vbits_Unop ( MCEnv* mce, IROp op, IRAtom* atom )
          // FIXME JRS 2018-Nov-15.  This is surely not correct!
          return vatom;
 
+      case Iop_ReinterpF16asI16:
+         return assignNew('V', mce, Ity_I16, vatom);
+
       case Iop_ReinterpI32asF32:
       case Iop_ReinterpF32asI32:
          return assignNew('V', mce, Ity_I32, vatom);
