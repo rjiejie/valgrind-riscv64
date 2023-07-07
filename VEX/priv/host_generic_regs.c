@@ -51,7 +51,6 @@ void ppHRegClass ( HRegClass hrc )
       case HRcFlt64:   vex_printf("HRcFlt64"); break;
       case HRcVec64:   vex_printf("HRcVec64"); break;
       case HRcVec128:  vex_printf("HRcVec128"); break;
-      case HRcVec:     vex_printf("HRcVec"); break;
       default: vpanic("ppHRegClass");
    }
 }
@@ -74,7 +73,6 @@ UInt ppHReg ( HReg r )
       case HRcFlt32:   return vex_printf("%%%sF%u", maybe_v, regNN);
       case HRcFlt64:   return vex_printf("%%%sD%u", maybe_v, regNN);
       case HRcVec64:   return vex_printf("%%%sv%u", maybe_v, regNN);
-      case HRcVec:
       case HRcVec128:  return vex_printf("%%%sV%u", maybe_v, regNN);
       default: vpanic("ppHReg");
    }

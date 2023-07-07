@@ -83,22 +83,6 @@ ST_IN HReg hregRISCV64_f29(void) { return mkHReg(False, HRcFlt64, 29, 35); }
 ST_IN HReg hregRISCV64_f30(void) { return mkHReg(False, HRcFlt64, 30, 36); }
 ST_IN HReg hregRISCV64_f31(void) { return mkHReg(False, HRcFlt64, 31, 37); }
 
-ST_IN HReg hregRISCV64_v2(void) { return mkHReg(False, HRcVec, 2, 38); }
-ST_IN HReg hregRISCV64_v4(void) { return mkHReg(False, HRcVec, 4, 39); }
-ST_IN HReg hregRISCV64_v6(void) { return mkHReg(False, HRcVec, 6, 40); }
-ST_IN HReg hregRISCV64_v8(void) { return mkHReg(False, HRcVec, 8, 41); }
-ST_IN HReg hregRISCV64_v10(void) { return mkHReg(False, HRcVec, 10, 42); }
-ST_IN HReg hregRISCV64_v12(void) { return mkHReg(False, HRcVec, 12, 43); }
-ST_IN HReg hregRISCV64_v14(void) { return mkHReg(False, HRcVec, 14, 44); }
-ST_IN HReg hregRISCV64_v16(void) { return mkHReg(False, HRcVec, 16, 45); }
-ST_IN HReg hregRISCV64_v18(void) { return mkHReg(False, HRcVec, 18, 46); }
-ST_IN HReg hregRISCV64_v20(void) { return mkHReg(False, HRcVec, 20, 47); }
-ST_IN HReg hregRISCV64_v22(void) { return mkHReg(False, HRcVec, 22, 48); }
-ST_IN HReg hregRISCV64_v24(void) { return mkHReg(False, HRcVec, 24, 49); }
-ST_IN HReg hregRISCV64_v26(void) { return mkHReg(False, HRcVec, 26, 50); }
-ST_IN HReg hregRISCV64_v28(void) { return mkHReg(False, HRcVec, 28, 51); }
-ST_IN HReg hregRISCV64_v30(void) { return mkHReg(False, HRcVec, 30, 52); }
-
 ST_IN HReg hregRISCV64_x0(void) { return mkHReg(False, HRcInt64, 0, 53); }
 ST_IN HReg hregRISCV64_x2(void) { return mkHReg(False, HRcInt64, 2, 54); }
 ST_IN HReg hregRISCV64_x5(void) { return mkHReg(False, HRcInt64, 5, 55); }
@@ -370,11 +354,7 @@ typedef enum {
    RISCV64in_FBinH,
    RISCV64in_FUnaryH,
    RISCV64in_FCvtH,           /* 16-bit floating-point number conversion */
-   RISCV64in_FCmpH,           /* 16-bit floating-point number comparison */
-   /* Indicating vector */
-   RISCV64in_VLdStWholeReg,
-   RISCV64in_VMvWholeReg,
-   RISCV64in_VBinV
+   RISCV64in_FCmpH            /* 16-bit floating-point number comparison */
 } RISCV64InstrTag;
 
 /*--------------------------------------------------------------------*/
@@ -391,18 +371,6 @@ typedef
 typedef struct {
    RISCV64InstrTag tag;
    union {
-      struct {
-         Bool isLoad;
-         HReg sd;
-         HReg base;
-         UChar m;
-      } VLdStWholeReg;
-      struct {
-         HReg dst;
-         HReg src;
-         UChar m;
-      } VMvWholeReg;
-      /* 16-bit FP load/store arithmetic */
       struct {
          Bool isLoad;
          HReg sd;
@@ -698,22 +666,6 @@ UChar* emit_RISCV64ZfhInstr(/*MB_MOD*/ Bool*    is_profInc,
 Bool getRegUsage_RISCV64ZfhInstr(HRegUsage* u, const RISCV64Instr* i);
 Bool mapRegs_RISCV64ZfhInstr(HRegRemap* m, RISCV64Instr* i);
 Bool ppRISCV64ZfhInstr(const RISCV64Instr* i);
-
-RISCV64Instr* RISCV64Instr_VLdStWholeReg(UChar m, Bool isLoad, HReg sd, HReg base);
-RISCV64Instr* RISCV64Instr_VMvWholeReg(UChar m, HReg dst, HReg src);
-UChar* emit_RISCV64VInstr(/*MB_MOD*/ Bool*    is_profInc,
-                          UChar*              buf,
-                          Int                 nbuf,
-                          const RISCV64Instr* i,
-                          Bool                mode64,
-                          VexEndness          endness_host,
-                          const void*         disp_cp_chain_me_to_slowEP,
-                          const void*         disp_cp_chain_me_to_fastEP,
-                          const void*         disp_cp_xindir,
-                          const void*         disp_cp_xassisted);
-Bool getRegUsage_RISCV64VInstr(HRegUsage* u, const RISCV64Instr* i);
-Bool mapRegs_RISCV64VInstr(HRegRemap* m, RISCV64Instr* i);
-Bool ppRISCV64VInstr(const RISCV64Instr* i);
 
 /*------------------------------------------------------------*/
 /*--- Misc helpers                                         ---*/

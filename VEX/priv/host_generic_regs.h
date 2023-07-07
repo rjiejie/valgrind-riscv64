@@ -118,8 +118,7 @@ typedef
       HRcFlt64=6,     /* 64-bit float */
       HRcVec64=7,     /* 64-bit SIMD */
       HRcVec128=8,    /* 128-bit SIMD */
-      HRcVec=9,       /* VLA Vector */
-      HrcLAST=HRcVec
+      HrcLAST=HRcVec128
    }
    HRegClass;
 

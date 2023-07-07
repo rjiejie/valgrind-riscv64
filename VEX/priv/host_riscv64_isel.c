@@ -126,13 +126,6 @@ static HReg newVRegF(ISelEnv* env)
    return reg;
 }
 
-static HReg newVRegV(ISelEnv* env)
-{
-   HReg reg = mkHReg(True /*virtual*/, HRcVec, 0, env->vreg_ctr);
-   env->vreg_ctr++;
-   return reg;
-}
-
 /*------------------------------------------------------------*/
 /*--- Large offset guest state base recompute              ---*/
 /*------------------------------------------------------------*/
@@ -595,7 +588,6 @@ static Bool doHelperCall(/*OUT*/ UInt*   stackAdjustAfterCall,
 /*------------------------------------------------------------*/
 /*--- Extensions                                           ---*/
 /*------------------------------------------------------------*/
-#include "host_riscv64V_isel.c"
 #include "host_riscv64Zfh_isel.c"
 
 /*------------------------------------------------------------*/
@@ -2179,7 +2171,6 @@ HInstrArray* iselSB_RISCV64(const IRSB*        bb,
       case Ity_F64:
          hreg = mkHReg(True, HRcFlt64, 0, j++);
          break;
-      /* TODO: VLA Vector */
       default:
          ppIRType(bb->tyenv->types[i]);
          vpanic("iselBB(riscv64): IRTemp type");
