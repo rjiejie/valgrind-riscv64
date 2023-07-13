@@ -91,7 +91,7 @@ typedef
 
 /* Floating point. */
 #ifdef __riscv_zfh
-#if defined(__GNUC__) && defined(__riscv_xthead)
+#if defined(__GNUC__)
 typedef  __fp16   Float16;  /* IEEE754 half-precision   (16-bit) value */
 #else
 typedef  _Float16 Float16;  /* IEEE754 half-precision   (16-bit) value */
