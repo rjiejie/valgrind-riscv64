@@ -2043,17 +2043,25 @@ GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
    UInt vl     = extract_vl(guest_VFLAG);
    d->nFxState = 2;
    vex_bzero(&d->fxState, sizeof(d->fxState));
+   IRExpr** addrV = NULL;
 
    /* Mark memory effect: address and mask */
-   d->mNAddrs     = vl - vstart;
    d->mFx         = isLD ? Ifx_Read : Ifx_Write;
    d->mSize       = width * nf;
-   IRExpr** addrV = LibVEX_Alloc_inline(d->mNAddrs * sizeof(IRExpr*));
+   if (mask && ldst_ty == UnitStride) {
+      d->mAddr = binop(Iop_Add64, getIReg64(r), mkU64(vstart * d->mSize));
+      d->mSize *= vl - vstart;
+   } else {
+      d->mNAddrs = vl - vstart;
+      addrV = LibVEX_Alloc_inline(d->mNAddrs * sizeof(IRExpr*));
+   }
 
    /* Address info */
    UInt idx = 0;
    switch (ldst_ty) {
       case UnitStride:
+         if (mask)
+            break;
          for (UInt i = vstart; i < vl; i++)
             addrV[idx++] = binop(Iop_Add64, getIReg64(r), mkU64(i * d->mSize));
          break;
