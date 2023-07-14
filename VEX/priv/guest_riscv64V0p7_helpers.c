@@ -2019,11 +2019,8 @@ static inline IRExpr** calculate_dirty_mask(IRSB *irsb     /* MOD */,
       m_d->fxState[0].size   = 1;
 
       UInt n_mask = n_addrs - idx < 8 ? n_addrs - idx : 8;
-      for (UInt i = 0; i < n_mask; i++) {
-         IRExpr* mask_64 = binop(Iop_And64, binop(Iop_Shr64, mkexpr(mask_segs),
-                                                  mkU8(i * 8)), mkU64(1));
-         maskV[idx++] = unop(Iop_64to1, mask_64);
-      }
+      for (UInt i = 0; i < n_mask; i++)
+         maskV[idx++] = unop(Iop_64to1, binop(Iop_Shr64, mkexpr(mask_segs), mkU8(i * 8)));
       stmt(irsb, IRStmt_Dirty(m_d));
    }
    return maskV;
