@@ -2175,8 +2175,14 @@ args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
 /* Setup required dirty call with args and info */
 #define GETC_VLdSt(insn, mk_c_args, mk_getd, mk_dip)         \
    do {                                                      \
+      UInt vstart = extract_vstart(guest_VFLAG);             \
+      UInt vl     = extract_vl(guest_VFLAG);                 \
       fName = mask ? GETN_VLdst(insn) : GETN_VLdst_M(insn);  \
       fAddr = mask ? GETA_VLdst(insn) : GETA_VLdst_M(insn);  \
+      if (vstart >= vl) {                                    \
+         mk_dip                                              \
+         break;                                              \
+      }                                                      \
       mk_c_args                                              \
       d = unsafeIRDirty_0_N(0, fName, fAddr, args);          \
       d = mk_getd                                            \
