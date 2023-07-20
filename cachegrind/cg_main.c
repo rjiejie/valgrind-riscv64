@@ -145,9 +145,15 @@ struct _InstrInfo {
    LineCC* parent;         // parent line-CC
 };
 
+// Composite key with SB address and flag
+typedef struct {
+   Addr  SB_addr;
+   ULong flag;
+} SB_key;
+
 typedef struct _SB_info SB_info;
 struct _SB_info {
-   Addr      SB_addr;      // key;  MUST BE FIRST
+   SB_key    sb_key;      // key;  MUST BE FIRST
    Int       n_instrs;
    InstrInfo instrs[0];
 };
@@ -176,6 +182,42 @@ static Int  full_debugs         = 0;
 static Int  file_line_debugs    = 0;
 static Int  fn_debugs           = 0;
 static Int  no_debugs           = 0;
+
+/*------------------------------------------------------------*/
+/*--- SBinfo table operations                              ---*/
+/*------------------------------------------------------------*/
+
+static inline Word integerCmp(const ULong a, const ULong b) {
+   return a > b ? 1 : (a < b ? -1 : 0);
+}
+
+/* The sbinfo comparison is kind of complex, here is the explanation:
+      The OSet is ordered set backed by AVL tree, which requires the
+      key can be sorted. Here we define the comparison function sbinfoCmp.
+      It takes the SB_key as a two-part "integer", where the high part is
+      SB_addr and the low part is flag. Therefore, if SB_addr_1 is greater
+      than SB_addr_2, then SB_key_1 is "greater" than SB_key_2 and vice verse.
+      Only when SB_addr_1 equals to SB_addr_2, we would compare flag_1 and
+      flag_2 and return their relationship. (>, =, and < return 1, 0, and -1
+      respectively as required in pub_tool_oset.h).
+
+   Besides, there is an exception when flag == 0xFFFFFFFFFFFFFFFF, which means
+   we get an invalid flag and should ignore flag comparison (this should only
+   be used in removal).
+   */
+static Word sbinfoCmp( const void* key, const void* elem )
+{
+   Word addr_res = integerCmp(((const SB_key *) key)->SB_addr,
+                              ((const SB_info *) elem)->sb_key.SB_addr);
+   Word flag_res = integerCmp(((const SB_key *) key)->flag,
+                              ((const SB_info *) elem)->sb_key.flag);
+
+   /* Invalid flag, only care about address */
+   if (((const SB_key *) key)->flag == 0xFFFFFFFFFFFFFFFF)
+      return addr_res;
+   else
+      return (addr_res == 1 || addr_res == -1) ? addr_res : flag_res;
+}
 
 /*------------------------------------------------------------*/
 /*--- String table operations                              ---*/
@@ -598,12 +640,13 @@ typedef
 // Note that origAddr is the real origAddr, not the address of the first
 // instruction in the block (they can be different due to redirection).
 static
-SB_info* get_SB_info(IRSB* sbIn, Addr origAddr)
+SB_info* get_SB_info(IRSB* sbIn, Addr origAddr, ULong flag)
 {
    Int      i, n_instrs;
    IRStmt*  st;
    SB_info* sbInfo;
 
+   SB_key sbkey = { .SB_addr = origAddr, .flag = flag };
    // Count number of original instrs in SB
    n_instrs = 0;
    for (i = 0; i < sbIn->stmts_used; i++) {
@@ -615,14 +658,14 @@ SB_info* get_SB_info(IRSB* sbIn, Addr origAddr)
    // If this assertion fails, there has been some screwup:  some
    // translations must have been discarded but Cachegrind hasn't discarded
    // the corresponding entries in the instr-info table.
-   sbInfo = VG_(OSetGen_Lookup)(instrInfoTable, &origAddr);
+   sbInfo = VG_(OSetGen_Lookup)(instrInfoTable, &sbkey);
    tl_assert(NULL == sbInfo);
 
    // BB never translated before (at this address, at least;  could have
    // been unloaded and then reloaded elsewhere in memory)
    sbInfo = VG_(OSetGen_AllocNode)(instrInfoTable,
                                 sizeof(SB_info) + n_instrs*sizeof(InstrInfo)); 
-   sbInfo->SB_addr  = origAddr;
+   sbInfo->sb_key  = sbkey;
    sbInfo->n_instrs = n_instrs;
    VG_(OSetGen_Insert)( instrInfoTable, sbInfo );
 
@@ -1083,7 +1126,7 @@ IRSB* cg_instrument ( VgCallbackClosure* closure,
    // Set up running state and get block info
    tl_assert(closure->readdr == vge->base[0]);
    cgs.events_used = 0;
-   cgs.sbInfo      = get_SB_info(sbIn, (Addr)closure->readdr);
+   cgs.sbInfo      = get_SB_info(sbIn, (Addr)closure->readdr, archinfo_host->bb_flag);
    cgs.sbInfo_i    = 0;
 
    if (DEBUG_CG)
@@ -1174,19 +1217,32 @@ IRSB* cg_instrument ( VgCallbackClosure* closure,
             IRDirty* d = st->Ist.Dirty.details;
             if (d->mFx != Ifx_None) {
                /* This dirty helper accesses memory.  Collect the details. */
-               tl_assert(d->mAddr != NULL);
+               tl_assert(d->mAddr != NULL || d->mAddrVec != NULL);
                tl_assert(d->mSize != 0);
                dataSize = d->mSize;
+
                // Large (eg. 28B, 108B, 512B on x86) data-sized
                // instructions will be done inaccurately, but they're
                // very rare and this avoids errors from hitting more
                // than two cache lines in the simulation.
                if (dataSize > min_line_size)
                   dataSize = min_line_size;
-               if (d->mFx == Ifx_Read || d->mFx == Ifx_Modify)
-                  addEvent_Dr( &cgs, curr_inode, dataSize, d->mAddr );
-               if (d->mFx == Ifx_Write || d->mFx == Ifx_Modify)
-                  addEvent_Dw( &cgs, curr_inode, dataSize, d->mAddr );
+               if (d->mFx == Ifx_Read || d->mFx == Ifx_Modify) {
+                  if (d->mAddr)
+                     addEvent_Dr( &cgs, curr_inode, dataSize, d->mAddr );
+                  else {
+                     for (UInt j = 0; j < d->mNAddrs; j++)
+                        addEvent_Dr( &cgs, curr_inode, dataSize, d->mAddrVec[j] );
+                  }
+               }
+               if (d->mFx == Ifx_Write || d->mFx == Ifx_Modify) {
+                  if (d->mAddr)
+                     addEvent_Dw( &cgs, curr_inode, dataSize, d->mAddr );
+                  else {
+                     for (UInt j = 0; j < d->mNAddrs; j++)
+                        addEvent_Dw( &cgs, curr_inode, dataSize, d->mAddrVec[j] );
+                  }
+               }
             } else {
                tl_assert(d->mAddr == NULL);
                tl_assert(d->mSize == 0);
@@ -1237,7 +1293,8 @@ IRSB* cg_instrument ( VgCallbackClosure* closure,
             // call branch predictor only if this is a branch in guest code
             if ( (st->Ist.Exit.jk == Ijk_Boring) ||
                  (st->Ist.Exit.jk == Ijk_Call) ||
-                 (st->Ist.Exit.jk == Ijk_Ret) )
+                 (st->Ist.Exit.jk == Ijk_Ret) ||
+                 (st->Ist.Exit.jk == Ijk_ExitBB))
             {
                /* Stuff to widen the guard expression to a host word, so
                   we can pass it to the branch predictor simulation
@@ -1729,7 +1786,8 @@ void cg_discard_superblock_info ( Addr orig_addr64, VexGuestExtents vge )
 
    // Get BB info, remove from table, free BB info.  Simple!  Note that we
    // use orig_addr, not the first instruction address in vge.
-   sbInfo = VG_(OSetGen_Remove)(instrInfoTable, &orig_addr);
+   SB_key sbkey = { .SB_addr = orig_addr, .flag = 0xFFFFFFFFFFFFFFFF };
+   sbInfo = VG_(OSetGen_Remove)(instrInfoTable, &sbkey);
    tl_assert(NULL != sbInfo);
    VG_(OSetGen_FreeNode)(instrInfoTable, sbInfo);
 }
@@ -1812,7 +1870,7 @@ static void cg_post_clo_init(void)
                           VG_(free));
    instrInfoTable =
       VG_(OSetGen_Create)(/*keyOff*/0,
-                          NULL,
+                          sbinfoCmp,
                           VG_(malloc), "cg.main.cpci.2",
                           VG_(free));
    stringTable =
