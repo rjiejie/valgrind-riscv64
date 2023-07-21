@@ -544,6 +544,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       ipost                                                 \
                                                             \
       ipush                                                 \
+      RVV0p7_ConfigVstart();                                \
       __asm__ __volatile__(                                 \
          "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
@@ -579,6 +580,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       ipost                                                 \
                                                             \
       ipush                                                 \
+      RVV0p7_ConfigVstart();                                \
       __asm__ __volatile__(                                 \
          "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
@@ -712,6 +714,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       ipost                                                 \
                                                             \
       ipush                                                 \
+      RVV0p7_ConfigVstart();                                \
       __asm__ __volatile__(                                 \
          "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
@@ -748,6 +751,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       ipost                                                 \
                                                             \
       ipush                                                 \
+      RVV0p7_ConfigVstart();                                \
       __asm__ __volatile__(                                 \
          "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
@@ -760,6 +764,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 
 // ret, v16-v23, t0/ft0
 #define RVV0p7_Binop_T3_body(insn, mreg, treg) \
+   RVV0p7_ConfigVstart();                      \
    __asm__ __volatile__(insn "\t%0,v16" treg mreg :"=r"(ret)::);
 #define RVV0p7_Binop_T3(insn, vs2, rs1, imask, mreg, isopc, treg, body)\
    do {                                                     \
@@ -807,6 +812,7 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
       ipost                                                 \
                                                             \
       ipush                                                 \
+      RVV0p7_ConfigVstart();                                \
       __asm__ __volatile__(                                 \
          "vse.v\tv8,(%0)\n\t"                               \
          :                                                  \
@@ -1531,9 +1537,10 @@ static UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
    __asm__ __volatile__(
       "vle.v\tv8,(%0)\n\t"
       "vid.v\tv8\n\t"
+      "csrw\tvstart,%1\n\t"
       "vse.v\tv8,(%0)\n\t"
       :
-      : "r"(vd)
+      : "r"(vd), "r"(vstart)
       : "memory");
    return ret;
 }
@@ -1547,9 +1554,10 @@ static UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
    __asm__ __volatile__(
       "vle.v\tv8,(%0)\n\t"
       "vid.v\tv8,v0.t\n\t"
+      "csrw\tvstart,%1\n\t"
       "vse.v\tv8,(%0)\n\t"
       :
-      : "r"(vd)
+      : "r"(vd), "r"(vstart)
       : "memory");
    return ret;
 }
@@ -1823,6 +1831,7 @@ static UInt GETA_VUnopF(vfmerge)(VexGuestRISCV64State *st,
 
 #undef RVV0p7_Binop_T3_body
 #define RVV0p7_Binop_T3_body(insn, mreg, treg) \
+   RVV0p7_ConfigVstart();                      \
    __asm__ __volatile__(insn "\tft0,v16" treg mreg "\n\t"   \
                         "fmv.x.d\t%0,ft0\n\t"               \
                         :"=r"(ret)::"ft0");
