@@ -415,10 +415,17 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype)
 /*---------------------------------------------------------------*/
 
 #define RVV0p7_Config()                                                        \
+   UShort vstart = st->guest_vstart;                                           \
    do {                                                                        \
       UShort vl    = st->guest_vl;                                             \
       UShort vtype = st->guest_vtype;                                          \
       __asm__ __volatile__("vsetvl\tx0,%0,%1\n\t" ::"r"(vl), "r"(vtype) :);    \
+   } while (0)
+
+#define RVV0p7_ConfigVstart()                                                  \
+   do {                                                                        \
+      if (vstart)                                                              \
+         __asm__ __volatile__("csrw\tvstart,%0\n\t" ::"r"(vstart) :);          \
    } while (0)
 
 // Push vl/vtype
@@ -2265,6 +2272,7 @@ args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
 /*----------------------------------------------------------*/
 
 #define RVV0p7_Unit_Stride_Load_Store_Memory(insn, vm) \
+   RVV0p7_ConfigVstart();                              \
    /* vload1: Load from memory */                      \
    __asm__ __volatile__ (                              \
       #insn ".v\tv8,(%0)\t" vm "\n\t"                  \
@@ -2274,6 +2282,7 @@ args = mkIRExprVec_5(IRExpr_GSPTR(),           /* arg0: GS pointer*/ \
 
 /* Store to guest state for unit-stride(U), strided(S), and indexed(X) */
 #define RVV0p7_USX_Store_GuestState(nf, vm)  \
+   RVV0p7_ConfigVstart();                    \
    /* vstore1: Store to GuestState */        \
    __asm__ __volatile__ (                    \
       "vse.v\tv8,(%0)\t" vm "\n\t"           \
@@ -2320,6 +2329,7 @@ RVV0p7_VLdst(vse, DIRTY_VSTORE_BODY)
 /*----------------------------------------------------------*/
 
 #define RVV0p7_Strided_Load_Store_Memory(insn, vm)    \
+   RVV0p7_ConfigVstart();                             \
    /* vload1/vstore2: Load from or store to memory */ \
    ULong rs2_offs = (ULong) st + s2;                  \
    ULong rs2_addr = *((ULong *) rs2_offs);            \
@@ -2361,8 +2371,13 @@ RVV0p7_VSXLdst(vsse, DIRTY_VSTORE_BODY)
    /* vload1/vstore2: Load from or store to memory */ \
    __asm__ __volatile__ (                             \
       "vle.v\tv16,(%0)\t" vm "\n\t"                   \
-      #insn ".v\tv8,(%1),v16" vm "\n\t"               \
-      ::"r"(vs2_offs),"r" (rs1_addr)                  \
+      ::"r"(vs2_offs)                                 \
+      :                                               \
+   );                                                 \
+   RVV0p7_ConfigVstart();                             \
+   __asm__ __volatile__ (                             \
+      #insn ".v\tv8,(%0),v16" vm "\n\t"               \
+      ::"r" (rs1_addr)                                \
       :                                               \
    );
 
