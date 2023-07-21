@@ -1660,6 +1660,11 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
       default:
          break;
    }
+   if (!ok)
+      return ok;
+
+   if (GET_OPCODE() == OPC_SYSTEM)
+      goto ExitBB;
 
    /* Reset vstart if necessary and stop the translation if reset occurs. */
    if (extract_vstart(guest_VFLAG) && GET_OPCODE() != OPC_SYSTEM) {
