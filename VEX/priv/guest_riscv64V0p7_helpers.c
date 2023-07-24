@@ -2564,13 +2564,31 @@ ldst_macro(insn_prefix##8##insn_suffix, body, 8)
          break;                                          \
    }
 
+#define RVV0p7_Seg_PreLoad_Init                           \
+   /* Initialize host vec regs using guest vec regs. */   \
+   /* Use maximal available bytes. */                     \
+   ULong tailing_bytes = mask + (host_VLENB << 5) - v;    \
+   __asm__ __volatile__(                                  \
+      "csrr\tt0,vl\n"                                     \
+      "csrr\tt1,vtype\n"                                  \
+      "vsetvli\tx0,%0,e8,m8\n"                            \
+      "vle.v\tv8,(%1)\n"                                  \
+      "vsetvl\tx0,t0,t1\n"                                \
+      ::"r"(tailing_bytes), "r"(vd_offs)                  \
+      :"t0", "t1"                                         \
+   );
+
 /* 4.1.1 Segment unit-stride load */
 #define RVV0p7_Seg_Store_GuestState(nf, vm) \
    RVV0p7_Seg_LoadStore_GuestState(vse, nf, vm, vd)
 
+#define RVV0p7_Seg_Unit_Stride_Load_Memory(insn, vm)     \
+   RVV0p7_Seg_PreLoad_Init                               \
+   RVV0p7_Unit_Stride_Load_Store_Memory(insn, vm)
+
 #undef  RVV0p7_Load_Memory
 #undef  RVV0p7_Store_GuestState
-#define RVV0p7_Load_Memory        RVV0p7_Unit_Stride_Load_Store_Memory
+#define RVV0p7_Load_Memory        RVV0p7_Seg_Unit_Stride_Load_Memory
 #define RVV0p7_Store_GuestState   RVV0p7_Seg_Store_GuestState
 
 RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, b)
@@ -2596,8 +2614,12 @@ RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, w)
 RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, e)
 
 /* 4.2.1 Segment strided load */
+#define RVV0p7_Seg_Strided_Load_Memory(insn, vm)  \
+   RVV0p7_Seg_PreLoad_Init                        \
+   RVV0p7_Strided_Load_Store_Memory(insn, vm)
+
 #undef  RVV0p7_Load_Memory
-#define RVV0p7_Load_Memory        RVV0p7_Strided_Load_Store_Memory
+#define RVV0p7_Load_Memory        RVV0p7_Seg_Strided_Load_Memory
 
 RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, b)
 RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, h)
@@ -2617,8 +2639,12 @@ RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, w)
 RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, e)
 
 /* 4.3.1 Segment indexed load */
+#define RVV0p7_Seg_Indexed_Load_Memory(insn, vm)  \
+   RVV0p7_Seg_PreLoad_Init                        \
+   RVV0p7_Indexed_Load_Store_Memory(insn, vm)
+
 #undef  RVV0p7_Load_Memory
-#define RVV0p7_Load_Memory        RVV0p7_Indexed_Load_Store_Memory
+#define RVV0p7_Load_Memory        RVV0p7_Seg_Indexed_Load_Memory
 
 RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, b)
 RVV0p7_VSEG_NF_DEFS(RVV0p7_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, h)
