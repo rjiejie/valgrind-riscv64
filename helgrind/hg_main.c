@@ -4972,27 +4972,49 @@ IRSB* hg_instrument ( VgCallbackClosure* closure,
             if (d->mFx != Ifx_None) {
                /* This dirty helper accesses memory.  Collect the
                   details. */
-               tl_assert(d->mAddr != NULL);
+               tl_assert(d->mAddr != NULL || d->mAddrVec != NULL);
                tl_assert(d->mSize != 0);
                dataSize = d->mSize;
                if (d->mFx == Ifx_Read || d->mFx == Ifx_Modify) {
                   if (!inLDSO) {
-                     instrument_mem_access( 
-                        bbOut, d->mAddr, dataSize,
-                        False/*!isStore*/, fixupSP_needed,
-                        hWordTy_szB, goff_SP, goff_SP_s1,
-                        NULL/*no-guard*/
-                     );
+                     if (d->mAddr)
+                        instrument_mem_access( 
+                           bbOut, d->mAddr, dataSize,
+                           False/*!isStore*/, fixupSP_needed,
+                           hWordTy_szB, goff_SP, goff_SP_s1,
+                           NULL/*no-guard*/
+                        );
+                     else {
+                        for (UInt j = 0; j < d->mNAddrs; j++) {
+                           instrument_mem_access( 
+                              bbOut, d->mAddrVec[j], dataSize,
+                              False/*!isStore*/, fixupSP_needed,
+                              hWordTy_szB, goff_SP, goff_SP_s1,
+                              NULL/*no-guard*/
+                           );
+                        }
+                     }
                   }
                }
                if (d->mFx == Ifx_Write || d->mFx == Ifx_Modify) {
                   if (!inLDSO) {
-                     instrument_mem_access( 
-                        bbOut, d->mAddr, dataSize,
-                        True/*isStore*/, fixupSP_needed,
-                        hWordTy_szB, goff_SP, goff_SP_s1,
-                        NULL/*no-guard*/
-                     );
+                     if (d->mAddr)
+                        instrument_mem_access( 
+                           bbOut, d->mAddr, dataSize,
+                           True/*isStore*/, fixupSP_needed,
+                           hWordTy_szB, goff_SP, goff_SP_s1,
+                           NULL/*no-guard*/
+                        );
+                     else {
+                        for (UInt j = 0; j < d->mNAddrs; j++) {
+                           instrument_mem_access( 
+                              bbOut, d->mAddrVec[j], dataSize,
+                              True/*isStore*/, fixupSP_needed,
+                              hWordTy_szB, goff_SP, goff_SP_s1,
+                              NULL/*no-guard*/
+                           );
+                        }
+                     }
                   }
                }
             } else {
