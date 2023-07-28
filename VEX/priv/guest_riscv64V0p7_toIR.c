@@ -289,6 +289,9 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    if (rd != 0)
       putIReg64(irsb, rd, new_vl);
 
+   /* Set VSTART to 0 after vsetvl and vsetvli.  */
+   putVStart(irsb, mkU64(0));
+
    return True;
 }
 
