@@ -191,7 +191,7 @@
    assign(irsb, xrm,                                                           \
           binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(9)), mkU32(3)));   \
    args = mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),                 \
-                        mkU64(offsetVReg(temp)), mkU64(rs2),                   \
+                        mkU64(temp), mkU64(offsetVReg(rs2)),                   \
                         mkU64(offsetVReg(0)), mkexpr(xrm));
 
 #define GETC_VBinopSAT2_VX_VAR(insn, vtype)                                    \
