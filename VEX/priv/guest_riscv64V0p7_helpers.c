@@ -1517,6 +1517,7 @@ static ULong GETA_VUnopV(vmpopc)(VexGuestRISCV64State *st,
 }
 static ULong GETA_VUnopV_M(vmpopc)(VexGuestRISCV64State *st,
                                    ULong vs2, ULong rs1, ULong mask) {
+   mask += (ULong)st;
    RVV0p7_Binop_T3("vmpopc.m", vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_Binop_T3_body);
 }
 
@@ -1526,6 +1527,7 @@ static ULong GETA_VUnopV(vmfirst)(VexGuestRISCV64State *st,
 }
 static ULong GETA_VUnopV_M(vmfirst)(VexGuestRISCV64State *st,
                                     ULong vs2, ULong rs1, ULong mask) {
+   mask += (ULong)st;
    RVV0p7_Binop_T3("vmfirst.m", vs2, rs1, RVV0p7_Mask(), ",v0.t", , , RVV0p7_Binop_T3_body);
 }
 
