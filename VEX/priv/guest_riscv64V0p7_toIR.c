@@ -289,9 +289,6 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    if (rd != 0)
       putIReg64(irsb, rd, new_vl);
 
-   /* Set VSTART to 0 after vsetvl and vsetvli.  */
-   putVStart(irsb, mkU64(0));
-
    return True;
 }
 
@@ -1648,6 +1645,8 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
          if (GET_FUNCT3() == RV64_SOPC_OPCFG) {
             ok = dis_RV64V0p7_cfg(dres, irsb, insn);
             /* There is a potential vector CSR changing, we stop here */
+            if (extract_vstart(guest_VFLAG))
+               goto ResetVstart;
             goto ExitBB;
          }
          ok = dis_RV64V0p7_arith(dres, irsb, insn);
@@ -1671,10 +1670,9 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
 
    /* Reset vstart if necessary and stop the translation if reset occurs. */
    if (extract_vstart(guest_VFLAG) && GET_OPCODE() != OPC_SYSTEM) {
-      putVStart(irsb, mkU64(0));
       /* Reset occurs, terminate translation. As cfg instructions will
          directly return, there is no need to handle it. */
-      goto ExitBB;
+      goto ResetVstart;
    }
 
    if (extract_lmul_0p7(guest_VFLAG) * nf > 4) {
@@ -1688,6 +1686,8 @@ static Bool dis_RV64V0p7(/*MB_OUT*/ DisResult* dres,
 
    return ok;
 
+ResetVstart:
+   putVStart(irsb, mkU64(0));
 ExitBB:
    putPC(irsb, mkU64(guest_pc_curr_instr + 4));
    dres->whatNext    = Dis_StopHere;
