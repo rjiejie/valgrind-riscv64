@@ -23,34 +23,55 @@ The project was presented at [FOSDEM 2022][FOSDEM talk].
 
 Current focus is on functionality and correctness.
 
-The following tables summarize the basic state as of 2022-12-04.
+The following tables summarize the basic state as of 2023-08-04.
 
-Enabled RV64GC instructions:
+The following ISA base and extensions are currently supported:
 
-| Name         | Description                       | #Enabled/#Instrs |
-| ------------ | --------------------------------- | ---------------: |
-| RV64I        | Base instruction set              |            52/52 |
-| RV64M        | Integer multiplication & division |            12/13 |
-| RV64A        | Atomic                            |            22/22 |
-| RV64F        | Single-precision floating-point   |            30/30 |
-| RV64D        | Double-precision floating-point   |            32/32 |
-| RV64Zicsr    | Control & status register         |            2/6   |
-| RV64Zifencei | Instruction-fetch fence           |            0/1   |
-| RV64C        | Compressed                        |            36/37 |
+| Name         | Description                       | #Instrs | Notes    |
+| ------------ | --------------------------------- | ------- | -------- |
+| RV64I        | Base instruction set              |   52/52 |          |
+| RV64M        | Integer multiplication & division |   12/13 | (1)      |
+| RV64A        | Atomic                            |   22/22 | (2)      |
+| RV64F        | Single-precision floating-point   |   30/30 | (3)      |
+| RV64D        | Double-precision floating-point   |   32/32 |          |
+| RV64Zicsr    | Control & status register         |     2/6 | (4), (5) |
+| RV64Zifencei | Instruction-fetch fence           |     0/1 | (6)      |
+| RV64C        | Compressed                        |   37/37 |          |
+| RV64Zfh      | Half-precision floating-point     |   ALL   |          |
+| RV64Xthead   | T-THEAD vendor extension for RV64G|   ALL   | (7)      |
+| RV64V0p7     | Vector 0.7.1                      |   ALL   | (8)      |
+
+Notes:
+
+(1) MULHSU is not recognized.
+
+(2) LR and SC use the VEX "fallback" method which suffers from the ABA problem.
+
+(3) Operations do not check if the input operands are correctly NaN-boxed.
+
+(4) CSRRC, CSRRWI, CSRRSI and CSRRCI are not recognized.
+
+(5) Only registers fflags, frm and fcsr are accepted.
+
+(6) FENCE.I is not recognized.
+
+(7) See https://github.com/T-head-Semi/thead-extension-spec
+
+(8) See https://github.com/riscv/riscv-v-spec/releases/tag/0.7.1
 
 Test results:
 
 | Test set   | #Failed/#Total |
 | ---------- | -------------: |
-| Memcheck   |         10/219 |
-| Nulgrind   |          1/140 |
+| Memcheck   |         0/219 |
+| Nulgrind   |          0/140 |
 | Cachegrind |            0/7 |
 | Callgrind  |           0/15 |
 | DHAT       |            0/8 |
-| DRD        |          4/130 |
-| Helgrind   |           4/55 |
-| Massif     |           2/37 |
-| GDBserver  |           2/25 |
+| DRD        |          0/130 |
+| Helgrind   |           0/55 |
+| Massif     |           0/37 |
+| GDBserver  |           0/25 |
 
 ## License
 
