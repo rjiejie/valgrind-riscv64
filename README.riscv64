@@ -17,6 +17,9 @@ The following ISA base and extensions are currently supported:
 | RV64Zicsr    | Control & status register         |     2/6 | (4), (5) |
 | RV64Zifencei | Instruction-fetch fence           |     0/1 | (6)      |
 | RV64C        | Compressed                        |   37/37 |          |
+| RV64Zfh      | Half-precision floating-point     |   ALL   |          |
+| RV64Xthead   | T-THEAD vendor extension for RV64G|   ALL   | (7)      |
+| RV64V0p7     | Vector 0.7.1                      |   ALL   | (8)      |
 
 Notes:
 (1) MULHSU is not recognized.
@@ -25,6 +28,8 @@ Notes:
 (4) CSRRC, CSRRWI, CSRRSI and CSRRCI are not recognized.
 (5) Only registers fflags, frm and fcsr are accepted.
 (6) FENCE.I is not recognized.
+(7) See https://github.com/T-head-Semi/thead-extension-spec
+(8) See https://github.com/riscv/riscv-v-spec/releases/tag/0.7.1
 
 
 Implementation tidying-up/TODO notes
