@@ -232,6 +232,74 @@ static const HChar* nameVCSR(UInt csr) {
 
 #include "guest_riscv64V0p7_toIR.c"
 
+static Bool dis_RV64V_csr(/*MB_OUT*/ DisResult* dres,
+                          /*OUT*/ IRSB* irsb,
+                          UInt insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V_cfg(/*MB_OUT*/ DisResult* dres,
+                          /*OUT*/ IRSB*         irsb,
+                          UInt                  insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
+                           /*OUT*/ IRSB*         irsb,
+                           UInt                  insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V_arith_OPI(/*MB_OUT*/ DisResult* dres,
+                                /*OUT*/ IRSB*         irsb,
+                                UInt                  insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V_arith_OPM(/*MB_OUT*/ DisResult* dres,
+                                /*OUT*/ IRSB*         irsb,
+                                UInt                  insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V_arith_OPF(/*MB_OUT*/ DisResult* dres,
+                                /*OUT*/ IRSB*         irsb,
+                                UInt                  insn)
+{
+   return False;
+}
+
+static Bool dis_RV64V_arith(/*MB_OUT*/ DisResult* dres,
+                            /*OUT*/ IRSB*         irsb,
+                            UInt                  insn)
+{
+   Bool ok = False;
+
+   switch (GET_FUNCT3()) {
+      case RV64_SOPC_OPIVV:
+      case RV64_SOPC_OPIVX:
+      case RV64_SOPC_OPIVI:
+         ok = dis_RV64V_arith_OPI(dres, irsb, insn);
+         break;
+      case RV64_SOPC_OPMVV:
+      case RV64_SOPC_OPMVX:
+         ok = dis_RV64V_arith_OPM(dres, irsb, insn);
+         break;
+      case RV64_SOPC_OPFVV:
+      case RV64_SOPC_OPFVF:
+         ok = dis_RV64V_arith_OPF(dres, irsb, insn);
+         break;
+      default:
+         vassert(0);
+   }
+   return ok;
+}
+
 static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
                       /*OUT*/ IRSB*         irsb,
                       UInt                  insn,
@@ -242,7 +310,63 @@ static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
 
    if (dis_RV64V0p7(dres, irsb, insn, guest_pc_curr_instr))
       return True;
-   return False;
+
+   Bool ok = False;
+   UInt nf = 1;
+
+   switch (GET_OPCODE()) {
+      case OPC_OP_V:
+         if (GET_FUNCT3() == RV64_SOPC_OPCFG) {
+            ok = dis_RV64V_cfg(dres, irsb, insn);
+            /* There is a potential vector CSR changing, we stop here */
+            if (extract_vstart(guest_VFLAG))
+               goto ResetVstart;
+            goto ExitBB;
+         }
+         ok = dis_RV64V_arith(dres, irsb, insn);
+         break;
+      case OPC_LOAD_FP:
+      case OPC_STORE_FP:
+         ok = dis_RV64V_ldst(dres, irsb, insn);
+         nf += GET_NF();
+         break;
+      case OPC_SYSTEM:
+         ok = dis_RV64V_csr(dres, irsb, insn);
+         break;
+      default:
+         break;
+   }
+   if (!ok)
+      return ok;
+
+   if (GET_OPCODE() == OPC_SYSTEM)
+      goto ExitBB;
+
+   /* Reset vstart if necessary and stop the translation if reset occurs. */
+   if (extract_vstart(guest_VFLAG) && GET_OPCODE() != OPC_SYSTEM) {
+      /* Reset occurs, terminate translation. As cfg instructions will
+         directly return, there is no need to handle it. */
+      goto ResetVstart;
+   }
+
+   if (extract_lmul(guest_VFLAG) * nf > 4) {
+      /* FIXME:
+         LMUL > 4 will consume more TEMPORARY and need more spilled space, it will cause
+         two FATALs:
+         a, VEX temporary storage exhausted.
+         b, N_SPILL64S is too low in VEX. */
+      goto ExitBB;
+   }
+
+   return ok;
+
+ResetVstart:
+   putVStart(irsb, mkU64(0));
+ExitBB:
+   putPC(irsb, mkU64(guest_pc_curr_instr + 4));
+   dres->whatNext    = Dis_StopHere;
+   dres->jk_StopHere = Ijk_ExitBB;
+   return ok;
 }
 
 /*--------------------------------------------------------------------*/
