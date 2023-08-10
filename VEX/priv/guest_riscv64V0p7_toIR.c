@@ -180,6 +180,15 @@ static Bool dis_RV64V0p7_csr(/*MB_OUT*/ DisResult* dres,
                putIReg64(irsb, rd, getVType());
             return True;
          }
+         case 0xC22: {
+            /* VLENB: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, mkU64(host_VLENB));
+            return True;
+         }
          default:
             return False;
       }
@@ -241,6 +250,15 @@ static Bool dis_RV64V0p7_csr(/*MB_OUT*/ DisResult* dres,
                return False;
             if (rd != 0)
                putIReg64(irsb, rd, getVType());
+            return True;
+         }
+         case 0xC22: {
+            /* VLENB: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, mkU64(host_VLENB));
             return True;
          }
          default:
