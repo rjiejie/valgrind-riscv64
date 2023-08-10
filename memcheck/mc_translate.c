@@ -2105,6 +2105,18 @@ IRAtom* mkLazy4 ( MCEnv* mce, IRType finalVty,
       return at;
    }
 
+   if (t1 == Ity_I32 && t2 == Ity_I16 && t3 == Ity_I16 && t4 == Ity_I16
+       && finalVty == Ity_I16) {
+      if (0) VG_(printf)("mkLazy4: I32 x I16 x I16 x I16 -> I16\n");
+      at = mkPCastTo(mce, Ity_I16, va1);
+      /* Now fold in 2nd, 3rd, 4th args. */
+      at = mkUifU(mce, Ity_I16, at, va2);
+      at = mkUifU(mce, Ity_I16, at, va3);
+      at = mkUifU(mce, Ity_I16, at, va4);
+      at = mkPCastTo(mce, Ity_I16, at);
+      return at;
+   }
+
    if (t1 == Ity_I32 && t2 == Ity_I8 && t3 == Ity_I8 && t4 == Ity_I8
        && finalVty == Ity_I32) {
       if (0) VG_(printf)("mkLazy4: I32 x I8 x I8 x I8 -> I32\n");
@@ -3321,6 +3333,11 @@ IRAtom* expr2vbits_Qop ( MCEnv* mce,
          /* I32(rm) x F32 x F32 x F32 -> F32 */
          return mkLazy4(mce, Ity_I32, vatom1, vatom2, vatom3, vatom4);
 
+      case Iop_MAddF16:
+      case Iop_MSubF16:
+         /* I32(rm) x F16 x F16 x F16 -> F16 */
+         return mkLazy4(mce, Ity_I16, vatom1, vatom2, vatom3, vatom4);
+
       case Iop_MAddF128:
       case Iop_MSubF128:
       case Iop_NegMAddF128:
@@ -3408,6 +3425,8 @@ IRAtom* expr2vbits_Triop ( MCEnv* mce,
          return mkLazy3(mce, Ity_I32, vatom1, vatom2, vatom3);
       case Iop_AddF16:
       case Iop_SubF16:
+      case Iop_MulF16:
+      case Iop_DivF16:
          /* I32(rm) x F16 x F16 -> I16 */
          return mkLazy3(mce, Ity_I16, vatom1, vatom2, vatom3);
       case Iop_SignificanceRoundD64:
@@ -4395,6 +4414,16 @@ IRAtom* expr2vbits_Binop ( MCEnv* mce,
          /* I32(rm) x F32 -> I64 */
          return mkLazy2(mce, Ity_I64, vatom1, vatom2);
 
+      case Iop_F16toI64S:
+      case Iop_F16toI64U:
+         /* I32(rm) x F16 -> I64 */
+         return mkLazy2(mce, Ity_I64, vatom1, vatom2);
+
+      case Iop_F16toI32S:
+      case Iop_F16toI32U:
+         /* I32(rm) x F16 -> I32 */
+         return mkLazy2(mce, Ity_I32, vatom1, vatom2);
+
       case Iop_I64StoF32:
          /* I32(rm) x I64 -> F32 */
          return mkLazy2(mce, Ity_I32, vatom1, vatom2);
@@ -4529,6 +4558,10 @@ IRAtom* expr2vbits_Binop ( MCEnv* mce,
          /* First arg is I32 (rounding mode), second is D64 (data). */
          return mkLazy2(mce, Ity_I32, vatom1, vatom2);
 
+      case Iop_I64StoF16:
+      case Iop_I64UtoF16:
+      case Iop_I32StoF16:
+      case Iop_I32UtoF16:
       case Iop_F64toI16S:
          /* First arg is I32 (rounding mode), second is F64 (data). */
          return mkLazy2(mce, Ity_I16, vatom1, vatom2);
@@ -5140,6 +5173,7 @@ IRExpr* expr2vbits_Unop ( MCEnv* mce, IROp op, IRAtom* atom )
          // FIXME JRS 2018-Nov-15.  This is surely not correct!
          return vatom;
 
+      case Iop_ReinterpI16asF16:
       case Iop_ReinterpF16asI16:
          return assignNew('V', mce, Ity_I16, vatom);
 

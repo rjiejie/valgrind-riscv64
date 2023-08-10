@@ -251,7 +251,7 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
 
       IRTemp rmEncd, rmIR;
       mk_get_rounding_mode(irsb, &rmEncd, &rmIR, rm);
-      IRExpr* eR1 = getFReg16(rs1);
+      IRExpr* eR1;
       IRExpr* eRM = mkexpr(rmIR);
 
       const HChar* hName = NULL;
@@ -260,20 +260,24 @@ static Bool dis_RV64Zfh(/*MB_OUT*/ DisResult* dres,
       switch (opc) {
          case RV64_SOPC_FCVT_S_H:
             opcodestr = "fcvt.s.h";
+            eR1 = getFReg16(rs1);
             putFReg32(irsb, rd, unop(Iop_F16toF32, eR1));
             break;
          case RV64_SOPC_FCVT_D_H:
             opcodestr = "fcvt.d.h";
+            eR1 = getFReg16(rs1);
             putFReg64(irsb, rd, unop(Iop_F16toF64, eR1));
             break;
          case RV64_SOPC_FCVT_H_S:
             opcodestr = "fcvt.h.s";
+            eR1 = getFReg32(rs1);
             putFReg16(irsb, rd, binop(Iop_F32toF16, eRM, eR1));
             hName  = "riscv64g_calculate_fflags_fcvt_h_s";
             helper = riscv64g_calculate_fflags_fcvt_h_s;
             break;
          case RV64_SOPC_FCVT_H_D:
             opcodestr = "fcvt.h.d";
+            eR1 = getFReg64(rs1);
             putFReg16(irsb, rd, binop(Iop_F64toF16, eRM, eR1));
             hName  = "riscv64g_calculate_fflags_fcvt_h_d";
             helper = riscv64g_calculate_fflags_fcvt_h_d;
