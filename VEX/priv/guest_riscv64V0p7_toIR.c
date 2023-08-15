@@ -827,204 +827,204 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
        * Vector Single-Width Integer Add and Subtract
        */
       case 0b000000:
-         GETC_VBinopOPI(vadd);
+         GETC_VBinopOPI(vadd, V, X, I);
          return True;
       case 0b000010:
-         GETC_VBinopOPI_VX(vsub);
+         GETC_VBinopOPI(vsub, V, X, NIL);
          return True;
       case 0b000011:
-         GETC_VBinopOPI_XI(vrsub);
+         GETC_VBinopOPI(vrsub, NIL, X, I);
          return True;
       /*
        * Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions
        */
       case 0b010000:
-         GETC_VBinopOPI_VAR(vadc, GETV_VopMask);
+         GETC_VBinopOPI_VAR(vadc, V, X, I, GETV_VopMask);
          return True;
       case 0b010001:
-         GETC_VBinopOPI_VAR(vmadc, GETV_VopMask);
+         GETC_VBinopOPI_VAR(vmadc, V, X, I, GETV_VopMask);
          return True;
       case 0b010010:
-         GETC_VBinopOPI_VX_VAR(vsbc, GETV_VopMask);
+         GETC_VBinopOPI_VAR(vsbc, V, X, NIL, GETV_VopMask);
          return True;
       case 0b010011:
-         GETC_VBinopOPI_VX_VAR(vmsbc, GETV_VopMask);
+         GETC_VBinopOPI_VAR(vmsbc, V, X, NIL, GETV_VopMask);
          return True;
       /*
        * Vector Bitwise Logical Instructions
        */
       case 0b001001:
-         GETC_VBinopOPI(vand);
+         GETC_VBinopOPI(vand, V, X, I);
          return True;
       case 0b001010:
-         GETC_VBinopOPI(vor);
+         GETC_VBinopOPI(vor, V, X, I);
          return True;
       case 0b001011:
-         GETC_VBinopOPI(vxor);
+         GETC_VBinopOPI(vxor, V, X, I);
          return True;
       /*
        * Vector Single-Width Bit Shift Instructions
        */
       case 0b100101:
-         GETC_VBinopOPI(vsll);
+         GETC_VBinopOPI(vsll, V, X, I);
          return True;
       case 0b101000:
-         GETC_VBinopOPI(vsrl);
+         GETC_VBinopOPI(vsrl, V, X, I);
          return True;
       case 0b101001:
-         GETC_VBinopOPI(vsra);
+         GETC_VBinopOPI(vsra, V, X, I);
          return True;
       /*
        * Vector Narrowing Integer Right Shift Instructions
        */
       case 0b101100:
-         GETC_VBinopOPI_VAR(vnsrl, GETV_VopWidenS2);
+         GETC_VBinopOPI_VAR(vnsrl, V, X, I, GETV_VopWidenS2);
          return True;
       case 0b101101:
-         GETC_VBinopOPI_VAR(vnsra, GETV_VopWidenS2);
+         GETC_VBinopOPI_VAR(vnsra, V, X, I, GETV_VopWidenS2);
          return True;
       /*
        * Vector Integer Comparison Instructions
        */
       case 0b011000:
-         GETC_VBinopOPI_VAR(vmseq, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmseq, V, X, I, GETV_VopM1D);
          return True;
       case 0b011001:
-         GETC_VBinopOPI_VAR(vmsne, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmsne, V, X, I, GETV_VopM1D);
          return True;
       case 0b011010:
-         GETC_VBinopOPI_VX_VAR(vmsltu, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmsltu, V, X, NIL, GETV_VopM1D);
          return True;
       case 0b011011:
-         GETC_VBinopOPI_VX_VAR(vmslt, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmslt, V, X, NIL, GETV_VopM1D);
          return True;
       case 0b011100:
-         GETC_VBinopOPI_VAR(vmsleu, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmsleu, V, X, I, GETV_VopM1D);
          return True;
       case 0b011101:
-         GETC_VBinopOPI_VAR(vmsle, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmsle, V, X, I, GETV_VopM1D);
          return True;
       case 0b011110:
-         GETC_VBinopOPI_XI_VAR(vmsgtu, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmsgtu, NIL, X, I, GETV_VopM1D);
          return True;
       case 0b011111:
-         GETC_VBinopOPI_XI_VAR(vmsgt, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vmsgt, NIL, X, I, GETV_VopM1D);
          return True;
       /*
        * Vector Integer Min/Max Instructions
        */
       case 0b000100:
-         GETC_VBinopOPI_VX(vminu);
+         GETC_VBinopOPI(vminu, V, X, NIL);
          return True;
       case 0b000101:
-         GETC_VBinopOPI_VX(vmin);
+         GETC_VBinopOPI(vmin, V, X, NIL);
          return True;
       case 0b000110:
-         GETC_VBinopOPI_VX(vmaxu);
+         GETC_VBinopOPI(vmaxu, V, X, NIL);
          return True;
       case 0b000111:
-         GETC_VBinopOPI_VX(vmax);
+         GETC_VBinopOPI(vmax, V, X, NIL);
          return True;
       /*
        * Vector Integer Merge and Move Instructions
        */
       case 0b010111:
          if (!mask)
-            GETC_VBinopOPI(vmerge);
+            GETC_VBinopOPI(vmerge, V, X, I);
          else {
             rs2 = rs1;
-            GETC_VUnopOPI(vmv);
+            GETC_VUnopOPI(vmv, V, X, I);
          }
          return True;
       /*
        * Vector Single-Width Saturating Add and Subtract
        */
       case 0b100000:
-         GETC_VBinopSAT(vsaddu);
+         GETC_VBinopSAT(vsaddu, V, X, I);
          return True;
       case 0b100001:
-         GETC_VBinopSAT(vsadd);
+         GETC_VBinopSAT(vsadd, V, X, I);
          return True;
       case 0b100010:
-         GETC_VBinopSAT_VX(vssubu);
+         GETC_VBinopSAT(vssubu, V, X, NIL);
          return True;
       case 0b100011:
-         GETC_VBinopSAT_VX(vssub);
+         GETC_VBinopSAT(vssub, V, X, NIL);
          return True;
       /*
        * Vector Single-Width Averaging Add and Subtract
        */
       case 0b100100:
-         GETC_VBinopSAT(vaadd);
+         GETC_VBinopSAT(vaadd, V, X, I);
          return True;
       case 0b100110:
-         GETC_VBinopSAT_VX(vasub);
+         GETC_VBinopSAT(vasub, V, X, NIL);
          return True;
       /*
        * Vector Single-Width Fractional Multiply with Rounding and Saturation
        */
       case 0b100111:
-         GETC_VBinopSAT_VX(vsmul);
+         GETC_VBinopSAT(vsmul, V, X, NIL);
          return True;
       /*
        * Vector Widening Saturating Scaled Multiply-Add
        */
       case 0b111100:
-         GETC_VBinopSAT2_VX_VAR(vwsmaccu,  GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopSAT_VAR(vwsmaccu,  V, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111101:
-         GETC_VBinopSAT2_VX_VAR(vwsmacc,   GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopSAT_VAR(vwsmacc,   V, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111110:
-         GETC_VBinopSAT2_VX_VAR(vwsmaccsu, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopSAT_VAR(vwsmaccsu, V, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111111:
-         GETC_VBinopSAT2_X_VAR(vwsmaccus,  GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopSAT_VAR(vwsmaccus, NIL, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       /*
        * Vector Single-Width Scaling Shift Instructions
        */
       case 0b101010:
-         GETC_VBinopSAT(vssrl);
+         GETC_VBinopSAT(vssrl, V, X, I);
          return True;
       case 0b101011:
-         GETC_VBinopSAT(vssra);
+         GETC_VBinopSAT(vssra, V, X, I);
          return True;
       /*
        * Vector Narrowing Fixed-Point Clip Instructions
        */
       case 0b101110:
-         GETC_VBinopSAT_VAR(vnclipu, GETV_VopWidenS2);
+         GETC_VBinopSAT_VAR(vnclipu, V, X, I, GETV_VopWidenS2);
          return True;
       case 0b101111:
-         GETC_VBinopSAT_VAR(vnclip, GETV_VopWidenS2);
+         GETC_VBinopSAT_VAR(vnclip, V, X, I, GETV_VopWidenS2);
          return True;
       /*
        * Vector Slideup Instructions
        */
       case 0b001110:
-         GETC_VBinopOPI_XI(vslideup);
+         GETC_VBinopOPI(vslideup, NIL, X, I);
          return True;
       /*
        * Vector Slidedown Instructions
        */
       case 0b001111:
-         GETC_VBinopOPI_XI(vslidedown);
+         GETC_VBinopOPI(vslidedown, NIL, X, I);
          return True;
       /*
        * Vector Register Gather Instruction
        */
       case 0b001100:
-         GETC_VBinopOPI(vrgather);
+         GETC_VBinopOPI(vrgather, V, X, I);
          return True;
       /*
        * Vector Widening Integer Reduction Instructions
        */
       case 0b110000:
-         GETC_VBinopOPI_V_VAR(vwredsumu, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vwredsumu, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b110001:
-         GETC_VBinopOPI_V_VAR(vwredsum, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vwredsum, V, NIL, NIL, GETV_VopM1D);
          return True;
       default:
          break;
@@ -1054,100 +1054,100 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
        * Vector Widening Integer Add/Subtract
        */
       case 0b110000:
-         GETC_VBinopOPI_VX_VAR(vwaddu, GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwaddu, V, X, NIL, GETV_VopWidenD);
          return True;
       case 0b110010:
-         GETC_VBinopOPI_VX_VAR(vwsubu, GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwsubu, V, X, NIL, GETV_VopWidenD);
          return True;
       case 0b110001:
-         GETC_VBinopOPI_VX_VAR(vwadd, GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwadd, V, X, NIL, GETV_VopWidenD);
          return True;
       case 0b110011:
-         GETC_VBinopOPI_VX_VAR(vwsub, GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwsub, V, X, NIL, GETV_VopWidenD);
          return True;
       case 0b110100:
-         GETC_VBinopOPI_VX_VAR(vwadduw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPI_VAR(vwadduw, V, X, NIL, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       case 0b110110:
-         GETC_VBinopOPI_VX_VAR(vwsubuw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPI_VAR(vwsubuw, V, X, NIL, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       case 0b110101:
-         GETC_VBinopOPI_VX_VAR(vwaddw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPI_VAR(vwaddw, V, X, NIL, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       case 0b110111:
-         GETC_VBinopOPI_VX_VAR(vwsubw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPI_VAR(vwsubw, V, X, NIL, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       /*
        * Vector Single-Width Integer Multiply Instructions
        */
       case 0b100101:
-         GETC_VBinopOPI_VX(vmul);
+         GETC_VBinopOPI(vmul, V, X, NIL);
          return True;
       case 0b100111:
-         GETC_VBinopOPI_VX(vmulh);
+         GETC_VBinopOPI(vmulh, V, X, NIL);
          return True;
       case 0b100100:
-         GETC_VBinopOPI_VX(vmulhu);
+         GETC_VBinopOPI(vmulhu, V, X, NIL);
          return True;
       case 0b100110:
-         GETC_VBinopOPI_VX(vmulhsu);
+         GETC_VBinopOPI(vmulhsu, V, X, NIL);
          return True;
       /*
        * Vector Integer Divide Instructions
        */
       case 0b100000:
-         GETC_VBinopOPI_VX(vdivu);
+         GETC_VBinopOPI(vdivu, V, X, NIL);
          return True;
       case 0b100001:
-         GETC_VBinopOPI_VX(vdiv);
+         GETC_VBinopOPI(vdiv, V, X, NIL);
          return True;
       case 0b100010:
-         GETC_VBinopOPI_VX(vremu);
+         GETC_VBinopOPI(vremu, V, X, NIL);
          return True;
       case 0b100011:
-         GETC_VBinopOPI_VX(vrem);
+         GETC_VBinopOPI(vrem, V, X, NIL);
          return True;
       /*
        * Vector Widening Integer Multiply Instructions
        */
       case 0b111011:
-         GETC_VBinopOPI_VX_VAR(vwmul, GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwmul, V, X, NIL, GETV_VopWidenD);
          return True;
       case 0b111000:
-         GETC_VBinopOPI_VX_VAR(vwmulu, GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwmulu, V, X, NIL, GETV_VopWidenD);
          return True;
       case 0b111010:
-         GETC_VBinopOPI_VX_VAR(vwmulsu, GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwmulsu, V, X, NIL, GETV_VopWidenD);
          return True;
       /*
        * Vector Single-Width Integer Multiply-Add Instructions
        */
       case 0b101101:
-         GETC_VBinopOPI_VX_VAR(vmacc, GETV_VopAccD);
+         GETC_VBinopOPI_VAR(vmacc, V, X, NIL, GETV_VopAccD);
          return True;
       case 0b101111:
-         GETC_VBinopOPI_VX_VAR(vnmsac, GETV_VopAccD);
+         GETC_VBinopOPI_VAR(vnmsac, V, X, NIL, GETV_VopAccD);
          return True;
       case 0b101001:
-         GETC_VBinopOPI_VX_VAR(vmadd, GETV_VopAccD);
+         GETC_VBinopOPI_VAR(vmadd, V, X, NIL, GETV_VopAccD);
          return True;
       case 0b101011:
-         GETC_VBinopOPI_VX_VAR(vnmsub, GETV_VopAccD);
+         GETC_VBinopOPI_VAR(vnmsub, V, X, NIL, GETV_VopAccD);
          return True;
       /*
        * Vector Widening Integer Multiply-Add Instructions
        */
       case 0b111100:
-         GETC_VBinopOPI_VX_VAR(vwmaccu, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwmaccu, V, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111101:
-         GETC_VBinopOPI_VX_VAR(vwmacc, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwmacc, V, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111110:
-         GETC_VBinopOPI_VX_VAR(vwmaccsu, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwmaccsu, V, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111111:
-         GETC_VBinopOPI_X_VAR(vwmaccus, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPI_VAR(vwmaccus, NIL, X, NIL, GETV_VopAccD | GETV_VopWidenD);
          return True;
       /*
        * Integer Extract Instruction
@@ -1156,7 +1156,7 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
          fName = GETN_VBinopVX(vext);
          fAddr = GETA_VBinopVX(vext);
 
-         args = mkIRExprVec_3(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(offsetIReg64(rs1)));
+         GETR_VBinopOPI()
          d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);
 
          vex_bzero(&d->fxState, sizeof(d->fxState));
@@ -1177,79 +1177,79 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
        * Integer Scalar Move Instruction
        */
       case 0b001101:
-         GETC_VUnopOPI_X_VAR(vmvs, GETV_VopM1D);
+         GETC_VUnopOPI_VAR(vmvs, NIL, X, NIL, GETV_VopM1D);
          return True;
       /*
        * Vector Slide1up Instructions
        */
       case 0b001110:
-         GETC_VBinopOPI_X(vslide1up);
+         GETC_VBinopOPI(vslide1up, NIL, X, NIL);
          return True;
       /*
        * Vector Slide1down Instructions
        */
       case 0b001111:
-         GETC_VBinopOPI_X(vslide1down);
+         GETC_VBinopOPI(vslide1down, NIL, X, NIL);
          return True;
       /*
        * Vector Compress Instruction
        */
       case 0b010111:
-         GETC_VBinopOPI_V(vcompress);
+         GETC_VBinopOPI(vcompress, V, NIL, NIL);
          return True;
       /*
        * Vector Single-Width Integer Reduction Instructions
        */
       case 0b000000:
-         GETC_VBinopOPI_V_VAR(vredsum, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredsum, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b000110:
-         GETC_VBinopOPI_V_VAR(vredmaxu, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredmaxu, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b000111:
-         GETC_VBinopOPI_V_VAR(vredmax, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredmax, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b000100:
-         GETC_VBinopOPI_V_VAR(vredminu, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredminu, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b000101:
-         GETC_VBinopOPI_V_VAR(vredmin, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredmin, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b000001:
-         GETC_VBinopOPI_V_VAR(vredand, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredand, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b000010:
-         GETC_VBinopOPI_V_VAR(vredor, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredor, V, NIL, NIL, GETV_VopM1D);
          return True;
       case 0b000011:
-         GETC_VBinopOPI_V_VAR(vredxor, GETV_VopM1D);
+         GETC_VBinopOPI_VAR(vredxor, V, NIL, NIL, GETV_VopM1D);
          return True;
       /*
        * Vector Mask-Register Logical Instructions
        */
       case 0b011001:
-         GETC_VBinopOPI_V_VAR(vmand, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmand, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       case 0b011101:
-         GETC_VBinopOPI_V_VAR(vmnand, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmnand, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       case 0b011000:
-         GETC_VBinopOPI_V_VAR(vmandnot, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmandnot, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       case 0b011011:
-         GETC_VBinopOPI_V_VAR(vmxor, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmxor, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       case 0b011010:
-         GETC_VBinopOPI_V_VAR(vmor, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmor, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       case 0b011110:
-         GETC_VBinopOPI_V_VAR(vmnor, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmnor, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       case 0b011100:
-         GETC_VBinopOPI_V_VAR(vmornot, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmornot, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       case 0b011111:
-         GETC_VBinopOPI_V_VAR(vmxnor, GETV_VopM1D | GETV_VopM1S);
+         GETC_VBinopOPI_VAR(vmxnor, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
          return True;
       /*
        * Vector mask population count vmpopc
@@ -1268,8 +1268,7 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
             fAddr = mask ? GETA_VUnopV(vmfirst) : GETA_VUnopV_M(vmfirst);
          }
 
-         args = mkIRExprVec_4(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(0),
-                              mkU64(offsetVReg(0)));
+         GETR_VUnopOPI()
          d    = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
          vex_bzero(&d->fxState, sizeof(d->fxState));
@@ -1295,31 +1294,31 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
              * vmsbf.m set-before-first mask bit
              */
             case 0b00001:
-               GETC_VUnopOPI_V_VAR(vmsbf, GETV_VopM1D | GETV_VopM1S);
+               GETC_VUnopOPI_VAR(vmsbf, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
                return True;
             /*
              * vmsif.m set-including-first mask bit
              */
             case 0b00011:
-               GETC_VUnopOPI_V_VAR(vmsif, GETV_VopM1D | GETV_VopM1S);
+               GETC_VUnopOPI_VAR(vmsif, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
                return True;
             /*
              * vmsof.m set-only-first mask bit
              */
             case 0b00010:
-               GETC_VUnopOPI_V_VAR(vmsof, GETV_VopM1D | GETV_VopM1S);
+               GETC_VUnopOPI_VAR(vmsof, V, NIL, NIL, GETV_VopM1D | GETV_VopM1S);
                return True;
             /*
              * Vector Iota Instruction
              */
             case 0b10000:
-               GETC_VUnopOPI_V_VAR(viota, GETV_VopM1S);
+               GETC_VUnopOPI_VAR(viota, V, NIL, NIL, GETV_VopM1S);
                return True;
             /*
              * Vector Element Index Instruction
              */
             case 0b10001:
-               GETC_VUnopOPI_V(vid);
+               GETC_VUnopOPI(vid, V, NIL, NIL);
                return True;
             default:
                break;
@@ -1332,6 +1331,12 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
    return False;
 }
 
+#pragma push_macro("RVV_REGO")
+#pragma push_macro("RVV_REGN")
+#undef  RVV_REGO
+#undef  RVV_REGN
+#define RVV_REGO offsetFReg
+#define RVV_REGN nameFReg
 static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
                                    /*OUT*/ IRSB*         irsb,
                                    UInt                  insn)
@@ -1354,89 +1359,89 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        * Vector Single-Width Floating-Point Add/Subtract Instructions
        */
       case 0b000000:
-         GETC_VBinopOPF(vfadd);
+         GETC_VBinopOPF(vfadd, V, F);
          return True;
       case 0b000010:
-         GETC_VBinopOPF(vfsub);
+         GETC_VBinopOPF(vfsub, V, F);
          return True;
       case 0b100111:
-         GETC_VBinopOPF_F(vfrsub);
+         GETC_VBinopOPF(vfrsub, NIL, F);
          return True;
 
       /*
        * Vector Widening Floating-Point Add/Subtract Instructions
        */
       case 0b110000:
-         GETC_VBinopOPF_VAR(vfwadd, GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwadd, V, F, GETV_VopWidenD);
          return True;
       case 0b110010:
-         GETC_VBinopOPF_VAR(vfwsub, GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwsub, V, F, GETV_VopWidenD);
          return True;
       case 0b110100:
-         GETC_VBinopOPF_VAR(vfwaddw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPF_VAR(vfwaddw, V, F, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       case 0b110110:
-         GETC_VBinopOPF_VAR(vfwsubw, GETV_VopWidenD | GETV_VopWidenS2);
+         GETC_VBinopOPF_VAR(vfwsubw, V, F, GETV_VopWidenD | GETV_VopWidenS2);
          return True;
       /*
        * Vector Single-Width Floating-Point Multiply/Divide Instructions
        */
       case 0b100100:
-         GETC_VBinopOPF(vfmul);
+         GETC_VBinopOPF(vfmul, V, F);
          return True;
       case 0b100000:
-         GETC_VBinopOPF(vfdiv);
+         GETC_VBinopOPF(vfdiv, V, F);
          return True;
       case 0b100001:
-         GETC_VBinopOPF_F(vfrdiv);
+         GETC_VBinopOPF(vfrdiv, NIL, F);
          return True;
       /*
        * Vector Widening Floating-Point Multiply
        */
       case 0b111000:
-         GETC_VBinopOPF_VAR(vfwmul, GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwmul, V, F, GETV_VopWidenD);
          return True;
       /*
        * Vector Single-Width Floating-Point Fused Multiply-Add Instructions
        */
       case 0b101100:
-         GETC_VBinopOPF2(vfmacc, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfmacc, V, F, GETV_VopAccD);
          return True;
       case 0b101101:
-         GETC_VBinopOPF2(vfnmacc, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfnmacc, V, F, GETV_VopAccD);
          return True;
       case 0b101110:
-         GETC_VBinopOPF2(vfmsac, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfmsac, V, F, GETV_VopAccD);
          return True;
       case 0b101111:
-         GETC_VBinopOPF2(vfnmsac, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfnmsac, V, F, GETV_VopAccD);
          return True;
       case 0b101000:
-         GETC_VBinopOPF2(vfmadd, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfmadd, V, F, GETV_VopAccD);
          return True;
       case 0b101001:
-         GETC_VBinopOPF2(vfnmadd, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfnmadd, V, F, GETV_VopAccD);
          return True;
       case 0b101010:
-         GETC_VBinopOPF2(vfmsub, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfmsub, V, F, GETV_VopAccD);
          return True;
       case 0b101011:
-         GETC_VBinopOPF2(vfnmsub, GETV_VopAccD);
+         GETC_VBinopOPF_VAR(vfnmsub, V, F, GETV_VopAccD);
          return True;
       /*
        * Vector Widening Floating-Point Fused Multiply-Add Instructions
        */
       case 0b111100:
-         GETC_VBinopOPF2(vfwmacc, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwmacc, V, F, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111101:
-         GETC_VBinopOPF2(vfwnmacc, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwnmacc, V, F, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111110:
-         GETC_VBinopOPF2(vfwmsac, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwmsac, V, F, GETV_VopAccD | GETV_VopWidenD);
          return True;
       case 0b111111:
-         GETC_VBinopOPF2(vfwnmsac, GETV_VopAccD | GETV_VopWidenD);
+         GETC_VBinopOPF_VAR(vfwnmsac, V, F, GETV_VopAccD | GETV_VopWidenD);
          return True;
       /* VFUnary1 */
       case 0b100011:
@@ -1444,13 +1449,13 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
           * Vector Floating-Point Square-Root Instruction
           */
          if (rs1 == 0b00000) {
-            GETC_VUnopOPF_V(vfsqrt);
+            GETC_VUnopOPF(vfsqrt, V, NIL);
             return True;
          /*
           * Vector Floating-Point Classify Instruction
           */
          } else if (rs1 == 0b10000) {
-            GETC_VUnopOPF_V(vfclass);
+            GETC_VUnopOPF(vfclass, V, NIL);
             return True;
          }
          break;
@@ -1458,55 +1463,55 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
        * Vector Floating-Point MIN/MAX Instructions
        */
       case 0b000100:
-         GETC_VBinopOPF(vfmin);
+         GETC_VBinopOPF(vfmin, V, F);
          return True;
       case 0b000110:
-         GETC_VBinopOPF(vfmax);
+         GETC_VBinopOPF(vfmax, V, F);
          return True;
       /*
        * Vector Floating-Point Sign-Injection Instructions
        */
       case 0b001000:
-         GETC_VBinopOPF(vfsgnj);
+         GETC_VBinopOPF(vfsgnj, V, F);
          return True;
       case 0b001001:
-         GETC_VBinopOPF(vfsgnjn);
+         GETC_VBinopOPF(vfsgnjn, V, F);
          return True;
       case 0b001010:
-         GETC_VBinopOPF(vfsgnjx);
+         GETC_VBinopOPF(vfsgnjx, V, F);
          return True;
       /*
        * Vector Floating-Point Compare Instructions
        */
       case 0b011000:
-         GETC_VBinopOPF_VAR(vmfeq, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vmfeq, V, F, GETV_VopM1D);
          return True;
       case 0b011100:
-         GETC_VBinopOPF_VAR(vmfne, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vmfne, V, F, GETV_VopM1D);
          return True;
       case 0b011011:
-         GETC_VBinopOPF_VAR(vmflt, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vmflt, V, F, GETV_VopM1D);
          return True;
       case 0b011001:
-         GETC_VBinopOPF_VAR(vmfle, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vmfle, V, F, GETV_VopM1D);
          return True;
       case 0b011010:
-         GETC_VBinopOPF_VAR(vmford, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vmford, V, F, GETV_VopM1D);
          return True;
       case 0b011101:
-         GETC_VBinopOPF_F_VAR(vmfgt, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vmfgt, NIL, F, GETV_VopM1D);
          return True;
       case 0b011111:
-         GETC_VBinopOPF_F_VAR(vmfge, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vmfge, NIL, F, GETV_VopM1D);
          return True;
       /*
        * Vector Floating-Point Merge Instruction
        */
       case 0b010111:
          if (!mask) {
-            GETC_VBinopOPF_F(vfmerge);
+            GETC_VBinopOPF(vfmerge, NIL, F);
          } else {
-            GETC_VUnopOPF_F(vfmerge);
+            GETC_VUnopOPF(vfmerge, NIL, F);
          }
          return True;
 
@@ -1517,52 +1522,52 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
              * Single-Width Floating-Point/Integer Type-Convert Instructions
              */
             case 0b00000:
-               GETC_VUnopOPF_V(vfcvt_xu_f);
+               GETC_VUnopOPF(vfcvt_xu_f, V, NIL);
                return True;
             case 0b00001:
-               GETC_VUnopOPF_V(vfcvt_x_f);
+               GETC_VUnopOPF(vfcvt_x_f, V, NIL);
                return True;
             case 0b00010:
-               GETC_VUnopOPF_V(vfcvt_f_xu);
+               GETC_VUnopOPF(vfcvt_f_xu, V, NIL);
                return True;
             case 0b00011:
-               GETC_VUnopOPF_V(vfcvt_f_x);
+               GETC_VUnopOPF(vfcvt_f_x, V, NIL);
                return True;
             /*
              * Widening Floating-Point/Integer Type-Convert Instructions
              */
             case 0b01000:
-               GETC_VUnopOPF_V_VAR(vfwcvt_xu_f, GETV_VopWidenD);
+               GETC_VUnopOPF_VAR(vfwcvt_xu_f, V, NIL, GETV_VopWidenD);
                return True;
             case 0b01001:
-               GETC_VUnopOPF_V_VAR(vfwcvt_x_f, GETV_VopWidenD);
+               GETC_VUnopOPF_VAR(vfwcvt_x_f, V, NIL, GETV_VopWidenD);
                return True;
             case 0b01010:
-               GETC_VUnopOPF_V_VAR(vfwcvt_f_xu, GETV_VopWidenD);
+               GETC_VUnopOPF_VAR(vfwcvt_f_xu, V, NIL, GETV_VopWidenD);
                return True;
             case 0b01011:
-               GETC_VUnopOPF_V_VAR(vfwcvt_f_x, GETV_VopWidenD);
+               GETC_VUnopOPF_VAR(vfwcvt_f_x, V, NIL, GETV_VopWidenD);
                return True;
             case 0b01100:
-               GETC_VUnopOPF_V_VAR(vfwcvt_f_f, GETV_VopWidenD);
+               GETC_VUnopOPF_VAR(vfwcvt_f_f, V, NIL, GETV_VopWidenD);
                return True;
             /*
              * Narrowing Floating-Point/Integer Type-Convert Instructions
              */
             case 0b10000:
-               GETC_VUnopOPF_V_VAR(vfncvt_xu_f, GETV_VopWidenS2);
+               GETC_VUnopOPF_VAR(vfncvt_xu_f, V, NIL, GETV_VopWidenS2);
                return True;
             case 0b10001:
-               GETC_VUnopOPF_V_VAR(vfncvt_x_f, GETV_VopWidenS2);
+               GETC_VUnopOPF_VAR(vfncvt_x_f, V, NIL, GETV_VopWidenS2);
                return True;
             case 0b10010:
-               GETC_VUnopOPF_V_VAR(vfncvt_f_xu, GETV_VopWidenS2);
+               GETC_VUnopOPF_VAR(vfncvt_f_xu, V, NIL, GETV_VopWidenS2);
                return True;
             case 0b10011:
-               GETC_VUnopOPF_V_VAR(vfncvt_f_x, GETV_VopWidenS2);
+               GETC_VUnopOPF_VAR(vfncvt_f_x, V, NIL, GETV_VopWidenS2);
                return True;
             case 0b10100:
-               GETC_VUnopOPF_V_VAR(vfncvt_f_f, GETV_VopWidenS2);
+               GETC_VUnopOPF_VAR(vfncvt_f_f, V, NIL, GETV_VopWidenS2);
                return True;
             default:
                break;
@@ -1576,7 +1581,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          fName = GETN_VUnopV(vfmv);
          fAddr = GETA_VUnopV(vfmv);
 
-         args = mkIRExprVec_3(IRExpr_GSPTR(), mkU64(offsetVReg(rs2)), mkU64(0));
+         GETR_VUnopOPF()
          d = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
          vex_bzero(&d->fxState, sizeof(d->fxState));
@@ -1591,31 +1596,31 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          return True;
       }
       case 0b001101:
-         GETC_VUnopOPF_F_VAR(vfmvs, GETV_VopM1D);
+         GETC_VUnopOPF_VAR(vfmvs, NIL, F, GETV_VopM1D);
          return True;
       /*
        * Vector Single-Width Floating-Point Reduction Instructions
        */
       case 0b000011:
-         GETC_VBinopOPF_V_VAR(vfredosum, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vfredosum, V, NIL, GETV_VopM1D);
          return True;
       case 0b000001:
-         GETC_VBinopOPF_V_VAR(vfredsum, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vfredsum, V, NIL, GETV_VopM1D);
          return True;
       case 0b000111:
-         GETC_VBinopOPF_V_VAR(vfredmax, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vfredmax, V, NIL, GETV_VopM1D);
          return True;
       case 0b000101:
-         GETC_VBinopOPF_V_VAR(vfredmin, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vfredmin, V, NIL, GETV_VopM1D);
          return True;
       /*
        * Vector Widening Floating-Point Reduction Instructions
        */
       case 0b110011:
-         GETC_VBinopOPF_V_VAR(vfwredosum, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vfwredosum, V, NIL, GETV_VopM1D);
          return True;
       case 0b110001:
-         GETC_VBinopOPF_V_VAR(vfwredsum, GETV_VopM1D);
+         GETC_VBinopOPF_VAR(vfwredsum, V, NIL, GETV_VopM1D);
          return True;
       default:
          break;
@@ -1623,6 +1628,8 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
 
    return False;
 }
+#pragma pop_macro("RVV_REGO")
+#pragma pop_macro("RVV_REGN")
 
 static Bool dis_RV64V0p7_arith(/*MB_OUT*/ DisResult* dres,
                                /*OUT*/ IRSB*         irsb,
