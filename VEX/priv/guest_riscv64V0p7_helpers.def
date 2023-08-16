@@ -235,6 +235,30 @@ RVV_UnopOPI_FT_VAR_T(vmvs, vmv.s, X, X)
 #define RVV_BinopXIF_ST
 RVV_UnopOPI_FT_VAR(vmpopc, M, V3)
 RVV_UnopOPI_FT_VAR(vmfirst, M, V3)
+
+#pragma push_macro("VInsnVX")
+#undef  VInsnVX
+#define VInsnVX(insn) #insn
+RVV_BinopOPI_FT_VAR_T(vext, vext.x.v, VX, VX3)
+#pragma pop_macro("VInsnVX")
+
+#pragma push_macro("RVV_BinopXIF_iTpl3")
+#undef  RVV_BinopXIF_iTpl3
+#define RVV_BinopXIF_iTpl3(insn, treg, mreg)\
+   __asm__ __volatile__(insn "\tft0,v16" treg mreg "\n\t"   \
+                        "fmv.x.d\t%0,ft0\n\t"               \
+                        :"=r"(ret)::"ft0");
+#pragma push_macro("VInsnV")
+#pragma push_macro("RVV_UnopV3_M")
+#undef  VInsnV
+#undef  RVV_UnopV3_M
+#define VInsnV(insn) #insn
+#define RVV_UnopV3_M RVV_UnopV3
+RVV_UnopOPF_FT_VAR_T(vfmv, vfmv.f.s, V, V3)
+#pragma pop_macro("VInsnV")
+#pragma pop_macro("RVV_UnopV3_M")
+#pragma pop_macro("RVV_BinopXIF_iTpl3")
+
 #pragma pop_macro("RVV_BinopXIF_ST")
 
 /*---------------------------------------------------------------*/

@@ -40,18 +40,8 @@
 /*--- OPI special function definitions                        ---*/
 /*---------------------------------------------------------------*/
 
-#pragma push_macro("RVV_BinopXIF_ST")
-#undef  RVV_BinopXIF_ST
-#define RVV_BinopXIF_ST
-ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
-                          ULong vd, ULong vs2, ULong vs1, ULong mask)
-{
-   RVV_BinopVX_Tpl3("vext.x.v", vd, vs2, vs1, ,);
-}
-#pragma pop_macro("RVV_BinopXIF_ST")
-
 UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
-                      ULong vd, ULong vs2, ULong mask) {
+                      ULong vd, ULong vs2, ULong vs1, ULong mask) {
    RVV_Config();
    UInt ret = 0;
    vd += (ULong)st;
@@ -66,7 +56,7 @@ UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
    return ret;
 }
 UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
-                        ULong vd, ULong vs2, ULong mask) {
+                        ULong vd, ULong vs2, ULong vs1, ULong mask) {
    RVV_Config();
    UInt ret = 0;
    vd += (ULong)st;
@@ -86,22 +76,6 @@ UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
 /*---------------------------------------------------------------*/
 /*--- OPF special function definitions                        ---*/
 /*---------------------------------------------------------------*/
-
-#pragma push_macro("RVV_BinopXIF_ST")
-#pragma push_macro("RVV_BinopXIF_iTpl3")
-#undef  RVV_BinopXIF_ST
-#undef  RVV_BinopXIF_iTpl3
-#define RVV_BinopXIF_ST
-#define RVV_BinopXIF_iTpl3(insn, treg, mreg)\
-   __asm__ __volatile__(insn "\tft0,v16" treg mreg "\n\t"   \
-                        "fmv.x.d\t%0,ft0\n\t"               \
-                        :"=r"(ret)::"ft0");
-ULong GETA_VUnopV(vfmv)(VexGuestRISCV64State *st,
-                        ULong vd, ULong vs2, ULong vs1, ULong mask, UInt frm) {
-   RVV_UnopV_Tpl3("vfmv.f.s", vd, vs2, vs1, ,);
-}
-#pragma pop_macro("RVV_BinopXIF_ST")
-#pragma pop_macro("RVV_BinopXIF_iTpl3")
 
 /*--------------------------------------------------------------------*/
 /*--- end                               guest_riscv64V0p7_helpers.c --*/

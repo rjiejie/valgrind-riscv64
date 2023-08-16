@@ -490,6 +490,8 @@
 #define RVV_BinopVI_M(insn, vd, vs2, vs1)  RVV_BinopVI_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
 #define RVV_BinopVX2(insn, vd, vs2, vs1)   RVV_BinopVX_Tpl2(insn, vd, vs2, vs1, ,)
 #define RVV_BinopVX2_M(insn, vd, vs2, vs1) RVV_BinopVX_Tpl2(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
+#define RVV_BinopVX3(insn, vd, vs2, vs1)   RVV_BinopVX_Tpl3(insn, vd, vs2, vs1, ,)
+#define RVV_BinopVX3_M  RVV_BinopVX3
 
 #define RVV_BinopVXM(insn, vd, vs2, vs1)   RVV_BinopVX_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
 #define RVV_BinopVXM_M  RVV_BinopVXM
@@ -623,14 +625,7 @@
 #define GETN_VOp(insn, type, op, mask) "RVV0p7_"#type"_"#insn#op#mask
 #define GETA_VOp(insn, type, op, mask) RVV0p7_##type##_##insn##op##mask
 #include "guest_riscv64V0p7_helpers.def"
-ULong GETA_VBinopVX(vext)(VexGuestRISCV64State *st,
-                          ULong vd, ULong vs2, ULong vs1, ULong mask);
-UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
-                      ULong vd, ULong vs2, ULong mask);
-UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
-                        ULong vd, ULong vs2, ULong mask);
-ULong GETA_VUnopV(vfmv)(VexGuestRISCV64State *st,
-                        ULong vd, ULong vs2, ULong vs1, ULong mask, UInt frm);
+RVV_UnopOPI_FT_VAR(vid, V, V)
 #pragma pop_macro("GETN_VOp")
 #pragma pop_macro("GETA_VOp")
 
