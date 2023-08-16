@@ -26,6 +26,13 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+#pragma push_macro("GETN_VOp")
+#pragma push_macro("GETA_VOp")
+#undef  GETN_VOp
+#undef  GETA_VOp
+#define GETN_VOp(insn, type, op, mask) "RVV0p7_"#type"_"#insn#op#mask
+#define GETA_VOp(insn, type, op, mask) RVV0p7_##type##_##insn##op##mask
+
 static inline UShort extract_sew_0p7(ULong flag) {
    return (UShort) (1 << ((flag >> 2) & 0x07UL));
 }
@@ -65,8 +72,6 @@ static void putVxrm0p7(IRSB* irsb, IRExpr* e) {
                             binop(Iop_Shl32, e, mkU8(9)));
    putFCSR(irsb, new_fcsr);
 }
-
-#include "guest_riscv64V0p7_helpers.c"
 
 static Bool dis_RV64V0p7_csr(/*MB_OUT*/ DisResult* dres,
                              /*OUT*/ IRSB* irsb,
@@ -310,498 +315,10 @@ static Bool dis_RV64V0p7_cfg(/*MB_OUT*/ DisResult* dres,
    return True;
 }
 
-/* Criteria are described in RVV 0.7.1 spec 7.2:
-   Vector Load/Store Addressing Modes */
-static inline Bool RVV0p7_is_unitstride(UInt insn, Bool isLD) {
-   if (isLD)
-      /* zero-exteneded unit-stride || sign-extended unit-stride */
-      return GET_MOP() == 0b000 || GET_MOP() == 0b100;
-   else
-      /* unit-stride */
-      return GET_MOP() == 0b000;
-}
-
-static inline Bool RVV0p7_is_strided(UInt insn, Bool isLD) {
-   if (isLD)
-      /* zero-exteneded strided || sign-extended strided */
-      return GET_MOP() == 0b010 || GET_MOP() == 0b110;
-   else
-      /* strided */
-      return GET_MOP() == 0b010;
-}
-
-static inline Bool RVV0p7_is_indexed(UInt insn, Bool isLD, UInt nf) {
-   if (isLD)
-      /* zero-exteneded indexed || sign-extended indexed */
-      return GET_MOP() == 0b011 || GET_MOP() == 0b111;
-   else {
-      if (nf == 1)
-         /* ordered indexed || unordered indexed */
-         return GET_MOP() == 0b011 || GET_MOP() == 0b111;
-      else
-         /* ordered indexed in segment */
-         return GET_MOP() == 0b011;
-   }
-} 
-
-static inline Bool RVV0p7_is_normal_load(UInt nf, Bool isLD) {
-   return nf == 1 && isLD;
-}
-
-static inline Bool RVV0p7_is_normal_store(UInt nf, Bool isLD) {
-   return nf == 1 && !isLD;
-}
-
-static inline Bool RVV0p7_is_seg_load(UInt nf, Bool isLD) {
-   return nf != 1 && isLD;
-}
-
-static inline Bool RVV0p7_is_seg_store(UInt nf, Bool isLD) {
-   return nf != 1 && !isLD;
-}
-
 static Bool dis_RV64V0p7_ldst(/*MB_OUT*/ DisResult* dres,
                               /*OUT*/ IRSB*         irsb,
                               UInt                  insn)
 {
-   Bool isLD          = GET_OPCODE() == OPC_LOAD_FP;
-   IRDirty *d         = NULL;
-   void *fAddr        = NULL;
-   const HChar *fName = NULL;
-   IRExpr **args      = NULL;
-   ULong width;
-
-   UInt v    = GET_RD();     /* vd for load *or* vs3 for store */
-   UInt rs   = GET_RS1();    /* base address register rs1 */
-   UInt nf   = GET_NF() + 1; /* nf value */
-   Bool mask = GET_VMASK();  /* if mask is enabled? */
-
-   /* unit stride */
-   if (RVV0p7_is_unitstride(insn, isLD)) {
-      /* unit-stride normal load */
-      if (RVV0p7_is_normal_load(nf, isLD)) {
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit load */
-               width = 1;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
-                  GETC_VLDST(vlbu);
-               } else {                   /* signed-extended */
-                  GETC_VLDST(vlb);
-               }
-               return True;
-            }
-            case 0b101: {                 /* 16-bit load */
-               width = 2;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
-                  GETC_VLDST(vlhu);
-               } else {                   /* signed-extended */
-                  GETC_VLDST(vlh);
-               }
-               return True;
-            }
-            case 0b110: {                 /* 32-bit load */
-               width = 4;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
-                  GETC_VLDST(vlwu);
-               } else {                   /* signed-extended */
-                  GETC_VLDST(vlw);
-               }
-               return True;
-            }
-            case 0b111: {                 /* SEW load */
-               width = extract_sew_0p7(guest_VFLAG);
-               GETC_VLDST(vle);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-
-      if (RVV0p7_is_seg_load(nf, isLD)) { /* unit-stride segment load */
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit load */
-               width = 1;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, bu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, b);
-               }
-               return True;
-            }
-            case 0b101: {                 /* 16-bit load */
-               width = 2;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, hu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, h);
-               }
-               return True;
-            }
-            case 0b110: {                 /* 32-bit load */
-               width = 4;
-               if (GET_MOP() == 0b000) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, wu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, w);
-               }
-               return True;
-            }
-            case 0b111: {                 /* SEW load */
-               width = extract_sew_0p7(guest_VFLAG);
-               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-      /* unit-stride normal store */
-      if (RVV0p7_is_normal_store(nf, isLD)){
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit store */
-               width = 1;
-               GETC_VLDST(vsb);
-               return True;
-            }
-            case 0b101: {                 /* 16-bit store */
-               width = 2;
-               GETC_VLDST(vsh);
-               return True;
-            }
-            case 0b110: {                 /* 32-bit store */
-               width = 4;
-               GETC_VLDST(vsw);
-               return True;
-            }
-            case 0b111: {                 /* SEW store */
-               width = extract_sew_0p7(guest_VFLAG);
-               GETC_VLDST(vse);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-
-      if (RVV0p7_is_seg_store(nf, isLD)) { /* unit-stride segment store */
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit store */
-               width = 1;
-               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, b);
-               return True;
-            }
-            case 0b101: {                 /* 16-bit store */
-               width = 2;
-               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, h);
-               return True;
-            }
-            case 0b110: {                 /* 32-bit store */
-               width = 4;
-               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, w);
-               return True;
-            }
-            case 0b111: {                 /* SEW store */
-               width = extract_sew_0p7(guest_VFLAG);
-               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-      return False;
-   }
-
-   /* strided */
-   if (RVV0p7_is_strided(insn, isLD)) {                /* strided store */
-      UInt rs2 = GET_RS2(); /* stride register */
-      /* strided normal load */
-      if (RVV0p7_is_normal_load(nf, isLD)) {
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit load */
-               width = 1;
-               if (GET_MOP() == 0b010) {  /* zero-extended */
-                  GETC_VSLDST(vlsbu);
-               } else {                   /* signed-extended */
-                  GETC_VSLDST(vlsb);
-               }
-               return True;
-            }
-            case 0b101: {                 /* 16-bit load */
-               width = 2;
-               if (GET_MOP() == 0b010) {  /* zero-extended */
-                  GETC_VSLDST(vlshu);
-               } else {                   /* signed-extended */
-                  GETC_VSLDST(vlsh);
-               }
-               return True;
-            }
-            case 0b110: {                 /* 32-bit load */
-               width = 4;
-               if (GET_MOP() == 0b010) {  /* zero-extended */
-                  GETC_VSLDST(vlswu);
-               } else {                   /* signed-extended */
-                  GETC_VSLDST(vlsw);
-               }
-               return True;
-            }
-            case 0b111: {                 /* SEW load */
-               width = extract_sew_0p7(guest_VFLAG);
-               GETC_VSLDST(vlse);
-               return True;
-            }
-         }
-      }
-
-      if (RVV0p7_is_seg_load(nf, isLD)) { /* strided segment load */
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit load */
-               width = 1;
-               if (GET_MOP() == 0b010) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, bu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, b);
-               }
-               return True;
-            }
-            case 0b101: {                 /* 16-bit load */
-               width = 2;
-               if (GET_MOP() == 0b010) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, hu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, h);
-               }
-               return True;
-            }
-            case 0b110: {                 /* 32-bit load */
-               width = 4;
-               if (GET_MOP() == 0b010) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, wu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, w);
-               }
-               return True;
-            }
-            case 0b111: {                 /* SEW load */
-               width = extract_sew_0p7(guest_VFLAG);
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-
-      /* strided normal store */
-      if (RVV0p7_is_normal_store(nf, isLD)) {
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit store */
-               width = 1;
-               GETC_VSLDST(vssb);
-               return True;
-            }
-            case 0b101: {                 /* 16-bit store */
-               width = 2;
-               GETC_VSLDST(vssh);
-               return True;
-            }
-            case 0b110: {                 /* 32-bit store */
-               width = 4;
-               GETC_VSLDST(vssw);
-               return True;
-            }
-            case 0b111: {                 /* SEW store */
-               width = extract_sew_0p7(guest_VFLAG);
-               GETC_VSLDST(vsse);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-
-      if (RVV0p7_is_seg_store(nf, isLD)) { /* strided segment store */
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit store */
-               width = 1;
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, b);
-               return True;
-            }
-            case 0b101: {                 /* 16-bit store */
-               width = 2;
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, h);
-               return True;
-            }
-            case 0b110: {                 /* 32-bit store */
-               width = 4;
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, w);
-               return True;
-            }
-            case 0b111: {                 /* SEW store */
-               width = extract_sew_0p7(guest_VFLAG);
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-      return False;
-   }
-
-   /* indexed */
-   if (RVV0p7_is_indexed(insn, isLD, nf)) {
-      UInt vs2 = GET_RS2(); /* index register */
-      /* indexed normal load */
-      if (RVV0p7_is_normal_load(nf, isLD)) {
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit load */
-               width = 1;
-               if (GET_MOP() == 0b011) {  /* zero-extended */
-                  GETC_VXLDST(vlxbu);
-               } else {                   /* signed-extended */
-                  GETC_VXLDST(vlxb);
-               }
-               return True;
-            }
-            case 0b101: {                 /* 16-bit load */
-               width = 2;
-               if (GET_MOP() == 0b011) {  /* zero-extended */
-                  GETC_VXLDST(vlxhu);
-               } else {                   /* signed-extended */
-                  GETC_VXLDST(vlxh);
-               }
-               return True;
-            }
-            case 0b110: {                 /* 32-bit load */
-               width = 4;
-               if (GET_MOP() == 0b011) {  /* zero-extended */
-                  GETC_VXLDST(vlxwu);
-               } else {                   /* signed-extended */
-                  GETC_VXLDST(vlxw);
-               }
-               return True;
-            }
-            case 0b111: {                 /* SEW load */
-               width = extract_sew_0p7(guest_VFLAG);
-               GETC_VXLDST(vlxe);
-               return True;
-            }
-         }
-      }
-
-      if (RVV0p7_is_seg_load(nf, isLD)) { /* indexed segment load */
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit load */
-               width = 1;
-               if (GET_MOP() == 0b011) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, bu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, b);
-               }
-               return True;
-            }
-            case 0b101: {                 /* 16-bit load */
-               width = 2;
-               if (GET_MOP() == 0b011) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, hu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, h);
-               }
-               return True;
-            }
-            case 0b110: {                 /* 32-bit load */
-               width = 4;
-               if (GET_MOP() == 0b011) {  /* zero-extended */
-                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, wu);
-               } else {                   /* signed-extended */
-                  VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, w);
-               }
-               return True;
-            }
-            case 0b111: {                 /* SEW load */
-               width = extract_sew_0p7(guest_VFLAG);
-               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vlxseg, e);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-
-      /* indexed normal store */
-      if (RVV0p7_is_normal_store(nf, isLD)) {
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit store */
-               width = 1;
-               if (GET_MOP() == 0b011) {
-                  GETC_VXLDST(vsxb);
-               } else {
-                  GETC_VXLDST(vsuxb);
-               }
-               return True;
-            }
-            case 0b101: {                 /* 16-bit store */
-               width = 2;
-               if (GET_MOP() == 0b011) {
-                  GETC_VXLDST(vsxh);
-               } else {
-                  GETC_VXLDST(vsuxh);
-               }
-               return True;
-            }
-            case 0b110: {                 /* 32-bit store */
-               width = 4;
-               if (GET_MOP() == 0b011) {
-                  GETC_VXLDST(vsxw);
-               } else {
-                  GETC_VXLDST(vsuxw);
-               }
-               return True;
-            }
-            case 0b111: {                 /* SEW store */
-               width = extract_sew_0p7(guest_VFLAG);
-               if (GET_MOP() == 0b011) {
-                  GETC_VXLDST(vsxe);
-               } else {
-                  GETC_VXLDST(vsuxe);
-               }
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-
-      if (RVV0p7_is_seg_store(nf, isLD)) { /* indexed segment store */
-         switch (GET_FUNCT3()) {
-            case 0b000: {                 /* 8-bit store */
-               width = 1;
-               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, b);
-               return True;
-            }
-            case 0b101: {                 /* 16-bit store */
-               width = 2;
-               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, h);
-               return True;
-            }
-            case 0b110: {                 /* 32-bit store */
-               width = 4;
-               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, w);
-               return True;
-            }
-            case 0b111: {                 /* SEW store */
-               width = extract_sew_0p7(guest_VFLAG);
-               VSEG_DIS_NF_CASES(GETC_VXSEGLDST, vsxseg, e);
-               return True;
-            }
-            default:
-               return False;
-         }
-      }
-      return False;
-   }
    return False;
 }
 
@@ -814,6 +331,7 @@ static Bool dis_RV64V0p7_arith_OPI(/*MB_OUT*/ DisResult* dres,
    const HChar *fName = NULL;
    IRExpr **args = NULL;
    ULong temp = 0;
+   UInt lmul   = extract_lmul_0p7(guest_VFLAG);
    IRTemp ret = newTemp(irsb, Ity_I32);
    IRTemp xrm = newTemp(irsb, Ity_I32);
 
@@ -1042,6 +560,7 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
    const HChar *fName = NULL;
    IRExpr **args = NULL;
    UInt temp = 0;
+   UInt lmul   = extract_lmul_0p7(guest_VFLAG);
    IRTemp ret = newTemp(irsb, Ity_I64);
 
    UInt rd   = GET_RD();
@@ -1346,6 +865,7 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
    const HChar *fName = NULL;
    IRExpr **args = NULL;
    UInt temp = 0;
+   UInt lmul   = extract_lmul_0p7(guest_VFLAG);
    IRTemp ret = newTemp(irsb, Ity_I32);
    IRTemp frm = newTemp(irsb, Ity_I32);
 
@@ -1719,6 +1239,9 @@ ExitBB:
    dres->jk_StopHere = Ijk_ExitBB;
    return ok;
 }
+
+#pragma pop_macro("GETN_VOp")
+#pragma pop_macro("GETA_VOp")
 
 /*--------------------------------------------------------------------*/
 /*--- end                                  guest_riscv64V0p7_toIR.c --*/

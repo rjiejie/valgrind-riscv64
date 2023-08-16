@@ -26,12 +26,11 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+#include "guest_riscv64V_defs.h"
+
 #define GET_VMASK() INSN(25, 25)
 #define GET_MOP()   INSN(28, 26)
 #define GET_NF()    INSN(31, 29)
-#define isVOpVV(type) (type == RV64_SOPC_OPIVV || type == RV64_SOPC_OPMVV || type == RV64_SOPC_OPFVV)
-#define isVOpVXorVF(type) (type == RV64_SOPC_OPIVX || type == RV64_SOPC_OPMVX || type == RV64_SOPC_OPFVF)
-#define isVOpVI(type) (type == RV64_SOPC_OPIVI)
 
 /*------------------------------------------------------------*/
 /*--- Globals                                              ---*/
@@ -230,7 +229,89 @@ static const HChar* nameVCSR(UInt csr) {
    }
 }
 
-#include "guest_riscv64V0p7_toIR.c"
+/*---------------------------------------------------------------*/
+/*--- Get dirty info of helper functions                      ---*/
+/*---------------------------------------------------------------*/
+
+/* Binop */
+static IRDirty*
+GETD_VBinop(IRDirty* d, UInt vd, UInt vs2, UInt vs1, Bool mask, UInt sopc, UInt vtype, UInt lmul)
+{
+   d->nFxState = isVOpVV(sopc) ? 3 : 2;
+   vex_bzero(&d->fxState, sizeof(d->fxState));
+
+   UInt lmuls[3] = {vtype & GETV_VopWidenD ? lmul * 2
+                    : vtype & GETV_VopM1D  ? 1
+                                           : lmul,
+                    vtype & GETV_VopWidenS2 ? lmul * 2
+                    : vtype & GETV_VopM1S   ? 1
+                                            : lmul,
+                    vtype & GETV_VopM1S ? 1 : lmul};
+   UInt regNos[3] = {vd, vs2, vs1};
+   for (int i = 0; i < d->nFxState; i++) {
+      d->fxState[i].fx =
+         i == 0 ? (vtype & GETV_VopAccD ? Ifx_Modify : Ifx_Write) : Ifx_Read;
+      d->fxState[i].offset = offsetVReg(regNos[i]);
+      d->fxState[i].size   = host_VLENB;
+      d->fxState[i].nRepeats  = lmuls[i] - 1;
+      d->fxState[i].repeatLen = lmuls[i] - 1 == 0 ? 0 : host_VLENB;
+   }
+
+   if (isVOpVXorVF(sopc)) {
+      d->fxState[d->nFxState].fx     = Ifx_Read;
+      d->fxState[d->nFxState].offset = sopc == RV64_SOPC_OPFVF ? offsetFReg(vs1) : offsetIReg64(vs1);
+      d->fxState[d->nFxState].size   = 8;
+      d->nFxState += 1;
+   }
+
+   if (!mask || (vtype & GETV_VopMask)) {
+      d->fxState[d->nFxState].fx     = Ifx_Read;
+      d->fxState[d->nFxState].offset = offsetVReg(0);
+      d->fxState[d->nFxState].size   = host_VLENB;
+      d->nFxState += 1;
+   }
+   return d;
+}
+
+/* Unop */
+static IRDirty*
+GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype, UInt lmul)
+{
+   d->nFxState = isVOpVV(sopc) ? 2 : 1;
+   vex_bzero(&d->fxState, sizeof(d->fxState));
+
+   UInt lmuls[2] = {vtype & GETV_VopWidenD ? lmul * 2
+                    : vtype & GETV_VopM1D  ? 1
+                                           : lmul,
+                    vtype & GETV_VopWidenS2 ? lmul * 2
+                    : vtype & GETV_VopM1S   ? 1
+                                            : lmul};
+   UInt regNos[2] = {vd, src};
+   for (int i = 0; i < d->nFxState; i++) {
+      d->fxState[i].fx     = i == 0 ? Ifx_Write : Ifx_Read;
+      d->fxState[i].offset = offsetVReg(regNos[i]);
+      d->fxState[i].size   = host_VLENB;
+      d->fxState[i].nRepeats  = lmuls[i] - 1;
+      d->fxState[i].repeatLen = lmuls[i] - 1 == 0 ? 0 : host_VLENB;
+   }
+
+   if (isVOpVXorVF(sopc)) {
+      d->fxState[d->nFxState].fx     = Ifx_Read;
+      d->fxState[d->nFxState].offset = sopc == RV64_SOPC_OPFVF ? offsetFReg(src) : offsetIReg64(src);
+      d->fxState[d->nFxState].size   = 8;
+      d->nFxState += 1;
+   }
+
+   if (!mask || (vtype & GETV_VopMask)) {
+      d->fxState[d->nFxState].fx     = Ifx_Read;
+      d->fxState[d->nFxState].offset = offsetVReg(0);
+      d->fxState[d->nFxState].size   = host_VLENB;
+      d->nFxState += 1;
+   }
+   return d;
+}
+
+#include "guest_riscv64V_helpers.c"
 
 static Bool dis_RV64V_csr(/*MB_OUT*/ DisResult* dres,
                           /*OUT*/ IRSB* irsb,
@@ -299,6 +380,8 @@ static Bool dis_RV64V_arith(/*MB_OUT*/ DisResult* dres,
    }
    return ok;
 }
+
+#include "guest_riscv64V0p7_toIR.c"
 
 static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
                       /*OUT*/ IRSB*         irsb,

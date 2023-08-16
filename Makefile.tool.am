@@ -9,7 +9,8 @@ include $(top_srcdir)/Makefile.all.am
 
 TOOL_DEPENDENCIES_@VGCONF_PLATFORM_PRI_CAPS@ = \
 	$(top_builddir)/coregrind/libcoregrind-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a \
-	$(top_builddir)/VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a
+	$(top_builddir)/VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a \
+	$(top_builddir)/VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@-rv64v0p7.a
 if VGCONF_HAVE_PLATFORM_SEC
 TOOL_DEPENDENCIES_@VGCONF_PLATFORM_SEC_CAPS@ = \
 	$(top_builddir)/coregrind/libcoregrind-@VGCONF_ARCH_SEC@-@VGCONF_OS@.a \

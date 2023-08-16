@@ -478,8 +478,6 @@ void riscv64xthead_fxcr_csrrw(ULong a1) {XTHEAD_FXCR_SET("csrrw");}
 ULong riscv64g_calculate_fclass_s(Float a1) { CALCULATE_FCLASS("fclass.s"); }
 ULong riscv64g_calculate_fclass_d(Double a1) { CALCULATE_FCLASS("fclass.d"); }
 
-#include "guest_riscv64V_helpers.c"
-
 /*------------------------------------------------------------*/
 /*--- Flag-helpers translation-time function specialisers. ---*/
 /*--- These help iropt specialise calls the above run-time ---*/

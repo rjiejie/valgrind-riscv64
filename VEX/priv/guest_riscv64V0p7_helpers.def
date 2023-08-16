@@ -1,0 +1,375 @@
+
+/*---------------------------------------------------------------*/
+/*--- OPI function definitions                                ---*/
+/*---------------------------------------------------------------*/
+
+RVV_FT_DEF(vadd,   BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vsub,   BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vrsub,  NIL,         BinopOPIVX,  BinopOPIVI)
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push   RVV_PushWCfg
+#define RVV_Pop    RVV_PopCfg
+RVV_FT_DEF(vwaddu, BinopOPIVV, BinopOPIVX, NIL)
+RVV_FT_DEF(vwaddu, BinopOPIWV, BinopOPIWX, NIL)
+RVV_FT_DEF(vwsubu, BinopOPIVV, BinopOPIVX, NIL)
+RVV_FT_DEF(vwsubu, BinopOPIWV, BinopOPIWX, NIL)
+RVV_FT_DEF(vwadd,  BinopOPIVV, BinopOPIVX, NIL)
+RVV_FT_DEF(vwadd,  BinopOPIWV, BinopOPIWX, NIL)
+RVV_FT_DEF(vwsub,  BinopOPIVV, BinopOPIVX, NIL)
+RVV_FT_DEF(vwsub,  BinopOPIWV, BinopOPIWX, NIL)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_FT_DEF(vadc,   BinopOPIVVM, BinopOPIVXM, BinopOPIVIM)
+RVV_FT_DEF(vmadc,  BinopOPIVVM, BinopOPIVXM, BinopOPIVIM)
+RVV_FT_DEF(vsbc,   BinopOPIVVM, BinopOPIVXM, NIL)
+RVV_FT_DEF(vmsbc,  BinopOPIVVM, BinopOPIVXM, NIL)
+
+RVV_FT_DEF(vand,   BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vor,    BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vxor,   BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vsll,   BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vsrl,   BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vsra,   BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push   RVV_PushWCfg
+#define RVV_Pop    RVV_PopCfg
+RVV_FT_DEF(vnsrl,  BinopOPIVV, BinopOPIVX, BinopOPIVI)
+RVV_FT_DEF(vnsra,  BinopOPIVV, BinopOPIVX, BinopOPIVI)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push   RVV_PushCfg
+#define RVV_Pop    RVV_PopCfg
+RVV_FT_DEF(vmseq,  BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vmsne,  BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vmsleu, BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vmsle,  BinopOPIVV,  BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vmsltu, BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmslt,  BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmsgtu, NIL,         BinopOPIVX,  BinopOPIVI)
+RVV_FT_DEF(vmsgt,  NIL,         BinopOPIVX,  BinopOPIVI)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_FT_DEF(vminu,  BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmin,   BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmaxu,  BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmax,   BinopOPIVV,  BinopOPIVX,  NIL)
+
+RVV_FT_DEF(vmul,   BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmulh,  BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmulhu, BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vmulhsu,BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vdivu,  BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vdiv,   BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vremu,  BinopOPIVV,  BinopOPIVX,  NIL)
+RVV_FT_DEF(vrem,   BinopOPIVV,  BinopOPIVX,  NIL)
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push   RVV_PushWCfg
+#define RVV_Pop    RVV_PopCfg
+RVV_FT_DEF(vwmul,  BinopOPIVV, BinopOPIVX, NIL)
+RVV_FT_DEF(vwmulu, BinopOPIVV, BinopOPIVX, NIL)
+RVV_FT_DEF(vwmulsu,BinopOPIVV, BinopOPIVX, NIL)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_FT_DEF(vmacc,  BinopOPIVV2, BinopOPIVX2, NIL)
+RVV_FT_DEF(vnmsac, BinopOPIVV2, BinopOPIVX2, NIL)
+RVV_FT_DEF(vmadd,  BinopOPIVV2, BinopOPIVX2, NIL)
+RVV_FT_DEF(vnmsub, BinopOPIVV2, BinopOPIVX2, NIL)
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushWCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_FT_DEF(vwmaccu,  BinopOPIVV2, BinopOPIVX2, NIL)
+RVV_FT_DEF(vwmacc,   BinopOPIVV2, BinopOPIVX2, NIL)
+RVV_FT_DEF(vwmaccsu, BinopOPIVV2, BinopOPIVX2, NIL)
+RVV_FT_DEF(vwmaccus, NIL,         BinopOPIVX2, NIL)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_FT_DEF(vmerge, BinopOPIVVM, BinopOPIVXM, BinopOPIVIM)
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push       RVV_PushCfg
+#define RVV_Pop        RVV_PopCfg
+RVV_FT_DEF(vslideup,   NIL,         BinopOPIVX, BinopOPIVI)
+RVV_FT_DEF(vslidedown, NIL,         BinopOPIVX, BinopOPIVI)
+RVV_FT_DEF(vslide1up,  NIL,         BinopOPIVX, NIL)
+RVV_FT_DEF(vslide1down,NIL,         BinopOPIVX, NIL)
+RVV_FT_DEF(vrgather,   BinopOPIVV,  BinopOPIVX, BinopOPIVI)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_FT_DEF(vredsum,   BinopOPIVS,   NIL, NIL)
+RVV_FT_DEF(vredmaxu,  BinopOPIVS,   NIL, NIL)
+RVV_FT_DEF(vredmax,   BinopOPIVS,   NIL, NIL)
+RVV_FT_DEF(vredminu,  BinopOPIVS,   NIL, NIL)
+RVV_FT_DEF(vredmin,   BinopOPIVS,   NIL, NIL)
+RVV_FT_DEF(vredand,   BinopOPIVS,   NIL, NIL)
+RVV_FT_DEF(vredor,    BinopOPIVS,   NIL, NIL)
+RVV_FT_DEF(vredxor,   BinopOPIVS,   NIL, NIL)
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push      RVV_PushCfg
+#define RVV_Pop       RVV_PopCfg
+RVV_FT_DEF(vwredsumu, BinopOPIVS, NIL, NIL)
+RVV_FT_DEF(vwredsum,  BinopOPIVS, NIL, NIL)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+#pragma push_macro("RVV_Pre")
+#pragma push_macro("RVV_Post")
+#undef  RVV_Pre
+#undef  RVV_Post
+#define RVV_Pre      RVV_PushXSAT
+#define RVV_Post     RVV_PopXSAT
+
+RVV_FT_DEF(vsaddu,  BinopSATVV,  BinopSATVX,  BinopSATVI)
+RVV_FT_DEF(vsadd,   BinopSATVV,  BinopSATVX,  BinopSATVI)
+RVV_FT_DEF(vssubu,  BinopSATVV,  BinopSATVX,  NIL)
+RVV_FT_DEF(vssub,   BinopSATVV,  BinopSATVX,  NIL)
+RVV_FT_DEF(vaadd,   BinopSATVV,  BinopSATVX,  BinopSATVI)
+RVV_FT_DEF(vasub,   BinopSATVV,  BinopSATVX,  NIL)
+RVV_FT_DEF(vsmul,   BinopSATVV,  BinopSATVX,  NIL)
+RVV_FT_DEF(vssrl,   BinopSATVV,  BinopSATVX,  BinopSATVI)
+RVV_FT_DEF(vssra,   BinopSATVV,  BinopSATVX,  BinopSATVI)
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push      RVV_PushWCfg
+#define RVV_Pop       RVV_PopCfg
+RVV_FT_DEF(vwsmaccu,  BinopSATVV2,  BinopSATVX2,  NIL)
+RVV_FT_DEF(vwsmacc,   BinopSATVV2,  BinopSATVX2,  NIL)
+RVV_FT_DEF(vwsmaccsu, BinopSATVV2,  BinopSATVX2,  NIL)
+RVV_FT_DEF(vwsmaccus, NIL,          BinopSATVX2,  NIL)
+RVV_FT_DEF(vnclipu,   BinopSATVV,   BinopSATVX,   BinopSATVI)
+RVV_FT_DEF(vnclip,    BinopSATVV,   BinopSATVX,   BinopSATVI)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+#pragma pop_macro("RVV_Pre")
+#pragma pop_macro("RVV_Post")
+
+#pragma push_macro("RVV_BinopVV_M")
+#undef  RVV_BinopVV_M
+#define RVV_BinopVV_M RVV_BinopVV
+RVV_FT_DEF(vmand,    BinopOPIMM, NIL, NIL)
+RVV_FT_DEF(vmnand,   BinopOPIMM, NIL, NIL)
+RVV_FT_DEF(vmandnot, BinopOPIMM, NIL, NIL)
+RVV_FT_DEF(vmxor,    BinopOPIMM, NIL, NIL)
+RVV_FT_DEF(vmor,     BinopOPIMM, NIL, NIL)
+RVV_FT_DEF(vmnor,    BinopOPIMM, NIL, NIL)
+RVV_FT_DEF(vmornot,  BinopOPIMM, NIL, NIL)
+RVV_FT_DEF(vmxnor,   BinopOPIMM, NIL, NIL)
+#pragma pop_macro("RVV_BinopVV_M")
+
+#pragma push_macro("VInsnVV")
+#pragma push_macro("RVV_BinopVV_M")
+#undef  VInsnVV
+#undef  RVV_BinopVV_M
+#define VInsnVV(insn) #insn
+#define RVV_BinopVV_M RVV_BinopVV
+RVV_BinopOPI_FT_VAR_T(vcompress, vcompress.vm, VV, VV)
+#pragma pop_macro("VInsnVV")
+#pragma pop_macro("RVV_BinopVV_M")
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_FT_DEF(vmsbf,    UnopOPIM, NIL, NIL)
+RVV_FT_DEF(vmsif,    UnopOPIM, NIL, NIL)
+RVV_FT_DEF(vmsof,    UnopOPIM, NIL, NIL)
+RVV_FT_DEF(viota,    UnopOPIM, NIL, NIL)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+#pragma push_macro("RVV_UnopV_M")
+#undef  RVV_UnopV_M
+#define RVV_UnopV_M RVV_UnopV
+RVV_UnopOPI_FT_VAR_T(vmv, vmv.v, V, V)
+#pragma pop_macro("RVV_UnopV_M")
+RVV_UnopOPI_FT_VAR_T(vmv, vmv.v, X, X)
+RVV_UnopOPI_FT_VAR_T(vmv, vmv.v, I, I)
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_UnopOPI_FT_VAR_T(vmvs, vmv.s, X, X)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+#pragma push_macro("RVV_BinopXIF_ST")
+#undef  RVV_BinopXIF_ST
+#define RVV_BinopXIF_ST
+RVV_UnopOPI_FT_VAR(vmpopc, M, V3)
+RVV_UnopOPI_FT_VAR(vmfirst, M, V3)
+#pragma pop_macro("RVV_BinopXIF_ST")
+
+/*---------------------------------------------------------------*/
+/*--- OPF function definitions                                ---*/
+/*---------------------------------------------------------------*/
+
+#define RVV_FFT_DEF(insn, vv, vf) RVV_FT_DEF(insn, vv, vf, NIL)
+
+#pragma push_macro("RVV_Pre")
+#pragma push_macro("RVV_Post")
+#undef  RVV_Pre
+#undef  RVV_Post
+#define RVV_Pre      RVV_PushFCSR
+#define RVV_Post     RVV_PopFCSR
+
+RVV_FFT_DEF(vfadd,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfsub,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfrsub,  NIL,         BinopOPFVF)
+RVV_FFT_DEF(vfmul,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfdiv,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfrdiv,  NIL,         BinopOPFVF)
+RVV_FFT_DEF(vfmin,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfmax,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfsgnj,  BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfsgnjn, BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vfsgnjx, BinopOPFVV,  BinopOPFVF)
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushWCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_FFT_DEF(vfwadd,  BinopOPFVV, BinopOPFVF)
+RVV_FFT_DEF(vfwsub,  BinopOPFVV, BinopOPFVF)
+RVV_FFT_DEF(vfwmul,  BinopOPFVV, BinopOPFVF)
+RVV_FFT_DEF(vfwadd,  BinopOPFWV, BinopOPFWF)
+RVV_FFT_DEF(vfwsub,  BinopOPFWV, BinopOPFWF)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_FFT_DEF(vfmacc,  BinopOPFVV2, BinopOPFVF2)
+RVV_FFT_DEF(vfnmacc, BinopOPFVV2, BinopOPFVF2)
+RVV_FFT_DEF(vfmsac,  BinopOPFVV2, BinopOPFVF2)
+RVV_FFT_DEF(vfnmsac, BinopOPFVV2, BinopOPFVF2)
+RVV_FFT_DEF(vfmadd,  BinopOPFVV2, BinopOPFVF2)
+RVV_FFT_DEF(vfnmadd, BinopOPFVV2, BinopOPFVF2)
+RVV_FFT_DEF(vfmsub,  BinopOPFVV2, BinopOPFVF2)
+RVV_FFT_DEF(vfnmsub, BinopOPFVV2, BinopOPFVF2)
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushWCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_FFT_DEF(vfwmacc, BinopOPFVV2,BinopOPFVF2)
+RVV_FFT_DEF(vfwnmacc,BinopOPFVV2,BinopOPFVF2)
+RVV_FFT_DEF(vfwmsac, BinopOPFVV2,BinopOPFVF2)
+RVV_FFT_DEF(vfwnmsac,BinopOPFVV2,BinopOPFVF2)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_FFT_DEF(vmfeq,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vmfne,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vmflt,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vmfle,   BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vmford,  BinopOPFVV,  BinopOPFVF)
+RVV_FFT_DEF(vmfgt,   NIL,         BinopOPFVF)
+RVV_FFT_DEF(vmfge,   NIL,         BinopOPFVF)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_FFT_DEF(vfredosum,  BinopOPFVS,    NIL)
+RVV_FFT_DEF(vfredsum,   BinopOPFVS,    NIL)
+RVV_FFT_DEF(vfredmax,   BinopOPFVS,    NIL)
+RVV_FFT_DEF(vfredmin,   BinopOPFVS,    NIL)
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_FFT_DEF(vfwredosum, BinopOPFVS,  NIL)
+RVV_FFT_DEF(vfwredsum,  BinopOPFVS,  NIL)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_UnopOPFV_FT(vfsqrt,       vfsqrt)
+RVV_UnopOPFV_FT(vfclass,      vfclass)
+RVV_UnopOPFV_FT(vfcvt_xu_f,   vfcvt.xu.f)
+RVV_UnopOPFV_FT(vfcvt_x_f,    vfcvt.x.f)
+RVV_UnopOPFV_FT(vfcvt_f_xu,   vfcvt.f.xu)
+RVV_UnopOPFV_FT(vfcvt_f_x,    vfcvt.f.x)
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushWCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_UnopOPFV_FT(vfwcvt_xu_f, vfwcvt.xu.f)
+RVV_UnopOPFV_FT(vfwcvt_x_f,  vfwcvt.x.f)
+RVV_UnopOPFV_FT(vfwcvt_f_xu, vfwcvt.f.xu)
+RVV_UnopOPFV_FT(vfwcvt_f_x,  vfwcvt.f.x)
+RVV_UnopOPFV_FT(vfwcvt_f_f,  vfwcvt.f.f)
+RVV_UnopOPFV_FT(vfncvt_xu_f, vfncvt.xu.f)
+RVV_UnopOPFV_FT(vfncvt_x_f,  vfncvt.x.f)
+RVV_UnopOPFV_FT(vfncvt_f_xu, vfncvt.f.xu)
+RVV_UnopOPFV_FT(vfncvt_f_x,  vfncvt.f.x)
+RVV_UnopOPFV_FT(vfncvt_f_f,  vfncvt.f.f)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+RVV_UnopOPF_FT_VAR_T(vfmerge, vfmv.v, F, F)
+
+#pragma push_macro("VInsnVF")
+#undef  VInsnVF
+#define VInsnVF(insn) #insn
+RVV_BinopOPF_FT_VAR_T(vfmerge, vfmerge.vfm, VF, VFM)
+#pragma pop_macro("VInsnVF")
+
+#pragma push_macro("RVV_Push")
+#pragma push_macro("RVV_Pop")
+#undef  RVV_Push
+#undef  RVV_Pop
+#define RVV_Push     RVV_PushCfg
+#define RVV_Pop      RVV_PopCfg
+RVV_UnopOPF_FT_VAR_T(vfmvs, vfmv.s, F, F)
+#pragma pop_macro("RVV_Push")
+#pragma pop_macro("RVV_Pop")
+
+#pragma pop_macro("RVV_Pre")
+#pragma pop_macro("RVV_Post")
