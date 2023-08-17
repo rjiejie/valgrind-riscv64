@@ -49,6 +49,7 @@
 #define VInsnV(insn)    VInsn(insn, v)
 #define VInsnX(insn)    VInsn(insn, x)
 #define VInsnI          VInsnX
+#define VInsnW(insn)    VInsn(insn, w)
 
 #define VInsnVF(insn)   VInsn(insn, vf)
 #define VInsnWF(insn)   VInsn(insn, wf)
@@ -128,6 +129,10 @@
 #define GETA_VUnopM_M          GETA_VUnopV_M
 #define GETN_VUnopM            GETN_VUnopV
 #define GETA_VUnopM            GETA_VUnopV
+#define GETN_VUnopW_M          GETN_VUnopV_M
+#define GETA_VUnopW_M          GETA_VUnopV_M
+#define GETN_VUnopW            GETN_VUnopV
+#define GETA_VUnopW            GETA_VUnopV
 
 #define GETN_VUnopX_M(insn)    GETN_VOp(insn, Unop, x, _m)
 #define GETA_VUnopX_M(insn)    GETA_VOp(insn, Unop, x, _m)
@@ -167,52 +172,26 @@
          __asm__ __volatile__("csrw\tvstart,%0\n\t" ::"r"(vstart) :);          \
    } while (0)
 
-// Push vl/vtype
-// Set whole register du to current vtype
-#define RVV_PushCfg()         \
-   __asm__ __volatile__(      \
-      "csrr\tt1,vl\n\t"       \
-      "csrr\tt2,vtype\n\t"    \
-      "vsetvl\tx0,x0,t2\n\t"  \
-      ::: "t1", "t2");
-
-// Pop vl/vtype
-#define RVV_PopCfg()          \
-   __asm__ __volatile__(      \
-      "vsetvl\tx0,t1,t2\n\t"  \
-      :::);
-
-// Push vl/vtype
-// Set whole register with widened LMUL of current vtype
-#define RVV_PushWCfg()        \
-   __asm__ __volatile__(      \
-      "csrr\tt1,vl\n\t"       \
-      "csrr\tt2,vtype\n\t"    \
-      "addi\tt0,t2,1\n\t"     \
-      "vsetvl\tx0,x0,t0\n\t"  \
-      ::: "t0", "t1", "t2");
-
+#define RVV_PushCfg()
+#define RVV_PopCfg()
+#define RVV_PushWCfg()
 // Get mask
 #define RVV_Mask()                  \
    __asm__ __volatile__(            \
-      "csrr\tt1,vl\n\t"             \
-      "csrr\tt2,vtype\n\t"          \
-      "vsetvli\tx0,x0,e8,m1\n\t"    \
-      "vle.v\tv0,(%0)\n\t"          \
-      "vsetvl\tx0,t1,t2\n\t"        \
+      "vl1r.v\tv0,(%0)\n\t"         \
       :                             \
       : "r"(mask)                   \
-      : "t1", "t2");
+      : );
 
 // Get X/I/F register
-#define RVV_VX() \
-   vs1 += (ULong)st;\
-   __asm__ __volatile__("ld\tt0,0(%0)\n\t"::"r"(vs1):"t0");
-#define RVV_VI() \
-   __asm__ __volatile__("mv\tt0,%0\n\t"::"r"(vs1):"t0");
-#define RVV_VF() \
-   vs1 += (ULong)st;\
-   __asm__ __volatile__("fld\tft0,0(%0)\n\t"::"r"(vs1):"ft0");
+#define RVV_VX(vs) \
+   vs += (ULong)st;\
+   __asm__ __volatile__("ld\tt0,0(%0)\n\t"::"r"(vs):"t0");
+#define RVV_VI(vs) \
+   __asm__ __volatile__("mv\tt0,%0\n\t"::"r"(vs):"t0");
+#define RVV_VF(vs) \
+   vs += (ULong)st;\
+   __asm__ __volatile__("fld\tft0,0(%0)\n\t"::"r"(vs):"ft0");
 
 // Push fcsr
 // Set frm
@@ -259,12 +238,49 @@
 #define RVV_Pre()
 #define RVV_Post()
 
+#define RVV_WholeLD0                \
+   __asm__ __volatile__(            \
+      "vl8r.v\tv8,(%0)\n\t"         \
+      :                             \
+      : "r"(vd)                     \
+      :);
+
+#define RVV_WholeLD1                \
+   __asm__ __volatile__(            \
+      "vl8r.v\tv8,(%0)\n\t"         \
+      "vl8r.v\tv16,(%1)\n\t"        \
+      :                             \
+      : "r"(vd), "r"(vs2)           \
+      :);
+
+#define RVV_WholeLD                 \
+   __asm__ __volatile__(            \
+      "vl8r.v\tv8,(%0)\n\t"         \
+      "vl8r.v\tv16,(%1)\n\t"        \
+      "vl8r.v\tv24,(%2)\n\t"        \
+      :                             \
+      : "r"(vd), "r"(vs2), "r"(vs1) \
+      :);
+
+#define RVV_WholeST                 \
+   RVV_ConfigVstart();              \
+   __asm__ __volatile__(            \
+      "vs8r.v\tv8,(%0)\n\t"         \
+      :                             \
+      : "r"(vd)                     \
+      : "memory");
+
+#define RVV_BinopVV_iTpl(insn, mreg) \
+   __asm__ __volatile__(insn "\tv8,v16,v24" mreg);
+#define RVV_UnopV_iTpl(insn, mreg) \
+   __asm__ __volatile__(insn "\tv8,v16" mreg);
+
 /*---------------------------------------------------------------*/
 /*--- VV Instruction templates                                ---*/
 /*---------------------------------------------------------------*/
 
 // v8-v15, v16-v23, v24-v31
-#define RVV_BinopVV_Tpl(insn, vd, vs2, vs1, imask, mreg)    \
+#define RVV_VOpVV_Tpl(insn, vd, vs2, vs1, imask, mreg, itpl)\
    do {                                                     \
       RVV_Config();                                         \
       UInt ret = 0;                                         \
@@ -274,70 +290,24 @@
       vs1 += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      RVV_Push()                                            \
-      __asm__ __volatile__(                                 \
-         "vle.v\tv8,(%0)\n\t"                               \
-         "vle.v\tv16,(%1)\n\t"                              \
-         "vle.v\tv24,(%2)\n\t"                              \
-         :                                                  \
-         : "r"(vd), "r"(vs2), "r"(vs1)                      \
-         :);                                                \
-      RVV_Pop()                                             \
+      RVV_WholeLD                                           \
                                                             \
       imask                                                 \
                                                             \
       RVV_Pre()                                             \
-      __asm__ __volatile__(insn "\tv8,v16,v24" mreg);       \
+      itpl(insn, mreg)                                      \
       RVV_Post()                                            \
                                                             \
-      RVV_Push()                                            \
-      RVV_ConfigVstart();                                   \
-      __asm__ __volatile__(                                 \
-         "vse.v\tv8,(%0)\n\t"                               \
-         :                                                  \
-         : "r"(vd)                                          \
-         : "memory");                                       \
-      RVV_Pop()                                             \
+      RVV_WholeST                                           \
                                                             \
       return ret;                                           \
    } while (0)
 
-// v8-v15, v16-v23
-#define RVV_UnopV_Tpl(insn, vd, vs, imask, mreg)            \
-   do {                                                     \
-      RVV_Config();                                         \
-      UInt ret = 0;                                         \
-                                                            \
-      vd  += (ULong)st;                                     \
-      vs  += (ULong)st;                                     \
-      mask += (ULong)st;                                    \
-                                                            \
-      RVV_Push()                                            \
-      __asm__ __volatile__(                                 \
-         "vle.v\tv8,(%0)\n\t"                               \
-         "vle.v\tv16,(%1)\n\t"                              \
-         :                                                  \
-         : "r"(vd), "r"(vs)                                 \
-         :);                                                \
-      RVV_Pop()                                             \
-                                                            \
-      imask                                                 \
-                                                            \
-      RVV_Pre()                                             \
-      __asm__ __volatile__(insn "\tv8,v16" mreg);           \
-      RVV_Post()                                            \
-                                                            \
-      RVV_Push()                                            \
-      RVV_ConfigVstart();                                   \
-      __asm__ __volatile__(                                 \
-         "vse.v\tv8,(%0)\n\t"                               \
-         :                                                  \
-         : "r"(vd)                                          \
-         : "memory");                                       \
-      RVV_Pop()                                             \
-                                                            \
-      return ret;                                           \
-   } while (0)
+#define RVV_BinopVV_Tpl(insn, vd, vs2, vs1, imask, mreg)    \
+   RVV_VOpVV_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_BinopVV_iTpl)
+
+#define RVV_UnopV_Tpl(insn, vd, vs2, vs1, imask, mreg)      \
+   RVV_VOpVV_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_UnopV_iTpl)
 
 /*---------------------------------------------------------------*/
 /*--- OPIVV/OPFVV Instruction templates helper                ---*/
@@ -353,11 +323,11 @@
 #define RVV_BinopVVM_M  RVV_BinopVVM
 
 /* Unop */
-#define RVV_UnopV(insn, vd, vs2, nil)    RVV_UnopV_Tpl(insn, vd, vs2, ,)
-#define RVV_UnopV_M(insn, vd, vs2, nil)  RVV_UnopV_Tpl(insn, vd, vs2, RVV_Mask(), ",v0.t")
+#define RVV_UnopV(insn, vd, vs2, vs1)      RVV_UnopV_Tpl(insn, vd, vs2, vs1, ,)
+#define RVV_UnopV_M(insn, vd, vs2, vs1)    RVV_UnopV_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
 
-#define RVV_UnopV3(insn, vd, vs2, nil)    RVV_UnopV_Tpl3(insn, vd, vs2, nil, ,)
-#define RVV_UnopV3_M(insn, vd, vs2, nil)  RVV_UnopV_Tpl3(insn, vd, vs2, nil, RVV_Mask(), ",v0.t")
+#define RVV_UnopV3(insn, vd, vs2, vs1)     RVV_UnopV_Tpl3(insn, vd, vs2, vs1, ,)
+#define RVV_UnopV3_M(insn, vd, vs2, vs1)   RVV_UnopV_Tpl3(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
 
 /*---------------------------------------------------------------*/
 /*--- VX/VI/VF Instruction templates                          ---*/
@@ -371,18 +341,8 @@
    __asm__ __volatile__(insn "\tv8," treg ",v16" mreg);
 // ret, v16-v23, t0/ft0
 #define RVV_BinopXIF_iTpl3(insn, treg, mreg)\
+   (void)vstart;\
    __asm__ __volatile__(insn "\t%0,v16" treg mreg :"=r"(ret)::);
-
-#define RVV_BinopXIF_LD \
-   __asm__ __volatile__(                                    \
-      "vle.v\tv8,(%0)\n\t"                                  \
-      "vle.v\tv16,(%1)\n\t"                                 \
-      :                                                     \
-      : "r"(vd), "r"(vs2)                                   \
-      :);
-
-#define RVV_BinopXIF_ST \
-   __asm__ __volatile__("vse.v\tv8,(%0)\n\t" : : "r"(vd) : "memory");
 
 #define RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, itpl)\
    do {                                                     \
@@ -393,9 +353,7 @@
       vs2 += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      RVV_Push()                                            \
-      RVV_BinopXIF_LD                                       \
-      RVV_Pop()                                             \
+      RVV_WholeLD1                                          \
                                                             \
       imask                                                 \
                                                             \
@@ -404,10 +362,7 @@
       itpl(insn, treg, mreg)                                \
       RVV_Post()                                            \
                                                             \
-      RVV_Push()                                            \
-      RVV_ConfigVstart();                                   \
-      RVV_BinopXIF_ST                                       \
-      RVV_Pop()                                             \
+      RVV_WholeST                                           \
                                                             \
       return ret;                                           \
    } while (0)
@@ -415,28 +370,28 @@
 #define RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, RVV_BinopXIF_iTpl)
 #define RVV_BinopVX_Tpl(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VX(), "t0")
+   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VX(vs1), "t0")
 #define RVV_BinopVI_Tpl(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VI(), "t0")
+   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VI(vs1), "t0")
 #define RVV_BinopVF_Tpl(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VF(), "ft0")
+   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VF(vs1), "ft0")
 
 #define RVV_BinopXIF_Tpl2(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, RVV_BinopXIF_iTpl2)
 #define RVV_BinopVX_Tpl2(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl2(insn, vd, vs2, vs1, imask, mreg, RVV_VX(), "t0")
+   RVV_BinopXIF_Tpl2(insn, vd, vs2, vs1, imask, mreg, RVV_VX(vs1), "t0")
 #define RVV_BinopVF_Tpl2(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl2(insn, vd, vs2, vs1, imask, mreg, RVV_VF(), "ft0")
+   RVV_BinopXIF_Tpl2(insn, vd, vs2, vs1, imask, mreg, RVV_VF(vs1), "ft0")
 
 #define RVV_BinopXIF_Tpl3(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, RVV_BinopXIF_iTpl3)
 #define RVV_BinopVX_Tpl3(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl3(insn, vd, vs2, vs1, imask, mreg, RVV_VX(), ",t0")
+   RVV_BinopXIF_Tpl3(insn, vd, vs2, vs1, imask, mreg, RVV_VX(vs1), ",t0")
 #define RVV_UnopV_Tpl3(insn, vd, vs2, vs1, imask, mreg)\
    RVV_BinopXIF_Tpl3(insn, vd, vs2, vs1, imask, mreg, , )
 
 // v8-v15, t0/ft0
-#define RVV_UnopXIF_Tpl(insn, vd, vs1, imask, mreg, sopc, treg)\
+#define RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    do {                                                     \
       RVV_Config();                                         \
       UInt ret = 0;                                         \
@@ -444,13 +399,7 @@
       vd  += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      RVV_Push()                                            \
-      __asm__ __volatile__(                                 \
-         "vle.v\tv8,(%0)\n\t"                               \
-         :                                                  \
-         : "r"(vd)                                          \
-         :);                                                \
-      RVV_Pop()                                             \
+      RVV_WholeLD0                                          \
                                                             \
       imask                                                 \
                                                             \
@@ -459,24 +408,17 @@
       __asm__ __volatile__(insn "\tv8," treg mreg);         \
       RVV_Post()                                            \
                                                             \
-      RVV_Push()                                            \
-      RVV_ConfigVstart();                                   \
-      __asm__ __volatile__(                                 \
-         "vse.v\tv8,(%0)\n\t"                               \
-         :                                                  \
-         : "r"(vd)                                          \
-         : "memory");                                       \
-      RVV_Pop()                                             \
+      RVV_WholeST                                           \
                                                             \
       return ret;                                           \
    } while (0)
 
-#define RVV_UnopX_Tpl(insn, vd, vs1, imask, mreg)\
-   RVV_UnopXIF_Tpl(insn, vd, vs1, imask, mreg, RVV_VX(), "t0")
-#define RVV_UnopI_Tpl(insn, vd, vs1, imask, mreg)\
-   RVV_UnopXIF_Tpl(insn, vd, vs1, imask, mreg, RVV_VI(), "t0")
-#define RVV_UnopF_Tpl(insn, vd, vs1, imask, mreg)\
-   RVV_UnopXIF_Tpl(insn, vd, vs1, imask, mreg, RVV_VF(), "ft0")
+#define RVV_UnopX_Tpl(insn, vd, vs2, vs1, imask, mreg)\
+   RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VX(vs2), "t0")
+#define RVV_UnopI_Tpl(insn, vd, vs2, vs1, imask, mreg)\
+   RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VI(vs2), "t0")
+#define RVV_UnopF_Tpl(insn, vd, vs2, vs1, imask, mreg)\
+   RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VF(vs2), "ft0")
 
 /*---------------------------------------------------------------*/
 /*--- VX/VI/VF Instruction templates helper                   ---*/
@@ -509,13 +451,13 @@
 
 /* Unop */
 // OPI
-#define RVV_UnopX(insn, vd, vs1, nil)      RVV_UnopX_Tpl(insn, vd, vs1, ,)
+#define RVV_UnopX(insn, vd, vs2, vs1)      RVV_UnopX_Tpl(insn, vd, vs2, vs1, ,)
 #define RVV_UnopX_M                        RVV_UnopX
-#define RVV_UnopI(insn, vd, vs1, nil)      RVV_UnopI_Tpl(insn, vd, vs1, ,)
+#define RVV_UnopI(insn, vd, vs2, vs1)      RVV_UnopI_Tpl(insn, vd, vs2, vs1, ,)
 #define RVV_UnopI_M                        RVV_UnopI
 
 // OPF
-#define RVV_UnopF(insn, vd, vs1, nil)      RVV_UnopF_Tpl(insn, vd, vs1, ,)
+#define RVV_UnopF(insn, vd, vs2, vs1)      RVV_UnopF_Tpl(insn, vd, vs2, vs1, ,)
 #define RVV_UnopF_M                        RVV_UnopF
 
 /*---------------------------------------------------------------*/
@@ -604,6 +546,7 @@
 
 /* Unop */
 #define RVV_UnopOPFV_FT(name, insn)  RVV_UnopOPF_FT_VAR_T(name, insn, V, V)
+#define RVV_UnopOPFW_FT(name, insn)  RVV_UnopOPF_FT_VAR_T(name, insn, W, V)
 
 /*---------------------------------------------------------------*/
 /*--- Get function prototypes                                 ---*/
@@ -755,7 +698,7 @@ RVV_UnopOPI_FT_VAR(vid, V, V)
 // OPI
 #define GETR_VUnopOPI()                                                        \
    args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(temp),    \
-                        mkU64(0), mkU64(offsetVReg(0)));
+                        mkU64(offsetVReg(0)), mkU64(offsetVReg(0)));
 
 #define GETC_VUnopOPI_VAR(insn, v, x, i, var)                                 \
    GETC_VUnopOP_T(insn, v, x, i, GETR_VUnopOPI, var, lmul)
@@ -766,8 +709,8 @@ RVV_UnopOPI_FT_VAR(vid, V, V)
 #define GETR_VUnopOPF()                                                        \
    assign(irsb, frm,                                                           \
           binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(5)), mkU32(7)));   \
-   args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(temp),    \
-                        mkU64(offsetVReg(0)), mkexpr(frm));
+   args = mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(temp),    \
+                        mkU64(offsetVReg(0)), mkU64(offsetVReg(0)), mkexpr(frm));
 
 #define GETC_VUnopOPF_VAR(insn, v, x, var)                                    \
    GETC_VUnopOP_T(insn, v, x, NIL, GETR_VUnopOPF, var, lmul);                 \

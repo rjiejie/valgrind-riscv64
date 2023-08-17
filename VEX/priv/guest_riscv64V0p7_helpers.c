@@ -34,6 +34,90 @@
 #define GETN_VOp(insn, type, op, mask) "RVV0p7_"#type"_"#insn#op#mask
 #define GETA_VOp(insn, type, op, mask) RVV0p7_##type##_##insn##op##mask
 
+// Push vl/vtype
+// Set whole register du to current vtype
+#undef  RVV_PushCfg
+#define RVV_PushCfg()         \
+   __asm__ __volatile__(      \
+      "csrr\tt1,vl\n\t"       \
+      "csrr\tt2,vtype\n\t"    \
+      "vsetvl\tx0,x0,t2\n\t"  \
+      ::: "t1", "t2");
+
+// Pop vl/vtype
+#undef  RVV_PopCfg
+#define RVV_PopCfg()          \
+   __asm__ __volatile__(      \
+      "vsetvl\tx0,t1,t2\n\t"  \
+      :::);
+
+// Push vl/vtype
+// Set whole register with widened LMUL of current vtype
+#undef  RVV_PushWCfg
+#define RVV_PushWCfg()        \
+   __asm__ __volatile__(      \
+      "csrr\tt1,vl\n\t"       \
+      "csrr\tt2,vtype\n\t"    \
+      "addi\tt0,t2,1\n\t"     \
+      "vsetvl\tx0,x0,t0\n\t"  \
+      ::: "t0", "t1", "t2");
+
+#undef  RVV_Mask
+#define RVV_Mask()                  \
+   __asm__ __volatile__(            \
+      "csrr\tt1,vl\n\t"             \
+      "csrr\tt2,vtype\n\t"          \
+      "vsetvli\tx0,x0,e8,m1\n\t"    \
+      "vle.v\tv0,(%0)\n\t"          \
+      "vsetvl\tx0,t1,t2\n\t"        \
+      :                             \
+      : "r"(mask)                   \
+      : "t1", "t2");
+
+#undef  RVV_WholeLD0
+#define RVV_WholeLD0                \
+   RVV_Push()                       \
+   __asm__ __volatile__(            \
+      "vle.v\tv8,(%0)\n\t"          \
+      :                             \
+      : "r"(vd)                     \
+      :);                           \
+   RVV_Pop()
+
+#undef  RVV_WholeLD1
+#define RVV_WholeLD1                \
+   RVV_Push()                       \
+   __asm__ __volatile__(            \
+      "vle.v\tv8,(%0)\n\t"          \
+      "vle.v\tv16,(%1)\n\t"         \
+      :                             \
+      : "r"(vd), "r"(vs2)           \
+      :);                           \
+   RVV_Pop()
+
+#undef  RVV_WholeLD
+#define RVV_WholeLD                 \
+   RVV_Push()                       \
+   __asm__ __volatile__(            \
+      "vle.v\tv8,(%0)\n\t"          \
+      "vle.v\tv16,(%1)\n\t"         \
+      "vle.v\tv24,(%2)\n\t"         \
+      :                             \
+      : "r"(vd), "r"(vs2), "r"(vs1) \
+      :);                           \
+   RVV_Pop()
+
+#undef  RVV_WholeST
+#define RVV_WholeST                 \
+   RVV_Push()                       \
+   RVV_ConfigVstart();              \
+   __asm__ __volatile__(            \
+      "vse.v\tv8,(%0)\n\t"          \
+      :                             \
+      : "r"(vd)                     \
+      : "memory");                  \
+   RVV_Pop()
+
 #include "guest_riscv64V0p7_helpers.def"
 
 /*---------------------------------------------------------------*/

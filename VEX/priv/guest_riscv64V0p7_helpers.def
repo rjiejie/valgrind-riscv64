@@ -230,9 +230,9 @@ RVV_UnopOPI_FT_VAR_T(vmvs, vmv.s, X, X)
 #pragma pop_macro("RVV_Push")
 #pragma pop_macro("RVV_Pop")
 
-#pragma push_macro("RVV_BinopXIF_ST")
-#undef  RVV_BinopXIF_ST
-#define RVV_BinopXIF_ST
+#pragma push_macro("RVV_WholeST")
+#undef  RVV_WholeST
+#define RVV_WholeST
 RVV_UnopOPI_FT_VAR(vmpopc, M, V3)
 RVV_UnopOPI_FT_VAR(vmfirst, M, V3)
 
@@ -245,6 +245,7 @@ RVV_BinopOPI_FT_VAR_T(vext, vext.x.v, VX, VX3)
 #pragma push_macro("RVV_BinopXIF_iTpl3")
 #undef  RVV_BinopXIF_iTpl3
 #define RVV_BinopXIF_iTpl3(insn, treg, mreg)\
+   (void)vstart;\
    __asm__ __volatile__(insn "\tft0,v16" treg mreg "\n\t"   \
                         "fmv.x.d\t%0,ft0\n\t"               \
                         :"=r"(ret)::"ft0");
@@ -259,7 +260,7 @@ RVV_UnopOPF_FT_VAR_T(vfmv, vfmv.f.s, V, V3)
 #pragma pop_macro("RVV_UnopV3_M")
 #pragma pop_macro("RVV_BinopXIF_iTpl3")
 
-#pragma pop_macro("RVV_BinopXIF_ST")
+#pragma pop_macro("RVV_WholeST")
 
 /*---------------------------------------------------------------*/
 /*--- OPF function definitions                                ---*/

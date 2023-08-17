@@ -26,6 +26,11 @@
    The GNU General Public License is contained in the file COPYING.
 */
 
+#include "libvex_guest_riscv64.h"
+#include "guest_riscv64V_defs.h"
+
+#include "guest_riscv64V_helpers.def"
+
 /*--------------------------------------------------------------------*/
 /*--- end                                  guest_riscv64V_helpers.c --*/
 /*--------------------------------------------------------------------*/
