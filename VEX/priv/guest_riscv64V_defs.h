@@ -270,17 +270,12 @@
       : "r"(vd)                     \
       : "memory");
 
-#define RVV_BinopVV_iTpl(insn, mreg) \
-   __asm__ __volatile__(insn "\tv8,v16,v24" mreg);
-#define RVV_UnopV_iTpl(insn, mreg) \
-   __asm__ __volatile__(insn "\tv8,v16" mreg);
-
 /*---------------------------------------------------------------*/
 /*--- VV Instruction templates                                ---*/
 /*---------------------------------------------------------------*/
 
 // v8-v15, v16-v23, v24-v31
-#define RVV_VOpVV_Tpl(insn, vd, vs2, vs1, imask, mreg, itpl)\
+#define RVV_BinopVV_Tpl(insn, vd, vs2, vs1, imask, mreg)    \
    do {                                                     \
       RVV_Config();                                         \
       UInt ret = 0;                                         \
@@ -295,19 +290,13 @@
       imask                                                 \
                                                             \
       RVV_Pre()                                             \
-      itpl(insn, mreg)                                      \
+      __asm__ __volatile__(insn "\tv8,v16,v24" mreg);       \
       RVV_Post()                                            \
                                                             \
       RVV_WholeST                                           \
                                                             \
       return ret;                                           \
    } while (0)
-
-#define RVV_BinopVV_Tpl(insn, vd, vs2, vs1, imask, mreg)    \
-   RVV_VOpVV_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_BinopVV_iTpl)
-
-#define RVV_UnopV_Tpl(insn, vd, vs2, vs1, imask, mreg)      \
-   RVV_VOpVV_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_UnopV_iTpl)
 
 /*---------------------------------------------------------------*/
 /*--- OPIVV/OPFVV Instruction templates helper                ---*/
@@ -322,15 +311,8 @@
 #define RVV_BinopVVM(insn, vd, vs2, vs1)   RVV_BinopVV_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
 #define RVV_BinopVVM_M  RVV_BinopVVM
 
-/* Unop */
-#define RVV_UnopV(insn, vd, vs2, vs1)      RVV_UnopV_Tpl(insn, vd, vs2, vs1, ,)
-#define RVV_UnopV_M(insn, vd, vs2, vs1)    RVV_UnopV_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
-
-#define RVV_UnopV3(insn, vd, vs2, vs1)     RVV_UnopV_Tpl3(insn, vd, vs2, vs1, ,)
-#define RVV_UnopV3_M(insn, vd, vs2, vs1)   RVV_UnopV_Tpl3(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
-
 /*---------------------------------------------------------------*/
-/*--- VX/VI/VF Instruction templates                          ---*/
+/*--- VX/VI/VF, UnopV Instruction templates                   ---*/
 /*---------------------------------------------------------------*/
 
 // v8-v15, v16-v23, t0/ft0
@@ -343,6 +325,10 @@
 #define RVV_BinopXIF_iTpl3(insn, treg, mreg)\
    (void)vstart;\
    __asm__ __volatile__(insn "\t%0,v16" treg mreg :"=r"(ret)::);
+
+// v8-v15, v16-v23
+#define RVV_UnopV_iTpl(insn, treg, mreg) \
+   __asm__ __volatile__(insn "\tv8,v16" mreg);
 
 #define RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, itpl)\
    do {                                                     \
@@ -390,6 +376,9 @@
 #define RVV_UnopV_Tpl3(insn, vd, vs2, vs1, imask, mreg)\
    RVV_BinopXIF_Tpl3(insn, vd, vs2, vs1, imask, mreg, , )
 
+#define RVV_UnopV_Tpl(insn, vd, vs2, vs1, imask, mreg)\
+   RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, , , RVV_UnopV_iTpl)
+
 // v8-v15, t0/ft0
 #define RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    do {                                                     \
@@ -421,7 +410,7 @@
    RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VF(vs2), "ft0")
 
 /*---------------------------------------------------------------*/
-/*--- VX/VI/VF Instruction templates helper                   ---*/
+/*--- VX/VI/VF, UnopV Instruction templates helper            ---*/
 /*---------------------------------------------------------------*/
 
 /* Binop */
@@ -450,6 +439,11 @@
 #define RVV_BinopVFM_M  RVV_BinopVFM
 
 /* Unop */
+#define RVV_UnopV(insn, vd, vs2, vs1)      RVV_UnopV_Tpl(insn, vd, vs2, vs1, ,)
+#define RVV_UnopV_M(insn, vd, vs2, vs1)    RVV_UnopV_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
+#define RVV_UnopV3(insn, vd, vs2, vs1)     RVV_UnopV_Tpl3(insn, vd, vs2, vs1, ,)
+#define RVV_UnopV3_M(insn, vd, vs2, vs1)   RVV_UnopV_Tpl3(insn, vd, vs2, vs1, RVV_Mask(), ",v0.t")
+
 // OPI
 #define RVV_UnopX(insn, vd, vs2, vs1)      RVV_UnopX_Tpl(insn, vd, vs2, vs1, ,)
 #define RVV_UnopX_M                        RVV_UnopX
