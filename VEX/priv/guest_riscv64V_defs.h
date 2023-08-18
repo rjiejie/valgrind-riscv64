@@ -308,8 +308,8 @@
 #define RVV_BinopVV2(insn, vd, vs2, vs1)   RVV_BinopVV_Tpl(insn, vd, vs1, vs2, ,)
 #define RVV_BinopVV2_M(insn, vd, vs2, vs1) RVV_BinopVV_Tpl(insn, vd, vs1, vs2, RVV_Mask(), ",v0.t")
 
-#define RVV_BinopVVM(insn, vd, vs2, vs1)   RVV_BinopVV_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
-#define RVV_BinopVVM_M  RVV_BinopVVM
+#define RVV_BinopVVM_M(insn, vd, vs2, vs1)   RVV_BinopVV_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
+#define RVV_BinopVVM  RVV_BinopVVM_M
 
 /*---------------------------------------------------------------*/
 /*--- VX/VI/VF, UnopV Instruction templates                   ---*/
@@ -317,7 +317,7 @@
 
 // v8-v15, v16-v23, t0/ft0
 #define RVV_BinopXIF_iTpl(insn, treg, mreg)\
-   __asm__ __volatile__(insn "\tv8,v16," treg mreg);
+   __asm__ __volatile__(insn "\tv8,v16" treg mreg);
 // v8-v15, t0/ft0, v16-v23
 #define RVV_BinopXIF_iTpl2(insn, treg, mreg)\
    __asm__ __volatile__(insn "\tv8," treg ",v16" mreg);
@@ -325,10 +325,6 @@
 #define RVV_BinopXIF_iTpl3(insn, treg, mreg)\
    (void)vstart;\
    __asm__ __volatile__(insn "\t%0,v16" treg mreg :"=r"(ret)::);
-
-// v8-v15, v16-v23
-#define RVV_UnopV_iTpl(insn, treg, mreg) \
-   __asm__ __volatile__(insn "\tv8,v16" mreg);
 
 #define RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, itpl)\
    do {                                                     \
@@ -356,11 +352,11 @@
 #define RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, RVV_BinopXIF_iTpl)
 #define RVV_BinopVX_Tpl(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VX(vs1), "t0")
+   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VX(vs1), ",t0")
 #define RVV_BinopVI_Tpl(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VI(vs1), "t0")
+   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VI(vs1), ",t0")
 #define RVV_BinopVF_Tpl(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VF(vs1), "ft0")
+   RVV_BinopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, RVV_VF(vs1), ",ft0")
 
 #define RVV_BinopXIF_Tpl2(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, RVV_BinopXIF_iTpl2)
@@ -377,7 +373,7 @@
    RVV_BinopXIF_Tpl3(insn, vd, vs2, vs1, imask, mreg, , )
 
 #define RVV_UnopV_Tpl(insn, vd, vs2, vs1, imask, mreg)\
-   RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, , , RVV_UnopV_iTpl)
+   RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, , , RVV_BinopXIF_iTpl)
 
 // v8-v15, t0/ft0
 #define RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
@@ -424,10 +420,10 @@
 #define RVV_BinopVX3(insn, vd, vs2, vs1)   RVV_BinopVX_Tpl3(insn, vd, vs2, vs1, ,)
 #define RVV_BinopVX3_M  RVV_BinopVX3
 
-#define RVV_BinopVXM(insn, vd, vs2, vs1)   RVV_BinopVX_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
-#define RVV_BinopVXM_M  RVV_BinopVXM
-#define RVV_BinopVIM(insn, vd, vs2, vs1)   RVV_BinopVI_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
-#define RVV_BinopVIM_M  RVV_BinopVIM
+#define RVV_BinopVXM_M(insn, vd, vs2, vs1)   RVV_BinopVX_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
+#define RVV_BinopVXM  RVV_BinopVXM_M
+#define RVV_BinopVIM_M(insn, vd, vs2, vs1)   RVV_BinopVI_Tpl(insn, vd, vs2, vs1, RVV_Mask(), ",v0")
+#define RVV_BinopVIM  RVV_BinopVIM_M
 
 // OPF
 #define RVV_BinopVF(insn, vd, vs2, vs1)    RVV_BinopVF_Tpl(insn, vd, vs2, vs1, ,)
