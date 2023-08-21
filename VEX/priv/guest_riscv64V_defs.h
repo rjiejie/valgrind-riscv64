@@ -39,6 +39,7 @@
 #define VInsnVS(insn)   VInsn(insn, vs)
 #define VInsnWV(insn)   VInsn(insn, wv)
 #define VInsnWX(insn)   VInsn(insn, wx)
+#define VInsnWI         VInsnWX
 
 #define VInsnVVM(insn)  VInsn(insn, vvm)
 #define VInsnVXM(insn)  VInsn(insn, vxm)
@@ -105,6 +106,10 @@
 #define GETA_VBinopVIM_M       GETA_VBinopVI_M
 #define GETN_VBinopVIM         GETN_VBinopVI
 #define GETA_VBinopVIM         GETA_VBinopVI
+#define GETN_VBinopWI_M        GETN_VBinopVI_M
+#define GETA_VBinopWI_M        GETA_VBinopVI_M
+#define GETN_VBinopWI          GETN_VBinopVI
+#define GETA_VBinopWI          GETA_VBinopVI
 
 #define GETN_VBinopVF_M(insn)  GETN_VOp(insn, Binop, vf, _m)
 #define GETA_VBinopVF_M(insn)  GETA_VOp(insn, Binop, vf, _m)
@@ -495,6 +500,7 @@
 
 #define RVV_BinopOPIWV_FT(insn)     RVV_BinopOPI_FT_VAR_T(insn##w, insn, WV, VV)
 #define RVV_BinopOPIWX_FT(insn)     RVV_BinopOPI_FT_VAR_T(insn##w, insn, WX, VX)
+#define RVV_BinopOPIWI_FT(insn)     RVV_BinopOPI_FT_VAR_T(insn##w, insn, WI, VI)
 
 #define RVV_BinopOPIVVM_FT(insn)    RVV_BinopOPI_FT_VAR(insn, VVM, VVM)
 #define RVV_BinopOPIVXM_FT(insn)    RVV_BinopOPI_FT_VAR(insn, VXM, VXM)
@@ -507,6 +513,9 @@
 #define RVV_BinopSATVI_FT(insn)     RVV_BinopSAT_FT_VAR(insn, VI, VI)
 #define RVV_BinopSATVV2_FT(insn)    RVV_BinopSAT_FT_VAR(insn, VV, VV2)
 #define RVV_BinopSATVX2_FT(insn)    RVV_BinopSAT_FT_VAR(insn, VX, VX2)
+#define RVV_BinopSATWV_FT(insn)     RVV_BinopSAT_FT_VAR(insn, WV, VV)
+#define RVV_BinopSATWX_FT(insn)     RVV_BinopSAT_FT_VAR(insn, WX, VX)
+#define RVV_BinopSATWI_FT(insn)     RVV_BinopSAT_FT_VAR(insn, WI, VI)
 
 /* Unop */
 #define RVV_UnopOPIM_FT(insn)       RVV_UnopOPI_FT_VAR(insn, M, V)
@@ -550,6 +559,7 @@
     UInt GETA_V##type##op(name)(VexGuestRISCV64State * st, ##args);      \
 
 #include "guest_riscv64V_helpers.def"
+RVV_UnopOPI_FT_VAR(vid, V, V)
 
 #pragma push_macro("GETN_VOp")
 #pragma push_macro("GETA_VOp")
@@ -586,6 +596,7 @@ RVV_UnopOPI_FT_VAR(vid, V, V)
 
 #define RVV_REGO offsetIReg64
 #define RVV_REGN nameIReg
+#define RVV_PutVxsat putVxsat
 
 /* Binop */
 #define GETC_VBinopOP_T(insn, V, X, I, ARGS, VARIANT, LMUL)                    \
@@ -637,7 +648,7 @@ RVV_UnopOPI_FT_VAR(vid, V, V)
 
 #define GETC_VBinopSAT_VAR(insn, v, x, i, var)                                 \
    GETC_VBinopOP_T(insn, v, x, i, GETR_VBinopSAT, var, lmul);                  \
-   putVxsat0p7(irsb, mkexpr(ret));
+   RVV_PutVxsat(irsb, mkexpr(ret));
 #define GETC_VBinopSAT(insn, v, x, i)                                          \
    GETC_VBinopSAT_VAR(insn, v, x, i, GETV_VopUnknow)
 

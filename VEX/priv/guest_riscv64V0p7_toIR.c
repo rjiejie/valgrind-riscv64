@@ -33,6 +33,10 @@
 #define GETN_VOp(insn, type, op, mask) "RVV0p7_"#type"_"#insn#op#mask
 #define GETA_VOp(insn, type, op, mask) RVV0p7_##type##_##insn##op##mask
 
+#pragma push_macro("RVV_PutVxsat")
+#undef  RVV_PutVxsat
+#define RVV_PutVxsat putVxsat0p7
+
 static inline UShort extract_sew_0p7(ULong flag) {
    return (UShort) (1 << ((flag >> 2) & 0x07UL));
 }
@@ -1240,6 +1244,7 @@ ExitBB:
    return ok;
 }
 
+#pragma pop_macro("RVV_PutVxsat")
 #pragma pop_macro("GETN_VOp")
 #pragma pop_macro("GETA_VOp")
 

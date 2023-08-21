@@ -31,6 +31,43 @@
 
 #include "guest_riscv64V_helpers.def"
 
+/*---------------------------------------------------------------*/
+/*--- OPI special function definitions                        ---*/
+/*---------------------------------------------------------------*/
+
+UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
+                      ULong vd, ULong vs2, ULong vs1, ULong mask) {
+   RVV_Config();
+   UInt ret = 0;
+   vd += (ULong)st;
+   __asm__ __volatile__(
+      "vl8r.v\tv8,(%0)\n\t"
+      "vid.v\tv8\n\t"
+      "csrw\tvstart,%1\n\t"
+      "vs8r.v\tv8,(%0)\n\t"
+      :
+      : "r"(vd), "r"(vstart)
+      : "memory");
+   return ret;
+}
+UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
+                        ULong vd, ULong vs2, ULong vs1, ULong mask) {
+   RVV_Config();
+   UInt ret = 0;
+   vd += (ULong)st;
+   mask += (ULong)st;
+   RVV_Mask()
+   __asm__ __volatile__(
+      "vl8r.v\tv8,(%0)\n\t"
+      "vid.v\tv8,v0.t\n\t"
+      "csrw\tvstart,%1\n\t"
+      "vs8r.v\tv8,(%0)\n\t"
+      :
+      : "r"(vd), "r"(vstart)
+      : "memory");
+   return ret;
+}
+
 /*--------------------------------------------------------------------*/
 /*--- end                                  guest_riscv64V_helpers.c --*/
 /*--------------------------------------------------------------------*/
