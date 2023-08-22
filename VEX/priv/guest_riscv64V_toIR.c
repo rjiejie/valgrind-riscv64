@@ -187,6 +187,23 @@ static void putVxsat(IRSB* irsb, IRExpr* e) {
    putVCSR(irsb, new_vcsr);
 }
 
+/* Read a value from VXRM CSR */
+static IRExpr* getVxrm(void) {
+   IRExpr* vcsr = getVCSR();
+   return binop(Iop_And32, binop(Iop_Shr32, unop(Iop_64to32, vcsr), mkU8(1)),
+                mkU32(3));
+}
+
+/* Write a value to VXRM CSR */
+static void putVxrm(IRSB* irsb, IRExpr* e) {
+   IRType ty = typeOfIRExpr(irsb->tyenv, e);
+   vassert(ty == Ity_I32);
+   IRExpr* vcsr = getVCSR();
+   IRExpr* new_vcsr = binop(Iop_Or64, binop(Iop_And64, vcsr, mkU64(0xFFFFFFFFFFFFFFF9)),
+                            unop(Iop_32Uto64, binop(Iop_Shl32, e, mkU8(1))));
+   putVCSR(irsb, new_vcsr);
+}
+
 /* Find the offset of the requested data type and vector register lane
    number. It is borrowed from ARM64 offsetQRegLane except that we
    do not support 128-sized type currently. Besides, RVV allows elements
@@ -346,6 +363,231 @@ static Bool dis_RV64V_csr(/*MB_OUT*/ DisResult* dres,
                           /*OUT*/ IRSB* irsb,
                           UInt insn)
 {
+   UInt rd  = GET_RD();
+   UInt rs1 = GET_RS1();
+   UInt csr = INSN(31, 20);
+
+   if (GET_FUNCT3() == RV64_SOPC_CSRRW) {
+      DIP("csrrw %s, %s, %s\n", nameIReg(rd), nameVCSR(csr), nameIReg(rs1));
+      switch (csr) {
+         case 0x008: {
+            /* vstart: URW */
+            IRExpr *eR1 = getIReg64(rs1);
+            IRExpr *orig_vstart = getVStart();
+
+            /* This is quoted from RVV 1.x spec 3.4:
+               The vstart CSR is defined to have only enough writable bits to hold the
+               largest element index (one less than the maximum VLMAX) or lg2(VLEN) bits.
+               The upper bits of the vstart CSR are hardwired to zero (reads zero, writes
+               ignored).*/
+            ULong eff_mask = 0xFFFFFFFFFFFFFFFF >> (__builtin_clzll(host_VLENB) - 2);
+            IRExpr* eff_vstart = binop(Iop_And64, mkU64(eff_mask), eR1);
+            putVStart(irsb, eff_vstart);
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_vstart);
+            return True;
+         }
+         case 0x009: {
+            /* vxsat: URW */
+            IRExpr *eR1 = getIReg32(rs1);
+
+            /* vxsat has a single effective bit. */
+            IRExpr *eff_vxsat = binop(Iop_And32, mkU32(0x01), eR1);
+            IRExpr *orig_vxsat = getVxsat();
+            putVxsat(irsb, eff_vxsat);
+            if (rd != 0)
+               putIReg32(irsb, rd, orig_vxsat);
+            return True;
+         }
+         case 0x00A: {
+            /* vxrm: URW */
+            IRExpr *eR1 = getIReg32(rs1);
+            IRExpr *orig_vxrm = getVxrm();
+
+            /* vxrm has 2 effective bits in [1:0], [XLEN-1:2] bits should be zeros. */
+            IRExpr *eff_vxrm = binop(Iop_And32, mkU32(0x03), eR1);
+            putVxrm(irsb, eff_vxrm);
+            if (rd != 0)
+               putIReg32(irsb, rd, orig_vxrm);
+            return True;
+         }
+         case 0x00F: {
+            /* vcsr: URW */
+            IRExpr *eff_vcsr = getIReg64(rs1);
+            IRExpr *orig_vcsr = getVCSR();
+            putVCSR(irsb, eff_vcsr);
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_vcsr);
+            return True;
+         }
+         /* VL/VTYPE are read-only CSRs */
+         default:
+            return False;
+      }
+   }
+
+   if (GET_FUNCT3() == RV64_SOPC_CSRRS) {
+      DIP("csrrs %s, %s, %s\n", nameIReg(rd), nameVCSR(csr), nameIReg(rs1));
+      switch (csr) {
+         case 0x008: {
+            /* vstart: URW */
+            IRExpr *orig_vstart = getVStart();
+            IRExpr *eR1 = getIReg64(rs1);
+            ULong eff_mask = 0xFFFFFFFFFFFFFFFF >> (__builtin_clzll(host_VLENB) - 2);
+            IRExpr* eff_bits = binop(Iop_And64, mkU64(eff_mask), eR1);
+            IRExpr* eff_vstart = binop(Iop_Or64, eff_bits, orig_vstart);
+            putVStart(irsb, eff_vstart);
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_vstart);
+            return True;
+         }
+         case 0x009: {
+            /* vxsat: URW */
+            IRExpr *orig_vxsat = getVxsat();
+            IRExpr *eR1 = getIReg32(rs1);
+            IRExpr* eff_bits = binop(Iop_And32, mkU32(0x01), eR1);
+            IRExpr* eff_vxsat = binop(Iop_Or32, eff_bits, orig_vxsat);
+            putVxsat(irsb, eff_vxsat);
+            if (rd != 0)
+               putIReg32(irsb, rd, orig_vxsat);
+            return True;
+         }
+         case 0x00A: {
+            /* vxrm: URW */
+            IRExpr *orig_vxrm = getVxrm();
+            IRExpr *eR1 = getIReg32(rs1);
+            IRExpr* eff_bits = binop(Iop_And32, mkU32(0x03), eR1);
+            IRExpr* eff_vxrm = binop(Iop_Or32, eff_bits, orig_vxrm);
+            putVxrm(irsb, eff_vxrm);
+            if (rd != 0)
+               putIReg32(irsb, rd, orig_vxrm);
+            return True;
+         }
+         case 0x00F: {
+            /* vcsr: URW */
+            IRExpr *eR1 = getIReg64(rs1);
+            IRExpr *orig_vcsr = getVCSR();
+
+            IRExpr *eff_vcsr = binop(Iop_Or64, orig_vcsr, eR1);
+            putVCSR(irsb, eff_vcsr);
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_vcsr);
+            return True;
+         }
+         case 0xC20: {
+            /* VL: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, getVL());
+            return True;
+         }
+         case 0xC21: {
+            /* VTYPE: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, getVType());
+            return True;
+         }
+         case 0xC22: {
+            /* VLENB: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, mkU64(host_VLENB));
+            return True;
+         }
+         default:
+            return False;
+      }
+   }
+
+   if (GET_FUNCT3() == RV64_SOPC_CSRRC) {
+      DIP("csrrc %s, %s, %s\n", nameIReg(rd), nameVCSR(csr), nameIReg(rs1));
+      switch (csr) {
+         case 0x008: {
+            /* vstart: URW */
+            IRExpr *orig_vstart = getVStart();
+            IRExpr *eR1 = getIReg64(rs1);
+            ULong eff_mask = 0xFFFFFFFFFFFFFFFF >> (__builtin_clzll(host_VLENB) - 2);
+            IRExpr* eff_bits = binop(Iop_And64, mkU64(eff_mask), eR1);
+            IRExpr* eff_vstart = binop(Iop_And64, binop(Iop_Xor64, eff_bits, orig_vstart),
+                                       orig_vstart);
+            putVStart(irsb, eff_vstart);
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_vstart);
+            return True;
+         }
+         case 0x009: {
+            /* vxsat: URW */
+            IRExpr *orig_vxsat = getVxsat();
+            IRExpr *eR1 = getIReg32(rs1);
+            IRExpr* eff_bits = binop(Iop_And32, mkU32(0x01), eR1);
+            IRExpr* eff_vxsat = binop(Iop_And32, binop(Iop_Xor32, eff_bits, orig_vxsat),
+                                      orig_vxsat);
+            putVxsat(irsb, eff_vxsat);
+            if (rd != 0)
+               putIReg32(irsb, rd, orig_vxsat);
+            return True;
+         }
+         case 0x00A: {
+            /* vxrm: URW */
+            IRExpr *orig_vxrm = getVxrm();
+            IRExpr *eR1 = getIReg32(rs1);
+            IRExpr* eff_bits = binop(Iop_And32, mkU32(0x03), eR1);
+            IRExpr* eff_vxrm = binop(Iop_And32, binop(Iop_Xor32, eff_bits, orig_vxrm),
+                                     orig_vxrm);
+            putVxrm(irsb, eff_vxrm);
+            if (rd != 0)
+               putIReg32(irsb, rd, orig_vxrm);
+            return True;
+         }
+         case 0x00F: {
+            /* vcsr: URW */
+            IRExpr *eR1 = getIReg64(rs1);
+            IRExpr *orig_vcsr = getVCSR();
+            IRExpr *eff_vcsr = binop(Iop_And64, binop(Iop_Xor64, eR1, orig_vcsr),
+                                     orig_vcsr);
+            putVCSR(irsb, eff_vcsr);
+            if (rd != 0)
+               putIReg64(irsb, rd, orig_vcsr);
+            return True;
+         }
+         case 0xC20: {
+            /* VL: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, getVL());
+            return True;
+         }
+         case 0xC21: {
+            /* VTYPE: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, getVType());
+            return True;
+         }
+         case 0xC22: {
+            /* VLENB: URO */
+            if (rs1 != 0)
+               /* Attempt to write a value to URO CSR. */
+               return False;
+            if (rd != 0)
+               putIReg64(irsb, rd, mkU64(host_VLENB));
+            return True;
+         }
+         default:
+            return False;
+      }
+   }
    return False;
 }
 
