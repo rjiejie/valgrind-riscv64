@@ -327,6 +327,7 @@ else
 endif
 libvex_test_CFLAGS      = $(AM_CFLAGS) @FLAG_FSANITIZE@
 libvex_test_LDADD       = ../../VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a \
+                          ../../VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@-rv64v0p7.a \
 			   @LIB_UBSAN@
 libvexmultiarch_test_CFLAGS= $(AM_CFLAGS) @FLAG_FSANITIZE@
 if VGCONF_ARCHS_INCLUDE_RISCV64
@@ -336,7 +337,8 @@ libvexmultiarch_test_LDFLAGS = -Wl,--no-relax
 endif
 libvexmultiarch_test_LDADD = \
 	../../VEX/libvexmultiarch-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a \
-	../../VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a @LIB_UBSAN@
+	../../VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@.a \
+	../../VEX/libvex-@VGCONF_ARCH_PRI@-@VGCONF_OS@-rv64v0p7.a @LIB_UBSAN@
 libvexmultiarch_test_SOURCES = libvex_test.c
 ppoll_alarm_LDADD	= -lpthread
 pselect_alarm_LDADD	= -lpthread
