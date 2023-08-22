@@ -353,7 +353,44 @@ static Bool dis_RV64V_cfg(/*MB_OUT*/ DisResult* dres,
                           /*OUT*/ IRSB*         irsb,
                           UInt                  insn)
 {
-   return False;
+   Bool is_vsetvl = GET_FUNCT7() == 0b1000000;
+   Bool is_vsetivli = INSN(31, 30) == 0b11;
+   UInt rd  = GET_RD();
+   UInt rs1 = GET_RS1();
+
+   if (is_vsetvl) {
+      /* In vsetvl case, we cannot immediately get the written value from GPR,
+         therefore we terminate translation and return to scheduler. */
+      UInt   rs2 = GET_RS2();
+      IRExpr* s2 = getIReg64(rs2);
+      putVType(irsb, binop(Iop_And64, s2, mkU64(0xFF)));
+   } else {
+      UInt imm = is_vsetivli ? INSN(29, 20) : INSN(30, 20);
+      putVType(irsb, binop(Iop_And64, mkU64(imm), mkU64(0xFF)));
+   }
+
+   /* Update VL */
+   IRExpr* new_vl = is_vsetivli ? mkU64(rs1) : NULL;
+   if (new_vl == NULL) {
+      IRExpr* vtype  = getVType();
+      IRExpr* lmul   = binop(Iop_And64, vtype, mkU64(0x07));
+      IRExpr* sew    = binop(Iop_Shr64, binop(Iop_And64, vtype, mkU64(0x38)), mkU8(3));
+      IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Shl64, mkU64(host_VLENB), unop(Iop_64to8, lmul)),
+                             unop(Iop_64to8, sew));
+      if (rs1 == 0 && rd == 0)
+         return True;
+      if (rs1 == 0)
+         new_vl = vl_max;
+      else
+         new_vl = IRExpr_ITE(binop(Iop_CmpLT64U, getIReg64(rs1), vl_max),
+                             getIReg64(rs1), vl_max);
+   }
+   putVL(irsb, new_vl);
+
+   if (rd != 0)
+      putIReg64(irsb, rd, new_vl);
+
+   return True;
 }
 
 static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
