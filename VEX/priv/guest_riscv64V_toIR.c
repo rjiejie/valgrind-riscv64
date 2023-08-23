@@ -817,6 +817,10 @@ static Bool dis_RV64V_arith_OPI(/*MB_OUT*/ DisResult* dres,
        * Vector Slideup Instructions
        */
       case 0b001110:
+         if (isVOpVV(GET_FUNCT3())) {
+            GETC_VBinopOPI(vrgatherei16, V, NIL, NIL);
+            return True;
+         }
          GETC_VBinopOPI(vslideup, NIL, X, I);
          return True;
       /*

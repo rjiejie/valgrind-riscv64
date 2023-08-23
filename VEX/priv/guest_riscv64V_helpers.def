@@ -106,6 +106,7 @@ RVV_FT_DEF(vslidedown, NIL,         BinopOPIVX, BinopOPIVI)
 RVV_FT_DEF(vslide1up,  NIL,         BinopOPIVX, NIL)
 RVV_FT_DEF(vslide1down,NIL,         BinopOPIVX, NIL)
 RVV_FT_DEF(vrgather,   BinopOPIVV,  BinopOPIVX, BinopOPIVI)
+RVV_FT_DEF(vrgatherei16,   BinopOPIVV,  NIL, NIL)
 
 RVV_FT_DEF(vredsum,   BinopOPIVS,   NIL, NIL)
 RVV_FT_DEF(vredmaxu,  BinopOPIVS,   NIL, NIL)
