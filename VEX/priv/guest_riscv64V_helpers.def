@@ -305,6 +305,9 @@ RVV_UnopOPFW_FT(vfncvt_rtz_x_f, vfncvt.rtz.x.f)
 
 RVV_UnopOPF_FT_VAR_T(vfmerge, vfmv.v, F, F)
 
+RVV_FFT_DEF(vfslide1up,   NIL, BinopOPFVF)
+RVV_FFT_DEF(vfslide1down, NIL, BinopOPFVF)
+
 #pragma push_macro("VInsnVF")
 #undef  VInsnVF
 #define VInsnVF(insn) #insn

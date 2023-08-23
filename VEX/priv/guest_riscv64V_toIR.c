@@ -1523,6 +1523,18 @@ static Bool dis_RV64V_arith_OPF(/*MB_OUT*/ DisResult* dres,
       case 0b110001:
          GETC_VBinopOPF_VAR(vfwredusum, V, NIL, GETV_VopM1D);
          return True;
+      /*
+       * Vector Floating-Point Slide1up Instructions
+       */
+      case 0b001110:
+         GETC_VBinopOPF(vfslide1up, NIL, F);
+         return True;
+      /*
+       * Vector Floating-Point Slide1down Instructions
+       */
+      case 0b001111:
+         GETC_VBinopOPF(vfslide1down, NIL, F);
+         return True;
       default:
          break;
    }
