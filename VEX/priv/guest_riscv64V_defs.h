@@ -518,6 +518,7 @@
 #define RVV_BinopSATWI_FT(insn)     RVV_BinopSAT_FT_VAR(insn, WI, VI)
 
 /* Unop */
+#define RVV_UnopOPIV_FT(insn)       RVV_UnopOPI_FT_VAR(insn, V, V)
 #define RVV_UnopOPIM_FT(insn)       RVV_UnopOPI_FT_VAR(insn, M, V)
 
 /*---------------------------------------------------------------*/

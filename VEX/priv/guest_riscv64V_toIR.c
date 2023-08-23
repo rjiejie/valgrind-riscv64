@@ -793,6 +793,26 @@ static Bool dis_RV64V_arith_OPI(/*MB_OUT*/ DisResult* dres,
        * Vector Single-Width Fractional Multiply with Rounding and Saturation
        */
       case 0b100111:
+         if (isVOpVI(GET_FUNCT3())) {
+            /*
+             * Whole Vector Register Move
+             */
+            switch (rs1) {
+               case 0:
+                  GETC_VUnopOPI(vmv1r, V, NIL, NIL);
+                  return True;
+               case 1:
+                  GETC_VUnopOPI(vmv2r, V, NIL, NIL);
+                  return True;
+               case 3:
+                  GETC_VUnopOPI(vmv4r, V, NIL, NIL);
+                  return True;
+               case 7:
+                  GETC_VUnopOPI(vmv8r, V, NIL, NIL);
+                  return True;
+            }
+            return False;
+         }
          GETC_VBinopSAT(vsmul, V, X, NIL);
          return True;
       /*

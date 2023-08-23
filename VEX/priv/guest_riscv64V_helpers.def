@@ -190,6 +190,15 @@ RVV_UnopOPI_FT_VAR_T(vsextf4, vsext.vf4, V, V)
 RVV_UnopOPI_FT_VAR_T(vsextf8, vsext.vf8, V, V)
 #pragma pop_macro("VInsnV")
 
+#pragma push_macro("RVV_UnopV_M")
+#undef  RVV_UnopV_M
+#define RVV_UnopV_M RVV_UnopV
+RVV_FT_DEF(vmv1r, UnopOPIV, NIL, NIL)
+RVV_FT_DEF(vmv2r, UnopOPIV, NIL, NIL)
+RVV_FT_DEF(vmv4r, UnopOPIV, NIL, NIL)
+RVV_FT_DEF(vmv8r, UnopOPIV, NIL, NIL)
+#pragma pop_macro("RVV_UnopV_M")
+
 #pragma push_macro("RVV_WholeST")
 #undef  RVV_WholeST
 #define RVV_WholeST
