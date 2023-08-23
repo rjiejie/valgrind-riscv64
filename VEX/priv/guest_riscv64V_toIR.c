@@ -29,16 +29,18 @@
 #include "guest_riscv64V_defs.h"
 
 #define GET_VMASK() INSN(25, 25)
-#define GET_MOP()   INSN(28, 26)
+#define GET_MOP()   INSN(27, 26)
 #define GET_NF()    INSN(31, 29)
+#define GET_MEW()   INSN(28, 28)
+#define GET_UMOP()  INSN(24, 20)
 
 /*------------------------------------------------------------*/
 /*--- Globals                                              ---*/
 /*------------------------------------------------------------*/
 
 static Bool  host_VersionV;
-static ULong host_VLENB;
-static ULong guest_VFLAG;
+ULong host_VLENB;
+ULong guest_VFLAG;
 
 /*------------------------------------------------------------*/
 /*--- Offsets of various parts of the riscv64 guest state  ---*/
@@ -358,6 +360,227 @@ GETD_VUnop(IRDirty* d, UInt vd, UInt src, Bool mask, UInt sopc, UInt vtype, UInt
    return d;
 }
 
+/* Vector load/store dirty information filler */
+/* Details should be distinguished between RVV 1.0 and 0.7.1:
+   (1) Mask elements in RVV 1.0 are lowest single bits in v0 register
+       and independent of SEW/LMUL, while mask elements are determined
+       by SEW/LMUL in RVV 0.7.1.
+   (2) RVV 1.0 uses EEW to encode index values and SEW to encode data
+       values. RVV 0.7.1 uniformly uses vtype-encoded SEW to calculate
+       index and data.
+
+   To conveniently switch from RVV 1.0 style to RVV 0.7.1 style, we use some
+   function pointer arrays to hold what are varied across two spec versions.
+*/
+
+typedef void index_addr_filler_func(IRExpr**, UInt, UInt, UInt, UInt, UInt, UInt, UInt);
+typedef ULong dirty_get_mask_func(VexGuestRISCV64State*, ULong, UInt, UInt, UInt);
+
+typedef struct {
+   index_addr_filler_func* index_addr;
+   dirty_get_mask_func* mask_helper;
+} AuxilaryHandlers;
+
+static ULong dirty_get_mask(VexGuestRISCV64State *st, ULong mask,
+                            __attribute__((unused)) UInt lmul,
+                            __attribute__((unused)) UInt sew, UInt idx) {
+   ULong res = 0;
+   mask += (ULong) st;
+
+   /* Figure out the required 8 mask elements locate in which 16-bit segment. */
+   UInt seg16_idx = (idx >> 4);
+   UShort mask_seg16 = *(((UShort *) mask) + seg16_idx);
+   UInt seg16_sft = idx - (idx >> 4);
+
+   /* Truncate it out of 16-bit segment to 8-bit mask*/
+   UChar mask_8 = (UChar) (mask_seg16 >> seg16_sft);
+
+   /* Extend mask_8 to ULong result */
+   for (UInt i = 0; i < 8; i++) {
+      res |= (((ULong) ((UChar) (mask_8 & 0x01))) << (56 - 8 * i));
+      mask_8 = mask_8 >> 1;
+   }
+   return res;
+}
+
+/* Fill mMask array */
+static inline IRExpr** calculate_dirty_mask(IRSB *irsb,  /* MOD */
+                                            Bool mask, UInt vl,
+                                            UInt lmul, UInt sew, UInt vstart,
+                                            dirty_get_mask_func* mask_getter) {
+   IRExpr** maskV = NULL;
+   UInt n_addrs   = vl - vstart;
+   if (mask)
+      return maskV;
+   else
+      maskV = LibVEX_Alloc_inline(n_addrs * sizeof(IRExpr*));
+
+   UInt idx = 0;
+   while (idx < n_addrs) {
+      /* Each iteration handles 8 mask elements until all elements consumed. */
+      IRTemp   mask_segs = newTemp(irsb, Ity_I64);
+      IRExpr** args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(0)), mkU32(lmul),
+                                    mkU32(sew), mkU32(vstart + idx));
+      IRDirty *m_d = unsafeIRDirty_1_N(mask_segs, 0, "dirty_get_mask",
+                                       mask_getter, args);
+      /* The following claims are used to pass the dirty sanity check. As
+         sanity check for dirty helpers with guest pointer as its argument
+         compulsively require fxState.fx/offset/size, we point it to always
+         defined x0 register in riscv64. Only to pass the sanity check,
+         the actual v0 access is marked in GETD_Common_VLdSt. */
+      vex_bzero(&m_d->fxState, sizeof(m_d->fxState));
+      m_d->nFxState          = 1;
+      m_d->fxState[0].fx     = Ifx_Read;
+      m_d->fxState[0].offset = offsetIReg64(0);
+      m_d->fxState[0].size   = 1;
+
+      UInt n_mask = n_addrs - idx < 8 ? n_addrs - idx : 8;
+      for (UInt i = 0; i < n_mask; i++)
+         maskV[idx++] = unop(Iop_64to1, binop(Iop_Shr64, mkexpr(mask_segs), mkU8(i * 8)));
+      stmt(irsb, IRStmt_Dirty(m_d));
+   }
+   return maskV;
+}
+
+/* The parameter sew is actually 'width' in RVV 1.0. It is real sew in RVV 0.7.1. */
+static inline void index_addr_filler(IRExpr** addrV, /* OUT */
+                                     UInt vstart, UInt vl, UInt r, UInt s2,
+                                     __attribute__((unused)) UInt width,
+                                     UInt sew, UInt idx) {
+   UInt sew_lg2 = 31 - __builtin_clz((UInt) sew);
+   IROp       ops[4] = {Iop_8Sto64, Iop_16Sto64, Iop_32Sto64, Iop_LAST};
+   IRType off_tys[4] = {Ity_I8, Ity_I16, Ity_I32, Ity_I64};
+   vassert(sew_lg2 >=0 && sew_lg2 <= 3);
+   IRExpr* offset;
+   for (UInt i = vstart; i < vl; i++) {
+      if (ops[sew_lg2] != Iop_LAST)
+         offset = unop(ops[sew_lg2], getVRegLane(s2, i, off_tys[sew_lg2]));
+      else
+         offset = getVRegLane(s2, i, off_tys[sew_lg2]);
+      addrV[idx++] = binop(Iop_Add64, getIReg64(r), offset);
+   }
+}
+
+/* sew and width are exchanged to make 100 and 071 different */
+static void index_addr_filler_100(IRExpr** addrV, /* OUT */
+                                  UInt vstart, UInt vl, UInt r, UInt s2,
+                                  UInt width, UInt sew, UInt idx) {
+   index_addr_filler(addrV, vstart, vl, r, s2, sew, width, idx);
+}
+
+static AuxilaryHandlers RVV_aux_handler = {&index_addr_filler_100, &dirty_get_mask};
+
+/* Prepare Vload/Vstore dirty helper info */
+static IRDirty*
+GETD_Common_VLdSt(IRSB *irsb,                /* MOD */
+                  IRDirty* d,                /* OUT */
+                  UInt v, UInt r, UInt s2,   /* Inst oprd */
+                  Bool mask, Bool isLD, UInt lmul, UInt sew,
+                  UInt nf, ULong width,
+                  VLdstT ldst_ty, AuxilaryHandlers handlers)
+{
+   UInt vstart = extract_vstart(guest_VFLAG);
+   UInt vl     = extract_vl(guest_VFLAG);
+   d->nFxState = 2;
+   vex_bzero(&d->fxState, sizeof(d->fxState));
+   IRExpr** addrV = NULL;
+
+   /* Mark memory effect: address and mask */
+   d->mFx         = isLD ? Ifx_Read : Ifx_Write;
+   d->mSize       = width * nf;
+   if (mask && ldst_ty == UnitStride) {
+      d->mAddr = binop(Iop_Add64, getIReg64(r), mkU64(vstart * d->mSize));
+      d->mSize *= vl - vstart;
+   } else {
+      d->mNAddrs = vl - vstart;
+      addrV = LibVEX_Alloc_inline(d->mNAddrs * sizeof(IRExpr*));
+   }
+
+   /* Address info */
+   UInt idx = 0;
+   switch (ldst_ty) {
+      case UnitStride:
+         if (mask)
+            break;
+         for (UInt i = vstart; i < vl; i++)
+            addrV[idx++] = binop(Iop_Add64, getIReg64(r), mkU64(i * d->mSize));
+         break;
+      case Strided: {
+         for (UInt i = vstart; i < vl; i++)
+            addrV[idx++] = binop(Iop_Add64, getIReg64(r),
+                                 binop(Iop_Mul64, mkU64(i), getIReg64(s2)));
+         break;
+      }
+      case Indexed: {
+         /* Dispatch between RVV 1.0 and 0.7.1 occurs in argumant passing */
+         handlers.index_addr(addrV, vstart, vl, r, s2, sew, width, idx);
+         break;
+      }
+      default:
+         vassert(0);
+   }
+   d->mAddrVec = addrV;
+
+   /* Mask info */
+   d->mMask = calculate_dirty_mask(irsb, mask, vl, lmul, sew, vstart, handlers.mask_helper);
+
+   /* Mark vector register modified */
+   d->fxState[0].fx        = isLD ? Ifx_Write : Ifx_Read;
+   d->fxState[0].offset    = offsetVReg(v);
+   d->fxState[0].size      = host_VLENB;
+   d->fxState[0].nRepeats  = lmul * nf - 1;
+   d->fxState[0].repeatLen = lmul * nf - 1 == 0 ? 0 : host_VLENB;
+
+   /* Mark gpr state modified */
+   d->fxState[1].fx        = Ifx_Read;
+   d->fxState[1].offset    = offsetIReg64(r);
+   d->fxState[1].size      = 8;
+
+   switch (ldst_ty) {
+      case Strided:
+         d->fxState[2].fx     = Ifx_Read;
+         d->fxState[2].offset = offsetIReg64(s2);
+         d->fxState[2].size   = 8;
+         d->nFxState += 1;
+         break;
+      case Indexed:
+         d->fxState[2].fx        = Ifx_Read;
+         d->fxState[2].offset    = offsetVReg(s2);
+         d->fxState[2].size      = host_VLENB;
+         d->fxState[2].nRepeats  = lmul - 1;
+         d->fxState[2].repeatLen = lmul - 1 == 0 ? 0 : host_VLENB;
+         d->nFxState += 1;
+         break;
+      default:
+         break;
+   }
+
+   /* Mark v0 register is read if mask == 0 */
+   if (!mask) {
+      d->fxState[d->nFxState].fx     = Ifx_Read;
+      d->fxState[d->nFxState].offset = offsetVReg(0);
+      d->fxState[d->nFxState].size   = host_VLENB;
+      d->nFxState += 1;
+   }
+   return d;
+}
+
+static inline Bool RVV_is_normal_load(UInt nf, Bool isLD) {
+   return nf == 1 && isLD;
+}
+
+static inline Bool RVV_is_normal_store(UInt nf, Bool isLD) {
+   return nf == 1 && !isLD;
+}
+
+static inline Bool RVV_is_seg_load(UInt nf, Bool isLD) {
+   return nf != 1 && isLD;
+}
+
+static inline Bool RVV_is_seg_store(UInt nf, Bool isLD) {
+   return nf != 1 && !isLD;
+}
+
 #include "guest_riscv64V_helpers.c"
 
 static Bool dis_RV64V_csr(/*MB_OUT*/ DisResult* dres,
@@ -636,10 +859,326 @@ static Bool dis_RV64V_cfg(/*MB_OUT*/ DisResult* dres,
    return True;
 }
 
+static inline Bool RVV_is_unitstride(UInt insn, Bool isLD) {
+   return GET_MOP() == 0b00;
+}
+
+static inline Bool RVV_is_strided(UInt insn, Bool isLD) {
+   return GET_MOP() == 0b10;
+}
+
+static inline Bool RVV_is_indexed(UInt insn, Bool isLD, UInt nf) {
+   return GET_MOP() == 0b11 || GET_MOP() == 0b01;
+}
+
+#define WHOLE_LOAD_NF_CASES(width)       \
+   switch (nf) {                         \
+      case 1: {                          \
+         GETC_VWHOLELDST(vl1re##width);  \
+         return True;                    \
+      }                                  \
+      case 2: {                          \
+         GETC_VWHOLELDST(vl2re##width);  \
+         return True;                    \
+      }                                  \
+      case 4: {                          \
+         GETC_VWHOLELDST(vl4re##width);  \
+         return True;                    \
+      }                                  \
+      case 8: {                          \
+         GETC_VWHOLELDST(vl8re##width);  \
+         return True;                    \
+      }                                  \
+      default:                           \
+         return False;                   \
+   }
+
 static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
                            /*OUT*/ IRSB*         irsb,
                            UInt                  insn)
 {
+   Bool isLD          = GET_OPCODE() == OPC_LOAD_FP;
+   IRDirty *d         = NULL;
+   void *fAddr        = NULL;
+   const HChar *fName = NULL;
+   IRExpr **args      = NULL;
+   ULong width;
+
+   UInt v     = GET_RD();     /* vd for load *or* vs3 for store */
+   UInt rs    = GET_RS1();    /* base address register rs1 */
+   UInt nf    = GET_NF() + 1; /* nf value */
+   Bool mask  = GET_VMASK();  /* if mask is enabled? */
+   UInt mew   = GET_MEW();
+   UInt sew   = extract_sew(guest_VFLAG);
+   UInt lmul  = extract_lmul(guest_VFLAG);
+   Bool whole = GET_UMOP() == 0b01000;   /* indicator for RVV 1.0 whole register load/store */
+   Bool mldst = GET_UMOP() == 0b01011;   /* indicator for RVV 1.0 mask register load/store */
+
+   switch (GET_FUNCT3()) {
+      case 0b000:
+         width = 1;
+         break;
+      case 0b101:
+         width = 2;
+         break;
+      case 0b110:
+         width = 4;
+         break;
+      case 0b111:
+         width = 8;
+         break;
+      default:
+         return False;
+   }
+
+   if (mew)
+      return False;
+
+   if (whole) {
+      if (isLD) {
+         switch (width) {
+            case 1: {
+               WHOLE_LOAD_NF_CASES(8);
+            }
+            case 2: {
+               WHOLE_LOAD_NF_CASES(16);
+            }
+            case 4: {
+               WHOLE_LOAD_NF_CASES(32);
+            }
+            case 8: {
+               WHOLE_LOAD_NF_CASES(64);
+            }
+            default:
+               /* Not reached */
+               return False;
+         }
+      } else {
+         switch (nf) {
+            case 1: {
+               GETC_VWHOLELDST(vs1r);
+               return True;
+            }
+            case 2: {
+               GETC_VWHOLELDST(vs2r);
+               return True;
+            }
+            case 4: {
+               GETC_VWHOLELDST(vs4r);
+               return True;
+            }
+            case 8: {
+               GETC_VWHOLELDST(vs8r);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+   }
+
+   if (mldst) {
+      /* TODO: mask load/store */
+      return False;
+   }
+
+   /* unit stride */
+   if (RVV_is_unitstride(insn, isLD)) {
+      /* unit-stride normal load */
+      if (RVV_is_normal_load(nf, isLD)) {
+         switch (width) {
+            case 1: {                 /* 8-bit load */
+               GETC_VLDST(vle8);
+               return True;
+            }
+            case 2: {                 /* 16-bit load */
+               GETC_VLDST(vle16);
+               return True;
+            }
+            case 4: {                 /* 32-bit load */
+               GETC_VLDST(vle32);
+               return True;
+            }
+            case 8: {                 /* 64-bit load */
+               GETC_VLDST(vle64);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+
+      if (RVV_is_seg_load(nf, isLD)) { /* unit-stride segment load */
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+
+      /* unit-stride normal store */
+      if (RVV_is_normal_store(nf, isLD)){
+         switch (width) {
+            case 1: {                 /* 8-bit store */
+               GETC_VLDST(vse8);
+               return True;
+            }
+            case 2: {                 /* 16-bit store */
+               GETC_VLDST(vse16);
+               return True;
+            }
+            case 4: {                 /* 32-bit store */
+               GETC_VLDST(vse32);
+               return True;
+            }
+            case 8: {                 /* 64-bit store */
+               GETC_VLDST(vse64);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+
+      if (RVV_is_seg_store(nf, isLD)) {  /* unit-stride segment store */
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+      return False;
+   }
+
+   /* strided */
+   if (RVV_is_strided(insn, isLD)) {      /* strided store */
+      UInt rs2 = GET_RS2(); /* stride register */
+      /* strided normal load */
+      if (RVV_is_normal_load(nf, isLD)) {
+         switch (width) {
+            case 1: {                 /* 8-bit load */
+               GETC_VSLDST(vlse8);
+               return True;
+            }
+            case 2: {                 /* 16-bit load */
+               GETC_VSLDST(vlse16);
+               return True;
+            }
+            case 4: {                 /* 32-bit load */
+               GETC_VSLDST(vlse32);
+               return True;
+            }
+            case 8: {                 /* 64-bit load */
+               GETC_VSLDST(vlse64);
+               return True;
+            }
+         }
+      }
+
+      if (RVV_is_seg_load(nf, isLD)) { /* strided segment load */
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+
+      /* strided normal store */
+      if (RVV_is_normal_store(nf, isLD)) {
+         switch (width) {
+            case 1: {                 /* 8-bit store */
+               GETC_VSLDST(vsse8);
+               return True;
+            }
+            case 2: {                 /* 16-bit store */
+               GETC_VSLDST(vsse16);
+               return True;
+            }
+            case 4: {                 /* 32-bit store */
+               GETC_VSLDST(vsse32);
+               return True;
+            }
+            case 8: {                 /* 64-bit store */
+               GETC_VSLDST(vsse64);
+               return True;
+            }
+            default:
+               return False;
+         }
+      }
+
+      if (RVV_is_seg_store(nf, isLD)) { /* strided segment store */
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+      return False;
+   }
+
+   /* indexed */
+   if (RVV_is_indexed(insn, isLD, nf)) {
+      UInt vs2 = GET_RS2(); /* index register */
+      /* indexed normal load */
+      if (RVV_is_normal_load(nf, isLD)) {
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+
+      if (RVV_is_seg_load(nf, isLD)) { /* indexed segment load */
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+
+      /* indexed normal store */
+      if (RVV_is_normal_store(nf, isLD)) {
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+
+      if (RVV_is_seg_store(nf, isLD)) { /* indexed segment store */
+         switch (width) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            default:
+               return False;
+         }
+      }
+      return False;
+   }
    return False;
 }
 

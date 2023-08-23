@@ -326,5 +326,80 @@ RVV_BinopOPF_FT_VAR_T(vfmerge, vfmerge.vfm, VF, VFM)
 
 RVV_UnopOPF_FT_VAR_T(vfmvs, vfmv.s, F, F)
 
+/* Change name space from RVV0p7 to RVV */
+#undef  HELPER_NAME
+#define HELPER_NAME(insn, vm)  RVV_VLdst_##insn##vm
+
+#pragma push_macro("RVV_Load_GuestState")
+#pragma push_macro("RVV_Store_GuestState")
+#pragma push_macro("RVV_Load_Memory")
+#pragma push_macro("RVV_Store_Memory")
+
+#undef  RVV_Load_Memory
+#undef  RVV_Store_GuestState
+#define RVV_Load_Memory       RVV_Unit_Stride_Load_Store_Memory
+#define RVV_Store_GuestState  RVV_USX_Store_GuestState
+RVV_VLdst(vle8,  vse8,  DIRTY_VLOAD_BODY)
+RVV_VLdst(vle16, vse16, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle32, vse32, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle64, vse64, DIRTY_VLOAD_BODY)
+
+#undef  RVV_Load_GuestState
+#undef  RVV_Store_Memory
+#define RVV_Load_GuestState  RVV_USX_Load_GuestState
+#define RVV_Store_Memory     RVV_Unit_Stride_Load_Store_Memory
+RVV_VLdst(vse8,  vle8,  DIRTY_VSTORE_BODY)
+RVV_VLdst(vse16, vle16, DIRTY_VSTORE_BODY)
+RVV_VLdst(vse32, vle32, DIRTY_VSTORE_BODY)
+RVV_VLdst(vse64, vle64, DIRTY_VSTORE_BODY)
+
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory     RVV_Strided_Load_Store_Memory
+RVV_VSXLdst(vlse8,  vse8,  DIRTY_VLOAD_BODY)
+RVV_VSXLdst(vlse16, vse16, DIRTY_VLOAD_BODY)
+RVV_VSXLdst(vlse32, vse32, DIRTY_VLOAD_BODY)
+RVV_VSXLdst(vlse64, vse64, DIRTY_VLOAD_BODY)
+
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory    RVV_Strided_Load_Store_Memory
+RVV_VSXLdst(vsse8,  vle8,  DIRTY_VSTORE_BODY)
+RVV_VSXLdst(vsse16, vle16, DIRTY_VSTORE_BODY)
+RVV_VSXLdst(vsse32, vle32, DIRTY_VSTORE_BODY)
+RVV_VSXLdst(vsse64, vle64, DIRTY_VSTORE_BODY)
+
+/* Whole register load/store */
+#undef  RVV_Load_Memory
+#undef  RVV_Store_GuestState
+#define RVV_Load_Memory       RVV_Unit_Stride_Load_Store_Memory
+#define RVV_Store_GuestState  RVV_USX_Store_GuestState
+RVV_VWholeLdst(vl1re8,  vs1r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl1re16, vs1r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl1re32, vs1r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl1re64, vs1r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl2re8,  vs2r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl2re16, vs2r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl2re32, vs2r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl2re64, vs2r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl4re8,  vs4r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl4re16, vs4r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl4re32, vs4r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl4re64, vs4r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl8re8,  vs8r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl8re16, vs8r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl8re32, vs8r, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vl8re64, vs8r, DIRTY_VLOAD_BODY)
+
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory     RVV_Unit_Stride_Load_Store_Memory
+RVV_VWholeLdst(vs1r, vl1re8, DIRTY_VSTORE_BODY)
+RVV_VWholeLdst(vs2r, vl2re8, DIRTY_VSTORE_BODY)
+RVV_VWholeLdst(vs4r, vl4re8, DIRTY_VSTORE_BODY)
+RVV_VWholeLdst(vs8r, vl8re8, DIRTY_VSTORE_BODY)
+
+#pragma pop_macro("RVV_Load_GuestState")
+#pragma pop_macro("RVV_Store_GuestState")
+#pragma pop_macro("RVV_Load_Memory")
+#pragma pop_macro("RVV_Store_Memory")
+
 #pragma pop_macro("RVV_Pre")
 #pragma pop_macro("RVV_Post")
