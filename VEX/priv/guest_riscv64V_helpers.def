@@ -178,6 +178,17 @@ RVV_UnopOPI_FT_VAR_T(vmv, vmv.v, I, I)
 
 RVV_UnopOPI_FT_VAR_T(vmvs, vmv.s, X, X)
 
+#pragma push_macro("VInsnV")
+#undef  VInsnV
+#define VInsnV(insn) #insn
+RVV_UnopOPI_FT_VAR_T(vzextf2, vzext.vf2, V, V)
+RVV_UnopOPI_FT_VAR_T(vzextf4, vzext.vf4, V, V)
+RVV_UnopOPI_FT_VAR_T(vzextf8, vzext.vf8, V, V)
+RVV_UnopOPI_FT_VAR_T(vsextf2, vsext.vf2, V, V)
+RVV_UnopOPI_FT_VAR_T(vsextf4, vsext.vf4, V, V)
+RVV_UnopOPI_FT_VAR_T(vsextf8, vsext.vf8, V, V)
+#pragma pop_macro("VInsnV")
+
 #pragma push_macro("RVV_WholeST")
 #undef  RVV_WholeST
 #define RVV_WholeST

@@ -1160,6 +1160,31 @@ static Bool dis_RV64V_arith_OPM(/*MB_OUT*/ DisResult* dres,
             }
          }
          break;
+      /*
+       * VXUNARY0
+       */
+      case 0b010010:
+         switch (rs1) {
+            case 0b00010:
+               GETC_VUnopOPI(vzextf8, V, NIL, NIL);
+               return True;
+            case 0b00011:
+               GETC_VUnopOPI(vsextf8, V, NIL, NIL);
+               return True;
+            case 0b00100:
+               GETC_VUnopOPI(vzextf4, V, NIL, NIL);
+               return True;
+            case 0b00101:
+               GETC_VUnopOPI(vsextf4, V, NIL, NIL);
+               return True;
+            case 0b00110:
+               GETC_VUnopOPI(vzextf2, V, NIL, NIL);
+               return True;
+            case 0b00111:
+               GETC_VUnopOPI(vsextf2, V, NIL, NIL);
+               return True;
+         }
+         break;
       default:
          break;
    }
