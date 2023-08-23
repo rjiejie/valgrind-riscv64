@@ -954,6 +954,8 @@ static Bool VG_(parse_cpuinfo)(void)
              ULong vlenb;
              __asm__ __volatile__("vsetvli\t%0,x0,e8,m1\n\t" : "=r"(vlenb) : :);
              vai.regLENB = vlenb;
+             if (VG_(strstr)(file_buf, "0.7.1\n"))
+               vai.riscv_misa |= 1 << 21;
          }
       }
    }

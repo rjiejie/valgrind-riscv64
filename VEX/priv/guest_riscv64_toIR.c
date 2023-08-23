@@ -3524,6 +3524,7 @@ DisResult disInstr_RISCV64(IRSB*              irsb,
    vassert(host_endness == VexEndnessLE);
 
    /* Set globals */
+   host_VersionV = (archinfo->riscv_misa >> 21) & 0x1;
    host_VLENB = archinfo->regLENB;
    guest_VFLAG = archinfo->bb_flag;
 

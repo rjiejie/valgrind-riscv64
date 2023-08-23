@@ -384,6 +384,8 @@ typedef
       ULong bb_flag;
       /* register length in byte for runtime, e.g. VLA */
       ULong regLENB;
+      /* RISCV multi-ISAs version info */
+      ULong riscv_misa;
    }
    VexArchInfo;
 

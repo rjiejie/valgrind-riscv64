@@ -36,6 +36,7 @@
 /*--- Globals                                              ---*/
 /*------------------------------------------------------------*/
 
+static Bool  host_VersionV;
 static ULong host_VLENB;
 static ULong guest_VFLAG;
 
@@ -1604,8 +1605,11 @@ static Bool dis_RV64V(/*MB_OUT*/ DisResult* dres,
    if (host_VLENB == 0)
       return False;
 
-   if (dis_RV64V0p7(dres, irsb, insn, guest_pc_curr_instr))
-      return True;
+   if (host_VersionV) {
+      if (dis_RV64V0p7(dres, irsb, insn, guest_pc_curr_instr))
+         return True;
+      return False;
+   }
 
    Bool ok = False;
    UInt nf = 1;
