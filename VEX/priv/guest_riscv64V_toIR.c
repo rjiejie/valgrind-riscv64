@@ -1421,7 +1421,7 @@ static Bool dis_RV64V_arith_OPM(/*MB_OUT*/ DisResult* dres,
    IRExpr **args = NULL;
    UInt temp = 0;
    UInt lmul   = extract_lmul(guest_VFLAG);
-   IRTemp ret = newTemp(irsb, Ity_I64);
+   IRTemp ret = newTemp(irsb, Ity_I32);
    IRTemp xrm = newTemp(irsb, Ity_I32);
 
    UInt rd   = GET_RD();
@@ -1664,12 +1664,13 @@ static Bool dis_RV64V_arith_OPM(/*MB_OUT*/ DisResult* dres,
                /*
                * Integer Extract Instruction
                */
-               case 0b00000:
+               case 0b00000: {
+                  IRTemp dret = newTemp(irsb, Ity_I64);
                   fName = GETN_VUnopV(vmvx);
                   fAddr = GETA_VUnopV(vmvx);
 
                   GETR_VUnopOPI()
-                  d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);
+                  d = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
                   vex_bzero(&d->fxState, sizeof(d->fxState));
                   d->nFxState          = 1;
@@ -1679,9 +1680,10 @@ static Bool dis_RV64V_arith_OPM(/*MB_OUT*/ DisResult* dres,
                   stmt(irsb, IRStmt_Dirty(d));
 
                   if (rd != 0)
-                     putIReg64(irsb, rd, mkexpr(ret));
+                     putIReg64(irsb, rd, mkexpr(dret));
                   DIP("%s(%s, %s)\n", fName, nameIReg(rd), nameVReg(rs2));
                   return True;
+               }
                /*
                * Vector count population in mask vcpop.m
                */
