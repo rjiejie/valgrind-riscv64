@@ -461,14 +461,7 @@ static inline void index_addr_filler(IRExpr** addrV, /* OUT */
    }
 }
 
-/* sew and width are exchanged to make 100 and 071 different */
-static void index_addr_filler_100(IRExpr** addrV, /* OUT */
-                                  UInt vstart, UInt vl, UInt r, UInt s2,
-                                  UInt width, UInt sew, UInt idx) {
-   index_addr_filler(addrV, vstart, vl, r, s2, sew, width, idx);
-}
-
-static AuxilaryHandlers RVV_aux_handler = {&index_addr_filler_100, &dirty_get_mask};
+static AuxilaryHandlers RVV_aux_handler = {&index_addr_filler, &dirty_get_mask};
 
 /* Prepare Vload/Vstore dirty helper info */
 static IRDirty*

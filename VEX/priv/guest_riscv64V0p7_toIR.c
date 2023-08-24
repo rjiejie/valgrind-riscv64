@@ -64,7 +64,7 @@ static ULong dirty_get_mask_0p7(VexGuestRISCV64State *st,
 
 static void index_addr_filler_0p7(IRExpr** addrV, /* OUT */
                                   UInt vstart, UInt vl, UInt r, UInt s2,
-                                  UInt width, UInt sew, UInt idx) {
+                                  UInt sew, UInt width, UInt idx) {
    index_addr_filler(addrV, vstart, vl, r, s2, width, sew, idx);
 }
 
