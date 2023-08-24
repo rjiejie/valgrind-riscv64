@@ -221,7 +221,10 @@ static inline UShort extract_sew(ULong flag) {
 }
 
 static inline UShort extract_lmul(ULong flag) {
-   return (UShort) (1 << FIELD_EX64(flag, BB_FLAG, LMUL));
+   ULong lmul = FIELD_EX64(flag, BB_FLAG, LMUL);
+   if (lmul & 0x4)
+      lmul = 0;
+   return (UShort) (1 << lmul);
 }
 
 static inline UShort extract_vl(ULong flag) {
