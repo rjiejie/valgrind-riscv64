@@ -37,6 +37,7 @@
 #undef  RVV_PutVxsat
 #define RVV_PutVxsat putVxsat0p7
 
+#pragma push_macro("GET_MOP")
 #undef  GET_MOP
 #define GET_MOP()   INSN(28, 26)
 
@@ -1773,6 +1774,7 @@ ExitBB:
 #pragma pop_macro("RVV_PutVxsat")
 #pragma pop_macro("GETN_VOp")
 #pragma pop_macro("GETA_VOp")
+#pragma pop_macro("GET_MOP")
 
 /*--------------------------------------------------------------------*/
 /*--- end                                  guest_riscv64V0p7_toIR.c --*/
