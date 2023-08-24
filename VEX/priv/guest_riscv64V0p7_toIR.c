@@ -1201,7 +1201,9 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
          fName = GETN_VBinopVX(vext);
          fAddr = GETA_VBinopVX(vext);
 
-         GETR_VBinopOPI()
+         args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),
+                              mkU64(offsetVReg(rs2)), mkU64(offsetIReg64(rs1)),
+                              mkU64(offsetVReg(0)));
          d = unsafeIRDirty_1_N(ret, 0, fName, fAddr, args);
 
          vex_bzero(&d->fxState, sizeof(d->fxState));
@@ -1313,7 +1315,8 @@ static Bool dis_RV64V0p7_arith_OPM(/*MB_OUT*/ DisResult* dres,
             fAddr = mask ? GETA_VUnopV(vmfirst) : GETA_VUnopV_M(vmfirst);
          }
 
-         GETR_VUnopOPI()
+         args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(offsetVReg(rs2)),
+                              mkU64(offsetVReg(0)), mkU64(offsetVReg(0)));
          d    = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
          vex_bzero(&d->fxState, sizeof(d->fxState));
@@ -1627,7 +1630,8 @@ static Bool dis_RV64V0p7_arith_OPF(/*MB_OUT*/ DisResult* dres,
          fName = GETN_VUnopV(vfmv);
          fAddr = GETA_VUnopV(vfmv);
 
-         GETR_VUnopOPF()
+         args = mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(offsetVReg(rs2)),
+                              mkU64(offsetVReg(0)), mkU64(offsetVReg(0)), mkexpr(frm));
          d = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
          vex_bzero(&d->fxState, sizeof(d->fxState));
