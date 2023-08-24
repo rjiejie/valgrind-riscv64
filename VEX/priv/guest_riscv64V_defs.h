@@ -672,7 +672,7 @@ extern ULong guest_VFLAG;
       :                                        \
    );
 
-/* For generating all nf variants of switch-case in dis_RV64V0p7_ldst */
+/* For generating all nf variants of switch-case in dis_XXX */
 #define VSEG_DIS_NF_CASES(get_c_macro, insn_prefix, \
                           insn_suffix)              \
    switch (nf) {                                    \

@@ -343,6 +343,11 @@ RVV_VLdst(vle8,  vse8,  DIRTY_VLOAD_BODY)
 RVV_VLdst(vle16, vse16, DIRTY_VLOAD_BODY)
 RVV_VLdst(vle32, vse32, DIRTY_VLOAD_BODY)
 RVV_VLdst(vle64, vse64, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle8ff,  vse64, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle16ff, vse64, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle32ff, vse64, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle64ff, vse64, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vlm, vsm, DIRTY_VLOAD_BODY)
 
 #undef  RVV_Load_GuestState
 #undef  RVV_Store_Memory
@@ -352,6 +357,7 @@ RVV_VLdst(vse8,  vle8,  DIRTY_VSTORE_BODY)
 RVV_VLdst(vse16, vle16, DIRTY_VSTORE_BODY)
 RVV_VLdst(vse32, vle32, DIRTY_VSTORE_BODY)
 RVV_VLdst(vse64, vle64, DIRTY_VSTORE_BODY)
+RVV_VWholeLdst(vsm, vlm, DIRTY_VLOAD_BODY)
 
 #undef  RVV_Load_Memory
 #define RVV_Load_Memory     RVV_Strided_Load_Store_Memory
@@ -366,6 +372,185 @@ RVV_VSXLdst(vsse8,  vle8,  DIRTY_VSTORE_BODY)
 RVV_VSXLdst(vsse16, vle16, DIRTY_VSTORE_BODY)
 RVV_VSXLdst(vsse32, vle32, DIRTY_VSTORE_BODY)
 RVV_VSXLdst(vsse64, vle64, DIRTY_VSTORE_BODY)
+
+/* Indexed register load/store */
+#define RVV_Index_Load_Store_GuestState(ldst_macro, insn_ldst, nf, vm) \
+switch ((st->guest_vtype >> 3) & 0x07) {                               \
+   case 0:                                                             \
+      ldst_macro(insn_ldst##8, nf, vm);                                \
+      break;                                                           \
+   case 1:                                                             \
+      ldst_macro(insn_ldst##16, nf, vm);                               \
+      break;                                                           \
+   case 2:                                                             \
+      ldst_macro(insn_ldst##32, nf, vm);                               \
+      break;                                                           \
+   case 3:                                                             \
+      ldst_macro(insn_ldst##64, nf, vm);                               \
+      break;                                                           \
+   default:                                                            \
+      vassert(0);                                                      \
+}
+
+#define RVV_Index_Store_GuestState(insn_ldst, nf, vm)   \
+RVV_Index_Load_Store_GuestState(RVV_USX_Store_GuestState, insn_ldst, nf, vm)
+#define RVV_Index_Load_GuestState(insn_ldst, nf, vm)   \
+RVV_Index_Load_Store_GuestState(RVV_USX_Load_GuestState, insn_ldst, nf, vm)
+
+#undef  RVV_Store_GuestState
+#define RVV_Store_GuestState  RVV_Index_Store_GuestState
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)       RVV_Indexed_Load_Store_Memory(insn, vle8, vm)
+RVV_VSXLdst(vluxei8,  vse, DIRTY_VLOAD_BODY)
+RVV_VSXLdst(vloxei8,  vse, DIRTY_VLOAD_BODY)
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)       RVV_Indexed_Load_Store_Memory(insn, vle16, vm)
+RVV_VSXLdst(vluxei16, vse, DIRTY_VLOAD_BODY)
+RVV_VSXLdst(vloxei16, vse, DIRTY_VLOAD_BODY)
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)       RVV_Indexed_Load_Store_Memory(insn, vle32, vm)
+RVV_VSXLdst(vluxei32, vse, DIRTY_VLOAD_BODY)
+RVV_VSXLdst(vloxei32, vse, DIRTY_VLOAD_BODY)
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)       RVV_Indexed_Load_Store_Memory(insn, vle64, vm)
+RVV_VSXLdst(vluxei64, vse, DIRTY_VLOAD_BODY)
+RVV_VSXLdst(vloxei64, vse, DIRTY_VLOAD_BODY)
+
+#undef  RVV_Load_GuestState
+#define RVV_Load_GuestState  RVV_Index_Load_GuestState
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)      RVV_Indexed_Load_Store_Memory(insn, vle8, vm)
+RVV_VSXLdst(vsuxei8,  vle, DIRTY_VSTORE_BODY)
+RVV_VSXLdst(vsoxei8,  vle, DIRTY_VSTORE_BODY)
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)      RVV_Indexed_Load_Store_Memory(insn, vle16, vm)
+RVV_VSXLdst(vsuxei16, vle, DIRTY_VSTORE_BODY)
+RVV_VSXLdst(vsoxei16, vle, DIRTY_VSTORE_BODY)
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)      RVV_Indexed_Load_Store_Memory(insn, vle32, vm)
+RVV_VSXLdst(vsuxei32, vle, DIRTY_VSTORE_BODY)
+RVV_VSXLdst(vsoxei32, vle, DIRTY_VSTORE_BODY)
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)      RVV_Indexed_Load_Store_Memory(insn, vle64, vm)
+RVV_VSXLdst(vsuxei64, vle, DIRTY_VSTORE_BODY)
+RVV_VSXLdst(vsoxei64, vle, DIRTY_VSTORE_BODY)
+
+/* Segment load/store */
+
+/* Initialize host v8 reg vectors all in once. It is done by
+   (1) get the marginal bytes length between vd and v31 in guest state
+       to the variable trailing_bytes
+   (2) set the vl such that vl = min(trailing_bytes, 8 * host_VLENB)
+   (3) perform the load to init host v8 (possibly including v9 - 15)
+   After these three steps, host v8 is initialized by guest vd.
+   The active VL is returned, but can be optimized out if unused.
+*/
+#define RVV_Seg_PreLoadStore_Init(vsd)                  \
+   /* Initialize host vec regs using guest vec regs. */ \
+   /* Use maximal available bytes. */                   \
+   ULong __attribute__((unused)) act_vl = 0;            \
+   ULong __attribute__((unused)) prev_vl;               \
+   ULong __attribute__((unused)) prev_vtype;            \
+   ULong tailing_bytes = mask + (host_VLENB << 5) - v;  \
+   __asm__ __volatile__(                                \
+      "csrr\t%0,vl\n"                                   \
+      "csrr\t%1,vtype\n"                                \
+      "vsetvli\t%2,%3,e8,m8\n"                          \
+      "vle8.v\tv8,(%4)\n"                               \
+      "vsetvl\tx0,%0,%1\n"                              \
+      :"=r"(prev_vl), "=r"(prev_vtype), "=r"(act_vl)    \
+      :"r"(tailing_bytes), "r"(vsd##_offs)              \
+      :                                                 \
+   );
+
+/* RVV_Seg_Unit_Stride_Load_Memory and RVV_Seg_USX_Store_Guest_State
+   should always be paired due to the shared variable act_vl. */
+#define RVV_Seg_Unit_Stride_Load_Memory(insn, vm) \
+   RVV_Seg_PreLoadStore_Init(vd)                  \
+   RVV_Unit_Stride_Load_Store_Memory(insn, vm)
+
+#define RVV_Seg_USX_Store_GuestState(insn, nf, vm) \
+   __asm__ __volatile__ (                          \
+      "vsetvli\tx0,%0,e8,m8\n"                     \
+      "vse8.v\tv8,(%1)\t\n"                        \
+      "vsetvl\tx0,%2,%3\n"                         \
+      ::"r"(act_vl), "r" (vd_offs),                \
+        "r"(prev_vl), "r"(prev_vtype)              \
+      :);
+
+#undef  RVV_Load_Memory
+#undef  RVV_Store_GuestState
+#define RVV_Load_Memory       RVV_Seg_Unit_Stride_Load_Memory
+#define RVV_Store_GuestState  RVV_Seg_USX_Store_GuestState
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, e8,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, e16, )
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, e32, )
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, e64, )
+
+#define RVV_Seg_Strided_Load_Memory(insn, vm) \
+   RVV_Seg_PreLoadStore_Init(vd)              \
+   RVV_Strided_Load_Store_Memory(insn, vm)
+
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory       RVV_Seg_Strided_Load_Memory
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, e8,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, e16, )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, e32, )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, e64, )
+
+#define RVV_Seg_Indexed_Load_Memory(insn, insn_idx, vm) \
+   RVV_Seg_PreLoadStore_Init(vd)                        \
+   RVV_Indexed_Load_Store_Memory(insn, insn_idx, vm)
+
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)     RVV_Seg_Indexed_Load_Memory(insn, vle8,  vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vluxseg, DIRTY_VLOAD_BODY, ei8,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vloxseg, DIRTY_VLOAD_BODY, ei8,  )
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)     RVV_Seg_Indexed_Load_Memory(insn, vle16, vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vluxseg, DIRTY_VLOAD_BODY, ei16, )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vloxseg, DIRTY_VLOAD_BODY, ei16, )
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)     RVV_Seg_Indexed_Load_Memory(insn, vle32, vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vluxseg, DIRTY_VLOAD_BODY, ei32, )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vloxseg, DIRTY_VLOAD_BODY, ei32, )
+#undef  RVV_Load_Memory
+#define RVV_Load_Memory(insn, vm)     RVV_Seg_Indexed_Load_Memory(insn, vle64, vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vluxseg, DIRTY_VLOAD_BODY, ei64, )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vloxseg, DIRTY_VLOAD_BODY, ei64, )
+
+#undef  RVV_Load_GuestState
+#undef  RVV_Store_Memory
+#define RVV_Load_GuestState(insn, nf, vm)   RVV_Seg_PreLoadStore_Init(vs)
+#define RVV_Store_Memory                    RVV_Unit_Stride_Load_Store_Memory
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, e8,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, e16, )
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, e32, )
+RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, e64, )
+
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory              RVV_Strided_Load_Store_Memory
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, e8,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, e16, )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, e32, )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, e64, )
+
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)    RVV_Indexed_Load_Store_Memory(insn, vle8, vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsuxseg, DIRTY_VSTORE_BODY, ei8,   )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsoxseg, DIRTY_VSTORE_BODY, ei8,   )
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)    RVV_Indexed_Load_Store_Memory(insn, vle16, vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsuxseg, DIRTY_VSTORE_BODY, ei16,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsoxseg, DIRTY_VSTORE_BODY, ei16,  )
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)    RVV_Indexed_Load_Store_Memory(insn, vle32, vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsuxseg, DIRTY_VSTORE_BODY, ei32,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsoxseg, DIRTY_VSTORE_BODY, ei32,  )
+#undef  RVV_Store_Memory
+#define RVV_Store_Memory(insn, vm)    RVV_Indexed_Load_Store_Memory(insn, vle64, vm)
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsuxseg, DIRTY_VSTORE_BODY, ei64,  )
+RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vsoxseg, DIRTY_VSTORE_BODY, ei64,  )
 
 /* Whole register load/store */
 #undef  RVV_Load_Memory
@@ -390,7 +575,9 @@ RVV_VWholeLdst(vl8re32, vs8r, DIRTY_VLOAD_BODY)
 RVV_VWholeLdst(vl8re64, vs8r, DIRTY_VLOAD_BODY)
 
 #undef  RVV_Store_Memory
+#undef  RVV_Load_GuestState
 #define RVV_Store_Memory     RVV_Unit_Stride_Load_Store_Memory
+#define RVV_Load_GuestState  RVV_USX_Load_GuestState
 RVV_VWholeLdst(vs1r, vl1re8, DIRTY_VSTORE_BODY)
 RVV_VWholeLdst(vs2r, vl2re8, DIRTY_VSTORE_BODY)
 RVV_VWholeLdst(vs4r, vl4re8, DIRTY_VSTORE_BODY)

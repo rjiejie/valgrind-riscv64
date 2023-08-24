@@ -494,7 +494,7 @@ RVV_VSXLdst(vsuxe, vle, DIRTY_VSTORE_BODY)
    to vCPU registers from v13(v12), v11(v10), and v9(v8) by falling
    through case 3 to case 1.
 */
-#define RVV_Seg_LoadStore_GuestState(insn, nf, vm, v)    \
+#define RVV0p7_Seg_LoadStore_GuestState(insn, nf, vm, v) \
                                                          \
    ULong lmul = 0;                                       \
    __asm__ __volatile__(                                 \
@@ -570,7 +570,7 @@ RVV_VSXLdst(vsuxe, vle, DIRTY_VSTORE_BODY)
          break;                                          \
    }
 
-#define RVV_Seg_PreLoad_Init                             \
+#define RVV0p7_Seg_PreLoad_Init                          \
    /* Initialize host vec regs using guest vec regs. */  \
    /* Use maximal available bytes. */                    \
    ULong tailing_bytes = mask + (host_VLENB << 5) - v;   \
@@ -585,17 +585,17 @@ RVV_VSXLdst(vsuxe, vle, DIRTY_VSTORE_BODY)
    );
 
 /* Segment unit-stride load */
-#define RVV_Seg_Store_GuestState(insn, nf, vm)     \
-   RVV_Seg_LoadStore_GuestState(insn, nf, vm, vd)
+#define RVV0p7_Seg_Store_GuestState(insn, nf, vm)     \
+   RVV0p7_Seg_LoadStore_GuestState(insn, nf, vm, vd)
 
-#define RVV_Seg_Unit_Stride_Load_Memory(insn, vm)  \
-   RVV_Seg_PreLoad_Init                            \
+#define RVV0p7_Seg_Unit_Stride_Load_Memory(insn, vm)  \
+   RVV0p7_Seg_PreLoad_Init                            \
    RVV_Unit_Stride_Load_Store_Memory(insn, vm)
 
 #undef  RVV_Load_Memory
 #undef  RVV_Store_GuestState
-#define RVV_Load_Memory        RVV_Seg_Unit_Stride_Load_Memory
-#define RVV_Store_GuestState   RVV_Seg_Store_GuestState
+#define RVV_Load_Memory        RVV0p7_Seg_Unit_Stride_Load_Memory
+#define RVV_Store_GuestState   RVV0p7_Seg_Store_GuestState
 RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, b,  vse)
 RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, h,  vse)
 RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, w,  vse)
@@ -605,12 +605,12 @@ RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, wu, vse)
 RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vlseg, DIRTY_VLOAD_BODY, e,  vse)
 
 /* Segment unit-stride store */
-#define RVV_Seg_USX_Load_GuestState(insn, nf, vm) \
-   RVV_Seg_LoadStore_GuestState(vle, nf, vm, vs)
+#define RVV0p7_Seg_USX_Load_GuestState(insn, nf, vm) \
+   RVV0p7_Seg_LoadStore_GuestState(vle, nf, vm, vs)
 
 #undef  RVV_Load_GuestState
 #undef  RVV_Store_Memory
-#define RVV_Load_GuestState    RVV_Seg_USX_Load_GuestState
+#define RVV_Load_GuestState    RVV0p7_Seg_USX_Load_GuestState
 #define RVV_Store_Memory       RVV_Unit_Stride_Load_Store_Memory
 RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, b, vle)
 RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, h, vle)
@@ -618,12 +618,12 @@ RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, w, vle)
 RVV_VSEG_NF_DEFS(RVV_VSEGLdst, vsseg, DIRTY_VSTORE_BODY, e, vle)
 
 /* Segment strided load */
-#define RVV_Seg_Strided_Load_Memory(insn, vm)  \
-   RVV_Seg_PreLoad_Init                        \
+#define RVV0p7_Seg_Strided_Load_Memory(insn, vm)  \
+   RVV0p7_Seg_PreLoad_Init                        \
    RVV_Strided_Load_Store_Memory(insn, vm)
 
 #undef  RVV_Load_Memory
-#define RVV_Load_Memory        RVV_Seg_Strided_Load_Memory
+#define RVV_Load_Memory        RVV0p7_Seg_Strided_Load_Memory
 RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, b,  vse)
 RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, h,  vse)
 RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlsseg, DIRTY_VLOAD_BODY, w,  vse)
@@ -641,12 +641,12 @@ RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, w, vle)
 RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vssseg, DIRTY_VSTORE_BODY, e, vle)
 
 /* Segment indexed load */
-#define RVV_Seg_Indexed_Load_Memory(insn, vm)   \
-   RVV_Seg_PreLoad_Init                         \
+#define RVV0p7_Seg_Indexed_Load_Memory(insn, vm) \
+   RVV0p7_Seg_PreLoad_Init                       \
    RVV0p7_Indexed_Load_Store_Memory(insn, vm)
 
 #undef  RVV_Load_Memory
-#define RVV_Load_Memory        RVV_Seg_Indexed_Load_Memory
+#define RVV_Load_Memory        RVV0p7_Seg_Indexed_Load_Memory
 RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, b,  vse)
 RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, h,  vse)
 RVV_VSEG_NF_DEFS(RVV_VSEGSXLdst, vlxseg, DIRTY_VLOAD_BODY, w,  vse)

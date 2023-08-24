@@ -978,7 +978,14 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
    }
 
    if (mldst) {
-      /* TODO: mask load/store */
+      if (isLD) {
+         GETC_VLDST(vlm);
+         return True;
+      }
+      else {
+         GETC_VLDST(vsm);
+         return True;
+      }
       return False;
    }
 
@@ -988,19 +995,39 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
       if (RVV_is_normal_load(nf, isLD)) {
          switch (width) {
             case 1: {                 /* 8-bit load */
-               GETC_VLDST(vle8);
+               if (GET_UMOP() == 0b10000) {
+                  GETC_VLDST(vle8ff);
+               } else if (GET_UMOP() == 0b00000) {
+                  GETC_VLDST(vle8);
+               } else
+                  return False;
                return True;
             }
             case 2: {                 /* 16-bit load */
-               GETC_VLDST(vle16);
+               if (GET_UMOP() == 0b10000) {
+                  GETC_VLDST(vle16ff);
+               } else if (GET_UMOP() == 0b00000) {
+                  GETC_VLDST(vle16);
+               } else
+                  return False;
                return True;
             }
             case 4: {                 /* 32-bit load */
-               GETC_VLDST(vle32);
+               if (GET_UMOP() == 0b10000) {
+                  GETC_VLDST(vle32ff);
+               } else if (GET_UMOP() == 0b00000) {
+                  GETC_VLDST(vle32);
+               } else
+                  return False;
                return True;
             }
             case 8: {                 /* 64-bit load */
-               GETC_VLDST(vle64);
+               if (GET_UMOP() == 0b10000) {
+                  GETC_VLDST(vle64ff);
+               } else if (GET_UMOP() == 0b00000) {
+                  GETC_VLDST(vle64);
+               } else
+                  return False;
                return True;
             }
             default:
@@ -1010,10 +1037,22 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
 
       if (RVV_is_seg_load(nf, isLD)) { /* unit-stride segment load */
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e8);
+               return True;
+            }
+            case 2: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e16);
+               return True;
+            }
+            case 4: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e32);
+               return True;
+            }
+            case 8: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vlseg, e64);
+               return True;
+            }
             default:
                return False;
          }
@@ -1045,10 +1084,22 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
 
       if (RVV_is_seg_store(nf, isLD)) {  /* unit-stride segment store */
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e8);
+               return True;
+            }
+            case 2: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e16);
+               return True;
+            }
+            case 4: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e32);
+               return True;
+            }
+            case 8: {
+               VSEG_DIS_NF_CASES(GETC_VSEGLDST, vsseg, e64);
+               return True;
+            }
             default:
                return False;
          }
@@ -1083,10 +1134,22 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
 
       if (RVV_is_seg_load(nf, isLD)) { /* strided segment load */
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e8);
+               return True;
+            }
+            case 2: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e16);
+               return True;
+            }
+            case 4: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e32);
+               return True;
+            }
+            case 8: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vlsseg, e64);
+               return True;
+            }
             default:
                return False;
          }
@@ -1118,15 +1181,67 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
 
       if (RVV_is_seg_store(nf, isLD)) { /* strided segment store */
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e8);
+               return True;
+            }
+            case 2: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e16);
+               return True;
+            }
+            case 4: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e32);
+               return True;
+            }
+            case 8: {
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e64);
+               return True;
+            }
             default:
                return False;
          }
       }
       return False;
+   }
+
+#define INDEX_ORDER_UNORDER(GET_C_MACRO, ldst_prefix, mid, suffix) \
+   if (GET_MOP() == 0b11) {                                        \
+      GET_C_MACRO(ldst_prefix##ox##mid##suffix);                   \
+      return True;                                                 \
+   } else if (GET_MOP() == 0b01) {                                 \
+      GET_C_MACRO(ldst_prefix##ux##mid##suffix);                   \
+      return True;                                                 \
+   } else                                                          \
+      return False;
+
+#define INDEXED_NORMAL(GET_C_MACRO, ldst_prefix, suffix) \
+INDEX_ORDER_UNORDER(GET_C_MACRO, ldst_prefix, ei, suffix)
+
+#define VSEG_DIS_INDEX_NF_CASES(ldst_prefix, suffix)                          \
+   switch (nf) {                                                              \
+      case 2: {                                                               \
+         INDEX_ORDER_UNORDER(GETC_VXSEGLDST, ldst_prefix, seg##2##ei, suffix) \
+      }                                                                       \
+      case 3: {                                                               \
+         INDEX_ORDER_UNORDER(GETC_VXSEGLDST, ldst_prefix, seg##3##ei, suffix) \
+      }                                                                       \
+      case 4: {                                                               \
+         INDEX_ORDER_UNORDER(GETC_VXSEGLDST, ldst_prefix, seg##4##ei, suffix) \
+      }                                                                       \
+      case 5: {                                                               \
+         INDEX_ORDER_UNORDER(GETC_VXSEGLDST, ldst_prefix, seg##5##ei, suffix) \
+      }                                                                       \
+      case 6: {                                                               \
+         INDEX_ORDER_UNORDER(GETC_VXSEGLDST, ldst_prefix, seg##6##ei, suffix) \
+      }                                                                       \
+      case 7: {                                                               \
+         INDEX_ORDER_UNORDER(GETC_VXSEGLDST, ldst_prefix, seg##7##ei, suffix) \
+      }                                                                       \
+      case 8: {                                                               \
+         INDEX_ORDER_UNORDER(GETC_VXSEGLDST, ldst_prefix, seg##8##ei, suffix) \
+      }                                                                       \
+      default:                                                                \
+         return False;                                                        \
    }
 
    /* indexed */
@@ -1135,10 +1250,18 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
       /* indexed normal load */
       if (RVV_is_normal_load(nf, isLD)) {
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               INDEXED_NORMAL(GETC_VXLDST, vl, 8)
+            }
+            case 2: {
+               INDEXED_NORMAL(GETC_VXLDST, vl, 16)
+            }
+            case 4: {
+               INDEXED_NORMAL(GETC_VXLDST, vl, 32)
+            }
+            case 8: {
+               INDEXED_NORMAL(GETC_VXLDST, vl, 64)
+            }
             default:
                return False;
          }
@@ -1146,10 +1269,18 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
 
       if (RVV_is_seg_load(nf, isLD)) { /* indexed segment load */
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               VSEG_DIS_INDEX_NF_CASES(vl, 8);
+            }
+            case 2: {
+               VSEG_DIS_INDEX_NF_CASES(vl, 16);
+            }
+            case 4: {
+               VSEG_DIS_INDEX_NF_CASES(vl, 32);
+            }
+            case 8: {
+               VSEG_DIS_INDEX_NF_CASES(vl, 64);
+            }
             default:
                return False;
          }
@@ -1158,10 +1289,18 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
       /* indexed normal store */
       if (RVV_is_normal_store(nf, isLD)) {
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               INDEXED_NORMAL(GETC_VXLDST, vs, 8)
+            }
+            case 2: {
+               INDEXED_NORMAL(GETC_VXLDST, vs, 16)
+            }
+            case 4: {
+               INDEXED_NORMAL(GETC_VXLDST, vs, 32)
+            }
+            case 8: {
+               INDEXED_NORMAL(GETC_VXLDST, vs, 64)
+            }
             default:
                return False;
          }
@@ -1169,10 +1308,18 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
 
       if (RVV_is_seg_store(nf, isLD)) { /* indexed segment store */
          switch (width) {
-            case 1:
-            case 2:
-            case 4:
-            case 8:
+            case 1: {
+               VSEG_DIS_INDEX_NF_CASES(vs, 8);
+            }
+            case 2: {
+               VSEG_DIS_INDEX_NF_CASES(vs, 16);
+            }
+            case 4: {
+               VSEG_DIS_INDEX_NF_CASES(vl, 32);
+            }
+            case 8: {
+               VSEG_DIS_INDEX_NF_CASES(vl, 64);
+            }
             default:
                return False;
          }
@@ -1180,6 +1327,10 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
       return False;
    }
    return False;
+
+#undef INDEX_ORDER_UNORDER
+#undef INDEXED_NORMAL
+#undef VSEG_DIS_INDEX_NF_CASES
 }
 
 static Bool dis_RV64V_arith_OPI(/*MB_OUT*/ DisResult* dres,
