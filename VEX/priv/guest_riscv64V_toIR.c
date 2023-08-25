@@ -1319,10 +1319,10 @@ INDEX_ORDER_UNORDER(GET_C_MACRO, ldst_prefix, ei, suffix)
                VSEG_DIS_INDEX_NF_CASES(vs, 16);
             }
             case 4: {
-               VSEG_DIS_INDEX_NF_CASES(vl, 32);
+               VSEG_DIS_INDEX_NF_CASES(vs, 32);
             }
             case 8: {
-               VSEG_DIS_INDEX_NF_CASES(vl, 64);
+               VSEG_DIS_INDEX_NF_CASES(vs, 64);
             }
             default:
                return False;
