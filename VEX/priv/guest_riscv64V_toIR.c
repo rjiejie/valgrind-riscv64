@@ -2190,7 +2190,7 @@ static Bool dis_RV64V_arith_OPF(/*MB_OUT*/ DisResult* dres,
                fAddr       = GETA_VUnopV(vfmv);
 
                args = mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(offsetVReg(rs2)),
-                                    mkU64(offsetVReg(0)), mkU64(offsetVReg(0)), mkexpr(frm));
+                                    mkU64(offsetVReg(0)), mkU64(offsetVReg(0)), mkU64(0));
                d = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
                vex_bzero(&d->fxState, sizeof(d->fxState));
