@@ -1838,7 +1838,7 @@ static Bool dis_RV64V_arith_OPM(/*MB_OUT*/ DisResult* dres,
                */
                case 0b10001: {
                   IRTemp dret = newTemp(irsb, Ity_I64);
-                  if (GET_FUNCT6() == 0b10000) {
+                  if (rs1 == 0b10000) {
                      fName = mask ? GETN_VUnopV(vcpop) : GETN_VUnopV_M(vcpop);
                      fAddr = mask ? GETA_VUnopV(vcpop) : GETA_VUnopV_M(vcpop);
                   } else {
