@@ -834,8 +834,19 @@ static Bool dis_RV64V_cfg(/*MB_OUT*/ DisResult* dres,
       IRExpr* vtype  = getVType();
       IRExpr* lmul   = binop(Iop_And64, vtype, mkU64(0x07));
       IRExpr* sew    = binop(Iop_Shr64, binop(Iop_And64, vtype, mkU64(0x38)), mkU8(3));
-      IRExpr* vl_max = binop(Iop_Shr64, binop(Iop_Shl64, mkU64(host_VLENB), unop(Iop_64to8, lmul)),
+
+      /* handle factional LMUL */
+      IRExpr* lmul_fbit  = binop(Iop_And64, binop(Iop_Shr64, vtype, mkU8(2)), mkU64(0x01));
+      IRExpr* lmul_shift = binop(Iop_Sub64, mkU64(8), lmul);
+      IRExpr* vl_frac    = binop(Iop_Shr64, binop(Iop_Shr64, mkU64(host_VLENB),
+                                                  unop(Iop_64to8, lmul_shift)),
+                                 unop(Iop_64to8, sew));
+      /* integer lmul generated VL_MAX */
+      IRExpr* vl_int = binop(Iop_Shr64, binop(Iop_Shl64, mkU64(host_VLENB), unop(Iop_64to8, lmul)),
                              unop(Iop_64to8, sew));
+      /* choose the right one */
+      IRExpr* vl_max = IRExpr_ITE(unop(Iop_64to1, lmul_fbit), vl_frac, vl_int);
+
       if (rs1 == 0 && rd == 0)
          return True;
       if (rs1 == 0)
