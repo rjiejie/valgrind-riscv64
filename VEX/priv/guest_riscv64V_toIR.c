@@ -904,7 +904,7 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
    UInt mew   = GET_MEW();
    UInt sew   = extract_sew(guest_VFLAG);
    UInt lmul  = extract_lmul(guest_VFLAG);
-   Bool whole = GET_UMOP() == 0b01000;   /* indicator for RVV 1.0 whole register load/store */
+   Bool whole = (GET_UMOP() == 0b01000) && RVV_is_unitstride(insn, isLD);
    Bool mldst = GET_UMOP() == 0b01011;   /* indicator for RVV 1.0 mask register load/store */
 
    switch (GET_FUNCT3()) {
