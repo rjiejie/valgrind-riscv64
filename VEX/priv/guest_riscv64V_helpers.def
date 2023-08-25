@@ -343,9 +343,9 @@ RVV_VLdst(vle8,  vse8,  DIRTY_VLOAD_BODY)
 RVV_VLdst(vle16, vse16, DIRTY_VLOAD_BODY)
 RVV_VLdst(vle32, vse32, DIRTY_VLOAD_BODY)
 RVV_VLdst(vle64, vse64, DIRTY_VLOAD_BODY)
-RVV_VLdst(vle8ff,  vse64, DIRTY_VLOAD_BODY)
-RVV_VLdst(vle16ff, vse64, DIRTY_VLOAD_BODY)
-RVV_VLdst(vle32ff, vse64, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle8ff,  vse8, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle16ff, vse16, DIRTY_VLOAD_BODY)
+RVV_VLdst(vle32ff, vse32, DIRTY_VLOAD_BODY)
 RVV_VLdst(vle64ff, vse64, DIRTY_VLOAD_BODY)
 RVV_VWholeLdst(vlm, vsm, DIRTY_VLOAD_BODY)
 
@@ -357,7 +357,7 @@ RVV_VLdst(vse8,  vle8,  DIRTY_VSTORE_BODY)
 RVV_VLdst(vse16, vle16, DIRTY_VSTORE_BODY)
 RVV_VLdst(vse32, vle32, DIRTY_VSTORE_BODY)
 RVV_VLdst(vse64, vle64, DIRTY_VSTORE_BODY)
-RVV_VWholeLdst(vsm, vlm, DIRTY_VLOAD_BODY)
+RVV_VWholeLdst(vsm, vlm, DIRTY_VSTORE_BODY)
 
 #undef  RVV_Load_Memory
 #define RVV_Load_Memory     RVV_Strided_Load_Store_Memory
