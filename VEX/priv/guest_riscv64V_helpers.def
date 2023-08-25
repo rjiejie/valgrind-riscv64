@@ -449,8 +449,8 @@ RVV_VSXLdst(vsoxei64, vle, DIRTY_VSTORE_BODY)
    /* Initialize host vec regs using guest vec regs. */ \
    /* Use maximal available bytes. */                   \
    ULong __attribute__((unused)) act_vl = 0;            \
-   ULong __attribute__((unused)) prev_vl;               \
-   ULong __attribute__((unused)) prev_vtype;            \
+   ULong __attribute__((unused)) prev_vl = 0;           \
+   ULong __attribute__((unused)) prev_vtype = 0;        \
    ULong tailing_bytes = mask + (host_VLENB << 5) - v;  \
    __asm__ __volatile__(                                \
       "csrr\t%0,vl\n"                                   \
@@ -458,7 +458,7 @@ RVV_VSXLdst(vsoxei64, vle, DIRTY_VSTORE_BODY)
       "vsetvli\t%2,%3,e8,m8\n"                          \
       "vle8.v\tv8,(%4)\n"                               \
       "vsetvl\tx0,%0,%1\n"                              \
-      :"=r"(prev_vl), "=r"(prev_vtype), "=r"(act_vl)    \
+      :"+r"(prev_vl), "+r"(prev_vtype), "=r"(act_vl)    \
       :"r"(tailing_bytes), "r"(vsd##_offs)              \
       :                                                 \
    );
