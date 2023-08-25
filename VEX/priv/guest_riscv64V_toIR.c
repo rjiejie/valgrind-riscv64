@@ -1186,19 +1186,19 @@ static Bool dis_RV64V_ldst(/*MB_OUT*/ DisResult* dres,
       if (RVV_is_seg_store(nf, isLD)) { /* strided segment store */
          switch (width) {
             case 1: {
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e8);
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e8);
                return True;
             }
             case 2: {
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e16);
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e16);
                return True;
             }
             case 4: {
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e32);
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e32);
                return True;
             }
             case 8: {
-               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vsseg, e64);
+               VSEG_DIS_NF_CASES(GETC_VSSEGLDST, vssseg, e64);
                return True;
             }
             default:
