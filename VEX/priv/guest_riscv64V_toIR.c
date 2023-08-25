@@ -1494,16 +1494,16 @@ static Bool dis_RV64V_arith_OPI(/*MB_OUT*/ DisResult* dres,
              */
             switch (rs1) {
                case 0:
-                  GETC_VUnopOPI(vmv1r, NIL, NIL, V);
+                  GETC_VUnopOP_T(vmv1r, NIL, NIL, V, GETR_VBinopOPI, GETV_VopUnknow, lmul);
                   return True;
                case 1:
-                  GETC_VUnopOPI(vmv2r, NIL, NIL, V);
+                  GETC_VUnopOP_T(vmv2r, NIL, NIL, V, GETR_VBinopOPI, GETV_VopUnknow, lmul);
                   return True;
                case 3:
-                  GETC_VUnopOPI(vmv4r, NIL, NIL, V);
+                  GETC_VUnopOP_T(vmv4r, NIL, NIL, V, GETR_VBinopOPI, GETV_VopUnknow, lmul);
                   return True;
                case 7:
-                  GETC_VUnopOPI(vmv8r, NIL, NIL, V);
+                  GETC_VUnopOP_T(vmv8r, NIL, NIL, V, GETR_VBinopOPI, GETV_VopUnknow, lmul);
                   return True;
             }
             return False;
