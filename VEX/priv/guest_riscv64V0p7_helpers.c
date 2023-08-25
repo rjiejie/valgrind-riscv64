@@ -85,7 +85,7 @@
    RVV_Pop()
 
 #undef  RVV_WholeLD1
-#define RVV_WholeLD1                \
+#define RVV_WholeLD1(vs2)           \
    RVV_Push()                       \
    __asm__ __volatile__(            \
       "vle.v\tv8,(%0)\n\t"          \
@@ -96,7 +96,7 @@
    RVV_Pop()
 
 #undef  RVV_WholeLD
-#define RVV_WholeLD                 \
+#define RVV_WholeLD(vs2,vs1)        \
    RVV_Push()                       \
    __asm__ __volatile__(            \
       "vle.v\tv8,(%0)\n\t"          \

@@ -253,7 +253,7 @@ extern ULong guest_VFLAG;
       : "r"(vd)                     \
       :);
 
-#define RVV_WholeLD1                \
+#define RVV_WholeLD1(vs2)           \
    __asm__ __volatile__(            \
       "vl8r.v\tv8,(%0)\n\t"         \
       "vl8r.v\tv16,(%1)\n\t"        \
@@ -261,7 +261,7 @@ extern ULong guest_VFLAG;
       : "r"(vd), "r"(vs2)           \
       :);
 
-#define RVV_WholeLD                 \
+#define RVV_WholeLD(vs2,vs1)        \
    __asm__ __volatile__(            \
       "vl8r.v\tv8,(%0)\n\t"         \
       "vl8r.v\tv16,(%1)\n\t"        \
@@ -293,7 +293,7 @@ extern ULong guest_VFLAG;
       vs1 += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      RVV_WholeLD                                           \
+      RVV_WholeLD(vs2,vs1)                                  \
                                                             \
       imask                                                 \
                                                             \
@@ -343,7 +343,7 @@ extern ULong guest_VFLAG;
       vs2 += (ULong)st;                                     \
       mask += (ULong)st;                                    \
                                                             \
-      RVV_WholeLD1                                          \
+      RVV_WholeLD1(vs2)                                     \
                                                             \
       imask                                                 \
                                                             \
