@@ -1857,7 +1857,7 @@ static Bool dis_RV64V_arith_OPM(/*MB_OUT*/ DisResult* dres,
                      fAddr = mask ? GETA_VUnopV(vfirst) : GETA_VUnopV_M(vfirst);
                   }
 
-                  args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetVReg(rd)), mkU64(offsetVReg(rs2)),
+                  args = mkIRExprVec_5(IRExpr_GSPTR(), mkU64(offsetIReg64(rd)), mkU64(offsetVReg(rs2)),
                                        mkU64(offsetVReg(0)), mkU64(offsetVReg(0)));
                   d = unsafeIRDirty_1_N(dret, 0, fName, fAddr, args);
 
