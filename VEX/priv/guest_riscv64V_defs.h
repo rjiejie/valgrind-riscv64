@@ -762,6 +762,7 @@ RVV_UnopOPI_FT_VAR(vid, V, V)
 #define RVV_REGO offsetIReg64
 #define RVV_REGN nameIReg
 #define RVV_PutVxsat putVxsat
+#define RVV_GetVxrm  getVxrm
 
 /* Binop */
 #define GETC_VBinopOP_T(insn, V, X, I, ARGS, VARIANT, LMUL)                    \
@@ -805,8 +806,7 @@ RVV_UnopOPI_FT_VAR(vid, V, V)
 
 // SAT
 #define GETR_VBinopSAT()                                                       \
-   assign(irsb, xrm,                                                           \
-          binop(Iop_And32, binop(Iop_Shr32, getFCSR(), mkU8(9)), mkU32(3)));   \
+   assign(irsb, xrm, RVV_GetVxrm());                                           \
    args = mkIRExprVec_6(IRExpr_GSPTR(), mkU64(offsetVReg(rd)),                 \
                         mkU64(offsetVReg(rs2)), mkU64(temp),                   \
                         mkU64(offsetVReg(0)), mkexpr(xrm));

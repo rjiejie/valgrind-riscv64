@@ -34,8 +34,11 @@
 #define GETA_VOp(insn, type, op, mask) RVV0p7_##type##_##insn##op##mask
 
 #pragma push_macro("RVV_PutVxsat")
+#pragma push_macro("RVV_GetVxrm")
 #undef  RVV_PutVxsat
 #define RVV_PutVxsat putVxsat0p7
+#undef  RVV_GetVxrm
+#define RVV_GetVxrm  getVxrm0p7
 
 #pragma push_macro("GET_MOP")
 #undef  GET_MOP
@@ -1772,6 +1775,7 @@ ExitBB:
 }
 
 #pragma pop_macro("RVV_PutVxsat")
+#pragma pop_macro("RVV_GetVxrm")
 #pragma pop_macro("GETN_VOp")
 #pragma pop_macro("GETA_VOp")
 #pragma pop_macro("GET_MOP")
