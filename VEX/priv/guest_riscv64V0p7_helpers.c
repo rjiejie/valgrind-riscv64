@@ -124,10 +124,10 @@
 /*--- OPI special function definitions                        ---*/
 /*---------------------------------------------------------------*/
 
-UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
-                      ULong vd, ULong vs2, ULong vs1, ULong mask) {
+ULong GETA_VUnopV(vid)(VexGuestRISCV64State *st,
+                       ULong vd, ULong vs2, ULong vs1, ULong mask) {
    RVV_Config();
-   UInt ret = 0;
+   ULong ret = 0;
    vd += (ULong)st;
    __asm__ __volatile__(
       "vle.v\tv8,(%0)\n\t"
@@ -139,10 +139,10 @@ UInt GETA_VUnopV(vid)(VexGuestRISCV64State *st,
       : "memory");
    return ret;
 }
-UInt GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
-                        ULong vd, ULong vs2, ULong vs1, ULong mask) {
+ULong GETA_VUnopV_M(vid)(VexGuestRISCV64State *st,
+                         ULong vd, ULong vs2, ULong vs1, ULong mask) {
    RVV_Config();
-   UInt ret = 0;
+   ULong ret = 0;
    vd += (ULong)st;
    mask += (ULong)st;
    RVV_Mask()

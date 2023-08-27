@@ -286,7 +286,7 @@ extern ULong guest_VFLAG;
 #define RVV_BinopVV_Tpl(insn, vd, vs2, vs1, imask, mreg)    \
    do {                                                     \
       RVV_Config();                                         \
-      UInt ret = 0;                                         \
+      ULong ret = 0;                                        \
                                                             \
       vd  += (ULong)st;                                     \
       vs2 += (ULong)st;                                     \
@@ -337,7 +337,7 @@ extern ULong guest_VFLAG;
 #define RVV_BinopXIF_Generic(insn, vd, vs2, vs1, imask, mreg, sopc, treg, itpl)\
    do {                                                     \
       RVV_Config();                                         \
-      UInt ret = 0;                                         \
+      ULong ret = 0;                                        \
                                                             \
       vd  += (ULong)st;                                     \
       vs2 += (ULong)st;                                     \
@@ -387,7 +387,7 @@ extern ULong guest_VFLAG;
 #define RVV_UnopXIF_Tpl(insn, vd, vs2, vs1, imask, mreg, sopc, treg)\
    do {                                                     \
       RVV_Config();                                         \
-      UInt ret = 0;                                         \
+      ULong ret = 0;                                        \
                                                             \
       vd  += (ULong)st;                                     \
       mask += (ULong)st;                                    \
@@ -470,11 +470,11 @@ extern ULong guest_VFLAG;
    RVV_##vi##_FT(insn)
 
 #define RVV_FT_VAR_T(type, name, insn, op, body, args...)                      \
-   UInt GETA_V##type##op##_M(name)(VexGuestRISCV64State * st, ##args)          \
+   ULong GETA_V##type##op##_M(name)(VexGuestRISCV64State * st, ##args)         \
    {                                                                           \
       RVV_##type##body##_M(VInsn##op(insn), vd, vs2, vs1);                     \
    }                                                                           \
-   UInt GETA_V##type##op(name)(VexGuestRISCV64State * st, ##args)              \
+   ULong GETA_V##type##op(name)(VexGuestRISCV64State * st, ##args)             \
    {                                                                           \
       RVV_##type##body(VInsn##op(insn), vd, vs2, vs1);                         \
    }
@@ -720,8 +720,8 @@ ldst_macro(insn_pri_prefix##8##insn_pri_suffix, insn_sec, body, 8)
 
 #undef  RVV_FT_VAR_T
 #define RVV_FT_VAR_T(type, name, insn, op, body, args...) \
-    UInt GETA_V##type##op##_M(name)(VexGuestRISCV64State * st, ##args);  \
-    UInt GETA_V##type##op(name)(VexGuestRISCV64State * st, ##args);      \
+    ULong GETA_V##type##op##_M(name)(VexGuestRISCV64State * st, ##args);  \
+    ULong GETA_V##type##op(name)(VexGuestRISCV64State * st, ##args);      \
 
 #include "guest_riscv64V_helpers.def"
 RVV_UnopOPI_FT_VAR(vid, V, V)
