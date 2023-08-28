@@ -902,74 +902,67 @@ static Bool VG_(parse_cpuinfo)(void)
 /* Check to see cpu or march info, and if so auto-enable
    feature implementation. */
 
+/* To probe RVV extension, we register a sigill handler 
+   and attemp to execute vsetvli RVV instruction on the host.
+   If the host has no RVV extension, it will trigger a SIGILL
+   fault and trap into our handler. At this point, we long jump
+   back to the check routine and return False. If vsetvli is
+   successfully executed, then the host VLENB is acquired and
+   saved in act_vlenb. */
+static VG_MINIMAL_JMP_BUF(rvv_existence_check_jmpbuf);
+
+static void rvv_sigill_handler(int signo) {
+   if (signo == VKI_SIGILL) {
+      VG_MINIMAL_LONGJMP(rvv_existence_check_jmpbuf);
+   }
+}
+
+static Bool RVV_check_vector_extension(ULong *act_vlenb /* OUT */)
+{
+   vki_sigaction_toK_t new_act;
+   vki_sigaction_fromK_t old_act;
+   VG_(sigaction)(VKI_SIGILL, NULL, &old_act);
+   new_act = old_act;
+   new_act.ksa_handler = rvv_sigill_handler;
+   VG_(sigaction)(VKI_SIGILL, &new_act, NULL);
+
+   if (VG_MINIMAL_SETJMP(rvv_existence_check_jmpbuf) != 0) {
+      /* We fall into a sigill, meaning that there is no RVV extension,
+         restore previous sigaction and return. */
+      VG_(sigaction)(VKI_SIGILL, &old_act, NULL);
+      *act_vlenb = 0;
+      return False;
+   }
+
+   ULong vlenb = 0;
+   /* Attemp to get VLENB, if the cpu has no RVV extension,
+      we will go to fault catcher. */
+   __asm__ __volatile__("vsetvli\t%0,x0,e8,m1\n\t" : "=r"(vlenb) : :);
+   *act_vlenb = vlenb;
+   VG_(sigaction)(VKI_SIGILL, &old_act, NULL);
+   return True;
+}
+
 static Bool VG_(parse_cpuinfo)(void)
 {
-   const char* search_isa_str = "\nisa\t";
-
-   Int    n, fh;
-   SysRes fd;
-   SizeT  num_bytes, file_buf_size;
-   HChar  *file_buf;
-
-   /* Slurp contents of /proc/cpuinfo into FILE_BUF */
-   fd = VG_(open)( "/proc/cpuinfo", 0, VKI_S_IRUSR );
-   if ( sr_isError(fd) ) return False;
-
-   fh  = sr_Res(fd);
-
-   /* Determine the size of /proc/cpuinfo.
-      Work around broken-ness in /proc file system implementation.
-      fstat returns a zero size for /proc/cpuinfo although it is
-      claimed to be a regular file. */
-   num_bytes = 0;
-   file_buf_size = 1000;
-   file_buf = VG_(malloc)("cpuinfo", file_buf_size + 1);
-   while (42) {
-      n = VG_(read)(fh, file_buf, file_buf_size);
-      if (n < 0) break;
-
-      num_bytes += n;
-      if (n < file_buf_size) break;  /* reached EOF */
+   ULong  vlenb = 0;
+   Bool has_rvv = False;
+   has_rvv = RVV_check_vector_extension(&vlenb);
+   vai.regLENB = vlenb;
+   if (has_rvv) {
+      /* Further determine RVV version */
+      ULong res_vl = 0;
+      __asm__ __volatile__(
+          "addi\tt0,x0,0x07\n"
+          "vsetvl\t%0,x0,t0\n"
+      :"=r"(res_vl)
+      ::"t0");
+      /* On RVV 0.7.1, res_vl = 4 * VLENB 
+         On RVV 1.0,   res_vl = VLENB / 2
+      */
+      if (res_vl == (vlenb << 2))
+        vai.riscv_misa |= 1 << 21;
    }
-
-   if (n < 0) num_bytes = 0;   /* read error; ignore contents */
-
-   if (num_bytes > file_buf_size) {
-      VG_(free)( file_buf );
-      VG_(lseek)( fh, 0, VKI_SEEK_SET );
-      file_buf = VG_(malloc)( "cpuinfo", num_bytes + 1 );
-      n = VG_(read)( fh, file_buf, num_bytes );
-      if (n < 0) num_bytes = 0;
-   }
-
-   file_buf[num_bytes] = '\0';
-   VG_(close)(fh);
-
-   /* Parse file */
-   HChar *key = NULL;
-   if ((key = VG_(strstr)(file_buf, search_isa_str)) != NULL) {
-      key = VG_(strchr)(key, ':');
-      for (key++; *key != '\n'; key++) {
-         if (*key == 'v') {
-             ULong vlenb;
-             __asm__ __volatile__("vsetvli\t%0,x0,e8,m1\n\t" : "=r"(vlenb) : :);
-             vai.regLENB = vlenb;
-             ULong res_vl = 0;
-             __asm__ __volatile__(
-                 "addi\tt0,x0,0x07\n"
-                 "vsetvl\t%0,x0,t0\n"
-             :"=r"(res_vl)
-             ::"t0");
-             /* On RVV 0.7.1, res_vl = 4 * VLENB 
-                On RVV 1.0,   res_vl = VLENB / 2
-             */
-             if (res_vl == (vlenb << 2))
-               vai.riscv_misa |= 1 << 21;
-         }
-      }
-   }
-
-   VG_(free)(file_buf);
    return True;
 }
 
