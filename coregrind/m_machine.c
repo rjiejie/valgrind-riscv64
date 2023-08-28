@@ -954,7 +954,16 @@ static Bool VG_(parse_cpuinfo)(void)
              ULong vlenb;
              __asm__ __volatile__("vsetvli\t%0,x0,e8,m1\n\t" : "=r"(vlenb) : :);
              vai.regLENB = vlenb;
-             if (VG_(strstr)(file_buf, "0.7.1\n"))
+             ULong res_vl = 0;
+             __asm__ __volatile__(
+                 "addi\tt0,x0,0x07\n"
+                 "vsetvl\t%0,x0,t0\n"
+             :"=r"(res_vl)
+             ::"t0");
+             /* On RVV 0.7.1, res_vl = 4 * VLENB 
+                On RVV 1.0,   res_vl = VLENB / 2
+             */
+             if (res_vl == (vlenb << 2))
                vai.riscv_misa |= 1 << 21;
          }
       }
