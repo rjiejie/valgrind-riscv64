@@ -20,6 +20,7 @@ The following ISA base and extensions are currently supported:
 | RV64Zfh      | Half-precision floating-point     |   ALL   |          |
 | RV64Xthead   | T-THEAD vendor extension for RV64G|   ALL   | (7)      |
 | RV64V0p7     | Vector 0.7.1                      |   ALL   | (8)      |
+| RV64V        | Vector 1.0                        |   ALL   | (9)      |
 
 Notes:
 (1) MULHSU is not recognized.
@@ -30,6 +31,7 @@ Notes:
 (6) FENCE.I is not recognized.
 (7) See https://github.com/T-head-Semi/thead-extension-spec
 (8) See https://github.com/riscv/riscv-v-spec/releases/tag/0.7.1
+(9) See https://github.com/riscv/riscv-v-spec/releases/tag/v1.0
 
 
 Implementation tidying-up/TODO notes
